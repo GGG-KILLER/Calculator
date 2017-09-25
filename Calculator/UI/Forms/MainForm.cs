@@ -3,56 +3,68 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
 using Calculator.Core;
+using Calculator.Core.Tokens;
+using System.Collections.Generic;
+using GUtils.Multithreading;
+using Calculator.Core.Nodes;
 
 namespace Calculator.UI.Forms
 {
-    public partial class MainForm : Form
-    {
-        public MainForm ( )
-        {
-            InitializeComponent ( );
-        }
+	public partial class MainForm : Form
+	{
+		public MainForm ( )
+		{
+			InitializeComponent ( );
+			ConstantValue.Values["pi"] = Math.PI;
+			ConstantValue.Values["Pi"] = Math.PI;
+			ConstantValue.Values["pI"] = Math.PI;
+			ConstantValue.Values["PI"] = Math.PI;
+		}
 
-        private void BtnEquals_Click ( Object sender, EventArgs e )
-        {
-            this.listBox1.Items.Clear ( );
-            this.listBox2.Items.Clear ( );
-            var swPart = new Stopwatch ( );
-            var swTotal = new Stopwatch ( );
+		private void BtnEquals_Click ( Object sender, EventArgs e )
+		{
+			this.listBox1.Items.Clear ( );
+			this.listBox2.Items.Clear ( );
+			var swPart = new Stopwatch ( );
+			var swTotal = new Stopwatch ( );
 
-            swTotal.Start ( );
-            swPart.Start ( );
-            var tokens = Tokenizer.Tokenize ( this.txtExpression.Text );
-            swPart.Stop ( );
-            swTotal.Stop ( );
+			swTotal.Start ( );
+			swPart.Start ( );
+			IEnumerable<Token> tokens = Lexer.Process ( this.txtExpression.Text, Console.WriteLine );
+			swPart.Stop ( );
+			swTotal.Stop ( );
 
-            this.txtTimeTokenizing.Text = swPart.ElapsedMilliseconds + "ms";
-            this.listBox1.Items.AddRange ( tokens.Select ( token => token.GetType ( ).FullName )
-                .ToArray ( ) );
+			this.txtTimeTokenizing.Text = swPart.ElapsedMilliseconds + "ms";
+			this.listBox1.Items.AddRange ( tokens.ToArray ( ) );
 
-            try
-            {
-                swTotal.Start ( );
-                swPart.Restart ( );
+			try
+			{
+				swTotal.Start ( );
+				swPart.Restart ( );
+				var parser = new Parser ( tokens );
+				ASTNode exp = parser.ParseExpression ( Console.WriteLine );
+				if ( exp != null )
+				{
+					this.listBox2.Items.Add ( exp );
+					this.listBox2.Items.Add ( exp.Resolve ( ) );
+				}
+				else
+					this.listBox2.Items.Add ( "Expression null." );
+			}
+			//catch ( Exception ex )
+			//{
+			//	this.listBox2.Items.Add ( $"Invalid expression: {ex.GetType ( ).Name}" );
+			//	this.listBox2.Items.Add ( ex.Message );
+			//	this.listBox2.Items.AddRange ( ex.StackTrace.Split ( '\n' ) );
+			//}
+			finally
+			{
+				swPart.Stop ( );
+				swTotal.Stop ( );
+			}
 
-                this.listBox2.Items.Add ( String.Join ( " ", tokens ) );
-                foreach ( System.Collections.Generic.IEnumerable<Core.Tokens.Token> partial in new Lexer ( tokens )
-                    .ProgressivelySolve ( ) )
-                    this.listBox2.Items.Add ( String.Join ( " ", partial ) );
-            }
-            catch ( Exception ex )
-            {
-                this.listBox2.Items.Add ( $"Invalid expression: {ex.GetType ( ).Name}" );
-                this.listBox2.Items.Add ( ex.Message );
-            }
-            finally
-            {
-                swPart.Stop ( );
-                swTotal.Stop ( );
-            }
-
-            this.txtTimeLexing.Text = swPart.ElapsedMilliseconds + "ms";
-            this.txtTimeTotal.Text = swTotal.ElapsedMilliseconds + "ms";
-        }
-    }
+			this.txtTimeLexing.Text = swPart.ElapsedMilliseconds + "ms";
+			this.txtTimeTotal.Text = swTotal.ElapsedMilliseconds + "ms";
+		}
+	}
 }

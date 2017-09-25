@@ -2,63 +2,36 @@
 
 namespace Calculator.Core.Tokens
 {
-    internal class Token
-    {
-        /// <summary>
-        /// A constant Token
-        /// </summary>
-        internal class Constant : Token
-        {
-            public Double Value { get; protected set; }
+	public enum TokenType
+	{
+		Number,
+		Identifier,
+		LParen,
+		RParen,
+		BinaryOp,
+		UnaryOp
+	}
 
-            /// <summary>
-            /// A constant number
-            /// </summary>
-            internal class Number : Constant
-            {
-                public Number ( Double Value )
-                {
-                    this.Value = Value;
-                }
+	public class Token
+	{
+		public readonly TokenType Type;
+		public readonly String Raw;
 
-                public override String ToString ( ) => $"Number<{Value}>";
-            }
+		public Token ( TokenType Type, String Raw )
+		{
+			this.Type = Type;
+			this.Raw = Raw;
+		}
 
-            internal class MathConstant : Constant
-            {
-                public MathConstant ( String name )
-                {
-                    switch ( name.ToLower ( ) )
-                    {
-                        case "pi":
-                        case "\u03C0":
-                        case "\u03A0":
-                            this.Value = Math.PI;
-                            break;
+		public Boolean IsPossibleValue ( )
+		{
+			return this.Type == TokenType.Number || this.Type == TokenType.RParen ||
+				   this.Type == TokenType.Identifier;
+		}
 
-                        default:
-                            throw new Exception ( "Unknown constant " + name );
-                    }
-                }
-
-                public override String ToString ( ) => $"Constant<{Value}>";
-            }
-        }
-
-        /// <summary>
-        /// An operator token
-        /// </summary>
-        internal class Operator : Token
-        {
-            /// <summary>
-            /// The sum operator
-            /// </summary>
-            internal class Plus : Operator { public override String ToString ( ) => "+"; }
-
-            /// <summary>
-            /// The subtraction operator
-            /// </summary>
-            internal class Minus : Operator { public override String ToString ( ) => "-"; }
-        }
-    }
+		public override String ToString ( )
+		{
+			return $"{this.Type}<{this.Raw}>";
+		}
+	}
 }
