@@ -9,9 +9,11 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Calculator</RootNamespace>
     <AssemblyName>Calculator</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkProfile />
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -26,7 +28,6 @@
     <PublisherName>GGG KILLER</PublisherName>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -63,10 +64,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\Extensions\ActionSwitch.cs" />
+    <Compile Include="Core\Nodes\AdditionOperatorExpression.cs" />
+    <Compile Include="Core\Nodes\ASTNode.cs" />
     <Compile Include="Core\Lexer.cs" />
-    <Compile Include="Core\Tokenizer.cs" />
+    <Compile Include="Core\Nodes\BinaryOperatorExpression.cs" />
+    <Compile Include="Core\Nodes\IdentifierValue.cs" />
+    <Compile Include="Core\Nodes\NumberLiteral.cs" />
+    <Compile Include="Core\Nodes\ParenthesizedExpression.cs" />
+    <Compile Include="Core\Nodes\SubtractionOperatorExpression.cs" />
+    <Compile Include="Core\Nodes\ValueExpression.cs" />
+    <Compile Include="Core\Parser.cs" />
+    <Compile Include="Core\Sign.cs" />
     <Compile Include="Core\Tokens\Token.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\Forms\MainForm.cs">
@@ -114,7 +124,17 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Core\EBFN_Grammar.txt" />
+    <None Include="Core\grammar.ebnf" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\.NET-Standard\GUtils.NET\GUtils.Windows.Forms\GUtils.Windows.Forms.csproj">
+      <Project>{9f88270e-5508-41df-a845-5775c5bc7b98}</Project>
+      <Name>GUtils.Windows.Forms</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GUtils\GUtils.Text\GUtils.Text.csproj">
+      <Project>{9CEFEEEE-F578-4D04-8B7B-250EFF30AB47}</Project>
+      <Name>GUtils.Text</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
