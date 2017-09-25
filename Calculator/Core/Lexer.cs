@@ -1,100 +1,118 @@
-﻿using System;
+﻿using Calculator.Core.Tokens;
+using System;
 using System.Collections.Generic;
-using Calculator.Core.Tokens;
+using System.IO;
+using System.Text;
 
 namespace Calculator.Core
 {
-    internal class Lexer
-    {
-        private readonly List<Token> Tokens;
+	internal class Lexer
+	{
+		private readonly GUtils.Text.StringReader _reader;
+		private Token LastToken;
+		private List<Token> Tokens;
 
-        public Lexer ( IEnumerable<Token> tokens )
-        {
-            this.Tokens = new List<Token> ( tokens );
-        }
+		public Lexer ( String input )
+		{
+			this._reader = new GUtils.Text.StringReader ( input );
+		}
 
-        public void SubSolve ( )
-        {
-            Expect<Token.Constant, Token.Operator, Token.Constant> ( );
+		public static IEnumerable<Token> Process ( String Input, Action<String> Log )
+		{
+			return new Lexer ( Input )
+				.Process ( Log );
+		}
 
-            // The sum operation
-            if ( IsNext<Token.Constant, Token.Operator.Plus> ( ) )
-                this.Tokens.Insert ( 0, new Token.Constant.Number (
-                    Read<Token.Constant> ( ).Value +
-                    Read<Token.Constant> ( 1 ).Value ) );
-            // The subtraction operation
-            else if ( IsNext<Token.Constant, Token.Operator.Minus> ( ) )
-                this.Tokens.Insert ( 0, new Token.Constant.Number (
-                    Read<Token.Constant> ( ).Value -
-                    Read<Token.Constant> ( 1 ).Value ) );
-        }
+		private IEnumerable<Token> Process ( Action<String> Log )
+		{
+			if ( Log == null )
+				throw new ArgumentNullException ( nameof ( Log ) );
 
-        public IEnumerable<IEnumerable<Token>> ProgressivelySolve ( )
-        {
-            do
-            {
-                SubSolve ( );
-                yield return this.Tokens;
-            }
-            while ( this.Tokens.Count > 1 );
-        }
+			this.Tokens = new List<Token> ( );
 
-        public Double Solve ( )
-        {
-            do SubSolve ( );
-            while ( this.Tokens.Count > 1 );
+			Char ch = this._reader.Peek ( );
+			do
+			{
+				Log ( $"In char {ch}" );
+				if ( Char.IsDigit ( ch ) || ch == '.' )
+				{
+					Log ( "Reading number..." );
+					// Sets the new token as the last as we add it
+					// onto the list
+					this.Tokens.Add ( this.LastToken = GetNumber ( Log ) );
+				}
+				else if ( Char.IsLetter ( ch ) )
+				{
+					Log ( "Reading identfier..." );
+					// Sets the new token as the last as we add it
+					// onto the list
+					this.Tokens.Add ( this.LastToken = GetIdentifier ( ) );
+				}
+				else if ( ch == '+' || ch == '-' )
+				{
+					Log ( $"Reading operator {ch}..." );
+					var op = this._reader.Read ( );
+					// Sets the new token as the last as we add it
+					// onto the list
+					this.Tokens.Add ( this.LastToken = new Token (
+						this.LastToken.IsPossibleValue ( ) ? TokenType.BinaryOp : TokenType.UnaryOp,
+						op.ToString ( )
+					) );
+				}
+				// Skip spaces
+				else if ( ch == ' ' )
+				{
+					this._reader.Read ( );
+				}
+				else
+				{
+					throw new InvalidDataException ( $"Unexpected '{ch}' after {this.LastToken.Raw}" );
+				}
+			}
+			while ( ( ch = this._reader.Peek ( ) ) != '\0' );
 
-            var lasttoken = this.Tokens[0];
-            if ( !( lasttoken is Token.Constant.Number ) )
-                throw new Exception ( "Unexpected final result: " + lasttoken );
+			return this.Tokens;
+		}
 
-            return ( lasttoken as Token.Constant.Number ).Value;
-        }
+		//ident	::= letter, { letter | number } ;
+		private Token GetIdentifier ( )
+			=> new Token ( TokenType.Identifier, this._reader.ReadWhile ( Char.IsLetterOrDigit ) );
 
-        private Token Peek ( Int32 skip = 0 )
-        {
-            return this.Tokens[skip];
-        }
+		//number	::= { digit }, [ ".",  { digit } ] | ".", { digit };
+		private Token GetNumber ( Action<String> Log )
+		{
+			var num = new StringBuilder ( );
 
-        private Token Read ( Int32 skip = 0 )
-        {
-            // Get the value to be returned
-            var ret = this.Tokens[skip];
+			Log?.Invoke ( "Reading first part of number..." );
+			Log?.Invoke ( $"Peek ( ) == {this._reader.Peek ( )}" );
+			num.Append ( this._reader.ReadWhile ( Char.IsNumber ) );
 
-            // Remove the previous tokens
-            this.Tokens.RemoveRange ( 0, skip + 1 );
+			if ( this._reader.Peek ( ) == '.' )
+			{
+				Log?.Invoke ( "Reading floating point part..." );
+				num.Append ( this._reader.Read ( ) );
+				Log?.Invoke ( "Read dot. Reading rest of the number..." );
+				Log?.Invoke ( $"Peek ( ) == {this._reader.Peek ( )}" );
+				num.Append ( this._reader.ReadWhile ( ch =>
+				{
+					Log?.Invoke ( $"Checking {ch} for number-ish" );
+					return Char.IsNumber ( ch );
+				} ) );
+				Log?.Invoke ( "Read number." );
+			}
 
-            return ret;
-        }
+			if ( num.ToString ( ) == "" || num.ToString ( ) == "." )
+				throw new Exception ( $"Unexpected \"{num}\"." );
 
-        private T1 Read<T1> ( Int32 skip = 0 ) where T1 : Token
-        {
-            return this.Read ( skip ) as T1;
-        }
-
-        private Boolean IsNext<T1> ( ) => this.Peek ( ) is T1;
-
-        private Boolean IsNext<T1, T2> ( ) => this.Peek ( ) is T1 && this.Peek ( 1 ) is T2;
-
-        private Boolean IsNext<T1, T2, T3> ( ) => this.Peek ( ) is T1 && this.Peek ( 1 ) is T2
-            && this.Peek ( 2 ) is T3;
-
-        private void Expect<T1> ( )
-        {
-            if ( !IsNext<T1> ( ) )
-                throw new Exception ( $"Expected {typeof ( T1 ).Name} but got {Peek ( ).GetType ( ).Name}." );
-        }
-
-        private void Expect<T1, T2> ( )
-        {
-            if ( !IsNext<T1, T2> ( ) )
-                throw new Exception ( $"Expected {typeof ( T1 ).Name} and {typeof ( T2 ).Name} but got {Peek ( ).GetType ( ).Name} and {Peek ( 1 ).GetType ( ).Name}." );
-        }
-
-        private void Expect<T1, T2, T3> ( )
-        {
-            if ( !IsNext<T1, T2, T3> ( ) )
-                throw new Exception ( $"Expected {typeof ( T1 ).Name}, {typeof ( T2 ).Name} and {typeof ( T3 ).Name} but received {Peek ( ).GetType ( ).Name}, {Peek ( 1 ).GetType ( ).Name} and {Peek ( 2 ).GetType ( ).Name}" );
-        }
-    }
+			Log?.Invoke ( $"Entire number: {num}" );
+			try
+			{
+				return new Token ( TokenType.Number, num.ToString ( ) );
+			}
+			finally
+			{
+				Log?.Invoke ( "Returned token." );
+			}
+		}
+	}
 }
