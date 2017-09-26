@@ -44,6 +44,14 @@ namespace Calculator.Core.Parsing
 			return next;
 		}
 
+		public Token Expect ( TokenType Type1, TokenType Type2, TokenType Type3 )
+		{
+			Token next = this.TokenReader.Read ( );
+			if ( next.Type != Type1 && next.Type != Type2 && next.Type != Type3 )
+				throw new Exception ( $"Expected {Type1} or {Type2} but received {next.Type}" );
+			return next;
+		}
+
 		public Boolean HasNext ( ) => this.TokenReader.Peek ( ) != null;
 
 		public Boolean IsNext ( TokenType Type )
@@ -55,24 +63,27 @@ namespace Calculator.Core.Parsing
 		public Boolean IsNext ( TokenType Type1, TokenType Type2, TokenType Type3 )
 			=> this.IsNext ( Type1, Type2 ) || this.IsNext ( Type3 );
 
+		public Boolean IsNext ( TokenType Type1, TokenType Type2, TokenType Type3, TokenType Type4 )
+			=> this.IsNext ( Type1, Type2, Type3 ) || this.IsNext ( Type4 );
+
 		#endregion 1. Token Reading
 
 		private ASTNode ParseParenthesisExpresion ( )
 		{
-			this.Expect ( TokenType.LParen );
 			ASTNode expr = this.ParseExpression ( 0 );
 			this.Expect ( TokenType.RParen );
 			return expr;
 		}
 
-		// literal ::= [op], ident | [op], number;
-		public ValueExpression ParseLiteral ( )
+		// literal ::= [op], ident | [op], number | [op], '(',
+		// expr, ')';
+		public ASTNode ParseLiteral ( )
 		{
 			Token unary = this.Consume ( TokenType.UnaryOp );
-			ValueExpression value = null;
+			ASTNode value = null;
 			this.Log?.Invoke ( $"Unary operator {( unary != null ? "was" : "wasn't" )} found" );
 
-			Token tok = this.Expect ( TokenType.Identifier, TokenType.Number );
+			Token tok = this.Expect ( TokenType.Identifier, TokenType.Number, TokenType.LParen );
 			Sign sign = unary != null && unary.Raw == "-" ? Sign.Negative : Sign.Positive;
 			if ( tok.Type == TokenType.Identifier )
 			{
@@ -84,30 +95,29 @@ namespace Calculator.Core.Parsing
 				this.Log?.Invoke ( $"Reading number: {tok.Raw}" );
 				value = new NumericLiteral ( tok, sign );
 			}
+			else if ( tok.Type == TokenType.LParen )
+			{
+				this.Log?.Invoke ( $"Reading parenthesized expression." );
+				value = this.ParseParenthesisExpresion ( );
+			}
 			else
+			{
 				throw new Exception ( $"Unexpected token type: {tok.Type}" );
+			}
 
-			this.Log?.Invoke ( $"Final ValueExpression value: {value.Value}" );
+			this.Log?.Invoke ( $"Final expression: {value}" );
 
 			return value;
 		}
 
 		/*
-		 * expr	::= expr, operator, literal
-		 *			| '(', expr, ')'
-		 *			| literal;
+		 * expr	::= expr, operator, literal | literal;
 		 */
 
 		public ASTNode ParseExpression ( Int32 PreviousOperatorPriority )
 		{
-			// expr ::= '(', expr, ')'
-			if ( this.HasNext ( ) && this.IsNext ( TokenType.LParen ) )
-			{
-				this.Log?.Invoke ( "Parsing parenthesised expression." );
-				return this.ParseParenthesisExpresion ( );
-			}
 			// expr ::= expr, operator, literal | literal
-			else if ( this.HasNext ( ) && this.IsNext ( TokenType.UnaryOp, TokenType.Number, TokenType.Identifier ) )
+			if ( this.HasNext ( ) && this.IsNext ( TokenType.UnaryOp, TokenType.Number, TokenType.Identifier, TokenType.LParen ) )
 			{
 				this.Log?.Invoke ( "Parsing number or operation" );
 				// Everything starts with a literal

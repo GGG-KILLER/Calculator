@@ -82,7 +82,7 @@
 			// 
 			this.splitContainer1.Panel2.Controls.Add(this.listBox2);
 			this.splitContainer1.Size = new System.Drawing.Size(600, 173);
-			this.splitContainer1.SplitterDistance = 298;
+			this.splitContainer1.SplitterDistance = 112;
 			this.splitContainer1.TabIndex = 2;
 			// 
 			// listBox1
@@ -91,7 +91,7 @@
 			this.listBox1.FormattingEnabled = true;
 			this.listBox1.Location = new System.Drawing.Point(0, 0);
 			this.listBox1.Name = "listBox1";
-			this.listBox1.Size = new System.Drawing.Size(298, 173);
+			this.listBox1.Size = new System.Drawing.Size(112, 173);
 			this.listBox1.TabIndex = 0;
 			// 
 			// listBox2
@@ -100,7 +100,7 @@
 			this.listBox2.FormattingEnabled = true;
 			this.listBox2.Location = new System.Drawing.Point(0, 0);
 			this.listBox2.Name = "listBox2";
-			this.listBox2.Size = new System.Drawing.Size(298, 173);
+			this.listBox2.Size = new System.Drawing.Size(484, 173);
 			this.listBox2.TabIndex = 0;
 			// 
 			// statusStrip1

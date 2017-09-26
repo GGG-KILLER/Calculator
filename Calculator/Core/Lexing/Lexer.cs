@@ -49,7 +49,7 @@ namespace Calculator.Core.Lexing
 				else if ( ch == '+' || ch == '-' )
 				{
 					Log?.Invoke ( $"Reading operator {ch}..." );
-					var op = this._reader.Read ( );
+					var op = this._reader.ReadString ( 1 );
 					// Sets the new token as the last as we add it
 					// onto the list
 					this.Tokens.Add ( this.LastToken = new Token (
@@ -59,7 +59,7 @@ namespace Calculator.Core.Lexing
 				}
 				else if ( Language.IsOperator ( ch ) )
 				{
-					var op = this._reader.Read ( ).ToString ( );
+					var op = this._reader.ReadString ( 1 );
 					this.Tokens.Add ( this.LastToken = new Token ( TokenType.BinaryOp, op ) );
 				}
 				else

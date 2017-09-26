@@ -37,6 +37,24 @@ namespace Calculator.UI.Forms
 				BackupPriority = 1,
 				OwnPriority = 1
 			} );
+
+			Language.AddOperator ( "*", new MultiplicationOperator
+			{
+				BackupPriority = 2,
+				OwnPriority = 2
+			} );
+
+			Language.AddOperator ( "/", new DivisionOperator
+			{
+				BackupPriority = 2,
+				OwnPriority = 2
+			} );
+
+			Language.AddOperator ( "^", new ExponentiationOperator
+			{
+				BackupPriority = 3,
+				OwnPriority = 3
+			} );
 		}
 
 		private void BtnEquals_Click ( Object sender, EventArgs e )

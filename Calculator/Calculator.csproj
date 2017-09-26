@@ -65,21 +65,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\Nodes\AdditionOperatorExpression.cs" />
-    <Compile Include="Core\Nodes\ASTNode.cs" />
-    <Compile Include="Core\Lexer.cs" />
-    <Compile Include="Core\Nodes\BinaryOperatorExpression.cs" />
-    <Compile Include="Core\Nodes\IdentifierValue.cs" />
-    <Compile Include="Core\Nodes\NumberLiteral.cs" />
-    <Compile Include="Core\Nodes\ParenthesizedExpression.cs" />
-    <Compile Include="Core\Nodes\SubtractionOperatorExpression.cs" />
-    <Compile Include="Core\Nodes\ValueExpression.cs" />
-    <Compile Include="Core\Parser.cs" />
-    <Compile Include="Core\Sign.cs" />
-    <Compile Include="Core\Tokens\Token.cs" />
+    <Compile Include="Core\Parsing\Nodes\Base\ASTNode.cs" />
+    <Compile Include="Core\Lexing\Lexer.cs" />
+    <Compile Include="Core\Parsing\Nodes\Base\BinaryOperatorExpression.cs" />
+    <Compile Include="Core\Parsing\Nodes\Literals\ConstantLiteral.cs" />
+    <Compile Include="Core\Parsing\Nodes\Literals\NumberLiteral.cs" />
+    <Compile Include="Core\Parsing\Nodes\Base\ValueExpression.cs" />
+    <Compile Include="Core\Parsing\Sign.cs" />
+    <Compile Include="Core\Runtime\AdditionOperator.cs" />
+    <Compile Include="Core\Runtime\DivisionOperator.cs" />
+    <Compile Include="Core\Runtime\ExponentiationOperator.cs" />
+    <Compile Include="Core\Runtime\MultiplicationOperator.cs" />
+    <Compile Include="Core\Runtime\Operator.cs" />
+    <Compile Include="Core\Parsing\Parser.cs" />
+    <Compile Include="Core\Runtime\SubtractionOperator.cs" />
+    <Compile Include="Core\Lexing\Token.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Core\Language.cs" />
     <Compile Include="UI\Forms\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
