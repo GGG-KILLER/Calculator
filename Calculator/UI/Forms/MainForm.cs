@@ -1,11 +1,14 @@
 ﻿using Calculator.Core;
-using Calculator.Core.Nodes;
-using Calculator.Core.Tokens;
+using Calculator.Core.Parsing.Nodes.Base;
+using Calculator.Core.Parsing.Nodes.Literals;
+using Calculator.Core.Lexing;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
+using Calculator.Core.Parsing;
+using Calculator.Core.Runtime;
 
 namespace Calculator.UI.Forms
 {
@@ -14,10 +17,26 @@ namespace Calculator.UI.Forms
 		public MainForm ( )
 		{
 			InitializeComponent ( );
-			ConstantValue.Values["pi"] = Math.PI;
-			ConstantValue.Values["Pi"] = Math.PI;
-			ConstantValue.Values["pI"] = Math.PI;
-			ConstantValue.Values["PI"] = Math.PI;
+
+			Language.AddConstant ( "PI", Math.PI );
+			Language.AddConstant ( "Pi", Math.PI );
+			Language.AddConstant ( "pI", Math.PI );
+			Language.AddConstant ( "pi", Math.PI );
+
+			Language.AddConstant ( "E", Math.E );
+			Language.AddConstant ( "e", Math.E );
+
+			Language.AddOperator ( "+", new AdditionOperator
+			{
+				BackupPriority = 1,
+				OwnPriority = 1
+			} );
+
+			Language.AddOperator ( "-", new SubtractionOperator
+			{
+				BackupPriority = 1,
+				OwnPriority = 1
+			} );
 		}
 
 		private void BtnEquals_Click ( Object sender, EventArgs e )
@@ -26,22 +45,33 @@ namespace Calculator.UI.Forms
 			this.listBox2.Items.Clear ( );
 			var swPart = new Stopwatch ( );
 			var swTotal = new Stopwatch ( );
+			IEnumerable<Token> tokens;
 
-			swTotal.Start ( );
-			swPart.Start ( );
-			IEnumerable<Token> tokens = Lexer.Process ( this.txtExpression.Text, Console.WriteLine );
-			swPart.Stop ( );
-			swTotal.Stop ( );
+			try
+			{
+				swTotal.Start ( );
+				swPart.Start ( );
+				tokens = Lexer.Process ( this.txtExpression.Text );
+				swPart.Stop ( );
+				swTotal.Stop ( );
 
-			this.txtTimeTokenizing.Text = swPart.ElapsedMilliseconds + "ms";
-			this.listBox1.Items.AddRange ( tokens.ToArray ( ) );
+				this.txtTimeTokenizing.Text = swPart.ElapsedMilliseconds + "ms";
+				this.listBox1.Items.AddRange ( tokens.ToArray ( ) );
+			}
+			catch ( Exception ex )
+			{
+				this.listBox1.Items.Add ( $"Invalid expression: {ex.GetType ( ).Name}" );
+				this.listBox1.Items.Add ( ex.Message );
+				this.listBox1.Items.AddRange ( ex.StackTrace.Split ( '\n' ) );
+				return;
+			}
 
 			try
 			{
 				swTotal.Start ( );
 				swPart.Restart ( );
-				var parser = new Parser ( tokens );
-				ASTNode exp = parser.ParseExpression ( Console.WriteLine );
+				var parser = new Parser ( tokens, Console.WriteLine );
+				ASTNode exp = parser.Parse ( );
 				if ( exp != null )
 				{
 					this.listBox2.Items.Add ( exp );
@@ -50,12 +80,12 @@ namespace Calculator.UI.Forms
 				else
 					this.listBox2.Items.Add ( "Expression null." );
 			}
-			//catch ( Exception ex )
-			//{
-			//	this.listBox2.Items.Add ( $"Invalid expression: {ex.GetType ( ).Name}" );
-			//	this.listBox2.Items.Add ( ex.Message );
-			//	this.listBox2.Items.AddRange ( ex.StackTrace.Split ( '\n' ) );
-			//}
+			catch ( Exception ex )
+			{
+				this.listBox2.Items.Add ( $"Invalid expression: {ex.GetType ( ).Name}" );
+				this.listBox2.Items.Add ( ex.Message );
+				this.listBox2.Items.AddRange ( ex.StackTrace.Split ( '\n' ) );
+			}
 			finally
 			{
 				swPart.Stop ( );

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Calculator.Core.Tokens
+namespace Calculator.Core.Lexing
 {
 	public enum TokenType
 	{

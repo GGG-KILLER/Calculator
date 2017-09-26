@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Calculator.Core.Nodes
+namespace Calculator.Core.Parsing.Nodes.Base
 {
 	public abstract class ASTNode
 	{

@@ -1,10 +1,9 @@
-﻿using Calculator.Core.Tokens;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace Calculator.Core
+namespace Calculator.Core.Lexing
 {
 	internal class Lexer
 	{
@@ -17,7 +16,7 @@ namespace Calculator.Core
 			this._reader = new GUtils.Text.StringReader ( input );
 		}
 
-		public static IEnumerable<Token> Process ( String Input, Action<String> Log )
+		public static IEnumerable<Token> Process ( String Input, Action<String> Log = null )
 		{
 			return new Lexer ( Input )
 				.Process ( Log );
@@ -25,32 +24,31 @@ namespace Calculator.Core
 
 		private IEnumerable<Token> Process ( Action<String> Log )
 		{
-			if ( Log == null )
-				throw new ArgumentNullException ( nameof ( Log ) );
-
 			this.Tokens = new List<Token> ( );
 
 			Char ch = this._reader.Peek ( );
 			do
 			{
-				Log ( $"In char {ch}" );
+				Log?.Invoke ( $"In char {ch}" );
 				if ( Char.IsDigit ( ch ) || ch == '.' )
 				{
-					Log ( "Reading number..." );
+					Log?.Invoke ( "Reading number..." );
 					// Sets the new token as the last as we add it
 					// onto the list
 					this.Tokens.Add ( this.LastToken = GetNumber ( Log ) );
 				}
 				else if ( Char.IsLetter ( ch ) )
 				{
-					Log ( "Reading identfier..." );
+					Log?.Invoke ( "Reading identfier..." );
 					// Sets the new token as the last as we add it
 					// onto the list
 					this.Tokens.Add ( this.LastToken = GetIdentifier ( ) );
 				}
+				// + and - will always be operators unfortunately
+				//   as they need to work with unary operations
 				else if ( ch == '+' || ch == '-' )
 				{
-					Log ( $"Reading operator {ch}..." );
+					Log?.Invoke ( $"Reading operator {ch}..." );
 					var op = this._reader.Read ( );
 					// Sets the new token as the last as we add it
 					// onto the list
@@ -59,14 +57,32 @@ namespace Calculator.Core
 						op.ToString ( )
 					) );
 				}
-				// Skip spaces
-				else if ( ch == ' ' )
+				else if ( Language.IsOperator ( ch ) )
 				{
-					this._reader.Read ( );
+					var op = this._reader.Read ( ).ToString ( );
+					this.Tokens.Add ( this.LastToken = new Token ( TokenType.BinaryOp, op ) );
 				}
 				else
 				{
-					throw new InvalidDataException ( $"Unexpected '{ch}' after {this.LastToken.Raw}" );
+					switch ( ch )
+					{
+						case ' ':
+							this._reader.Read ( );
+							break;
+
+						case '(':
+							this.Tokens.Add ( this.LastToken = new Token ( TokenType.LParen,
+								this._reader.ReadString ( 1 ) ) );
+							break;
+
+						case ')':
+							this.Tokens.Add ( this.LastToken = new Token ( TokenType.RParen,
+								this._reader.ReadString ( 1 ) ) );
+							break;
+
+						default:
+							throw new InvalidDataException ( $"Unexpected \"{ch}\" after \"{this.LastToken.Raw}\"" );
+					}
 				}
 			}
 			while ( ( ch = this._reader.Peek ( ) ) != '\0' );
