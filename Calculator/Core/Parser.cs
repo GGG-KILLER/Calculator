@@ -44,12 +44,14 @@ namespace Calculator.Core
 
 		public Boolean HasNext ( ) => this.TokenReader.Peek ( ) != null;
 
-		public Boolean IsNext ( TokenType Type ) => this.TokenReader.Peek ( ).Type == Type;
+		public Boolean IsNext ( TokenType Type )
+			=> this.TokenReader.Peek ( ).Type == Type;
 
 		public Boolean IsNext ( TokenType Type1, TokenType Type2 )
-		{
-			return this.TokenReader.Peek ( ).Type == Type1 || this.TokenReader.Peek ( ).Type == Type2;
-		}
+			=> this.IsNext ( Type1 ) || this.IsNext ( Type2 );
+
+		public Boolean IsNext ( TokenType Type1, TokenType Type2, TokenType Type3 )
+			=> this.IsNext ( Type1, Type2 ) || this.IsNext ( Type3 );
 
 		/*
 		 * expr	::= literal, operator, expr
@@ -66,7 +68,7 @@ namespace Calculator.Core
 				this.Expect ( TokenType.RParen );
 				return expr;
 			}
-			else if ( this.HasNext ( ) && this.IsNext ( TokenType.UnaryOp, TokenType.Number ) )
+			else if ( this.HasNext ( ) && this.IsNext ( TokenType.UnaryOp, TokenType.Number, TokenType.Identifier ) )
 			{
 				Log ( "Parsing number or operation" );
 				ValueExpression lhs = this.ParseLiteral ( Log );

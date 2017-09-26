@@ -1,12 +1,11 @@
-﻿using System;
+﻿using Calculator.Core;
+using Calculator.Core.Nodes;
+using Calculator.Core.Tokens;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
-using Calculator.Core;
-using Calculator.Core.Tokens;
-using System.Collections.Generic;
-using GUtils.Multithreading;
-using Calculator.Core.Nodes;
 
 namespace Calculator.UI.Forms
 {

@@ -8,7 +8,7 @@
 
 		public override ASTNode Resolve ( )
 			=> new NumberLiteral (
-				( ( NumberLiteral ) this.LeftHandSide.Resolve ( ) ).Value -
-				( ( NumberLiteral ) this.RightHandSide.Resolve ( ) ).Value );
+				( ( ValueExpression ) this.LeftHandSide.Resolve ( ) ).Value -
+				( ( ValueExpression ) this.RightHandSide.Resolve ( ) ).Value );
 	}
 }
