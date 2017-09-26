@@ -16,15 +16,10 @@ namespace Calculator.Core
 		}
 
 		public Token Consume ( TokenType Type )
-			=> this.TokenReader.Peek ( ).Type != Type ? null : this.TokenReader.Read ( );
+			=> this.IsNext ( Type ) ? null : this.TokenReader.Read ( );
 
 		public Token Consume ( TokenType Type1, TokenType Type2 )
-		{
-			TokenType typ = this.TokenReader.Peek ( ).Type;
-			if ( typ != Type1 && typ != Type2 )
-				return null;
-			return this.TokenReader.Read ( );
-		}
+			=> this.IsNext ( Type1, Type2 ) ? this.TokenReader.Read ( ) : null;
 
 		public Token Expect ( TokenType Type )
 		{
@@ -61,21 +56,23 @@ namespace Calculator.Core
 
 		public ASTNode ParseExpression ( Action<String> Log )
 		{
+			// expr ::= '(', expr, ')'
 			if ( this.HasNext ( ) && this.IsNext ( TokenType.LParen ) )
 			{
-				Log ( "Parsing parenthesised expression." );
+				Log?.Invoke ( "Parsing parenthesised expression." );
 				ASTNode expr = this.ParseExpression ( Log );
 				this.Expect ( TokenType.RParen );
 				return expr;
 			}
 			else if ( this.HasNext ( ) && this.IsNext ( TokenType.UnaryOp, TokenType.Number, TokenType.Identifier ) )
 			{
-				Log ( "Parsing number or operation" );
+				Log?.Invoke ( "Parsing number or operation" );
 				ValueExpression lhs = this.ParseLiteral ( Log );
 
+				// expr ::= literal, operator, expr
 				if ( this.HasNext ( ) && this.IsNext ( TokenType.BinaryOp ) )
 				{
-					Log ( "Operator found, parsing number" );
+					Log?.Invoke ( "Operator found, parsing number" );
 					Token op = this.Expect ( TokenType.BinaryOp );
 					ASTNode rhs = this.ParseExpression ( Log );
 
@@ -89,6 +86,7 @@ namespace Calculator.Core
 					}
 				}
 
+				// expr ::= literal
 				return lhs;
 			}
 			else
@@ -100,17 +98,17 @@ namespace Calculator.Core
 		{
 			Token unary = this.Consume ( TokenType.UnaryOp );
 			ValueExpression value = null;
-			Log ( $"Unary operator {( unary != null ? "was" : "wasn't" )} found" );
+			Log?.Invoke ( $"Unary operator {( unary != null ? "was" : "wasn't" )} found" );
 
 			Token tok = this.Expect ( TokenType.Identifier, TokenType.Number );
 			if ( tok.Type == TokenType.Identifier )
 			{
-				Log ( $"Reading constant: {tok.Raw}" );
+				Log?.Invoke ( $"Reading constant: {tok.Raw}" );
 				value = new ConstantValue ( tok );
 			}
 			else if ( tok.Type == TokenType.Number )
 			{
-				Log ( $"Reading number: {tok.Raw}" );
+				Log?.Invoke ( $"Reading number: {tok.Raw}" );
 				value = new NumberLiteral ( tok );
 			}
 			else
@@ -118,7 +116,7 @@ namespace Calculator.Core
 
 			if ( unary != null && unary.Raw == "-" )
 				value.Value *= -1;
-			Log ( $"Final ValueExpression value: {value.Value}" );
+			Log?.Invoke ( $"Final ValueExpression value: {value.Value}" );
 
 			return value;
 		}
