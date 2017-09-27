@@ -80,6 +80,7 @@
     <Compile Include="Core\Parsing\Parser.cs" />
     <Compile Include="Core\Runtime\SubtractionOperator.cs" />
     <Compile Include="Core\Lexing\Token.cs" />
+    <Compile Include="Core\Timing\MicroStopwatch.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

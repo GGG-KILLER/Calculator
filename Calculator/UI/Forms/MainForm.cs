@@ -9,6 +9,7 @@ using System.Linq;
 using System.Windows.Forms;
 using Calculator.Core.Parsing;
 using Calculator.Core.Runtime;
+using Calculator.Core.Timing;
 
 namespace Calculator.UI.Forms
 {
@@ -61,28 +62,28 @@ namespace Calculator.UI.Forms
 		{
 			this.listBox1.Items.Clear ( );
 			this.listBox2.Items.Clear ( );
-			var swPart = new Stopwatch ( );
-			var swTotal = new Stopwatch ( );
+			var swPart = new PrecisionStopwatch ( );
+			var swTotal = new PrecisionStopwatch ( );
 			IEnumerable<Token> tokens;
 
-			try
-			{
-				swTotal.Start ( );
-				swPart.Start ( );
-				tokens = Lexer.Process ( this.txtExpression.Text );
-				swPart.Stop ( );
-				swTotal.Stop ( );
+			//try
+			//{
+			swTotal.Start ( );
+			swPart.Start ( );
+			tokens = Lexer.Process ( this.txtExpression.Text );
+			swPart.Stop ( );
+			swTotal.Stop ( );
 
-				this.txtTimeTokenizing.Text = swPart.ElapsedMilliseconds + "ms";
-				this.listBox1.Items.AddRange ( tokens.ToArray ( ) );
-			}
-			catch ( Exception ex )
-			{
-				this.listBox1.Items.Add ( $"Invalid expression: {ex.GetType ( ).Name}" );
-				this.listBox1.Items.Add ( ex.Message );
-				this.listBox1.Items.AddRange ( ex.StackTrace.Split ( '\n' ) );
-				return;
-			}
+			this.txtTimeTokenizing.Text = swPart.ElapsedMicroseconds + " μs";
+			this.listBox1.Items.AddRange ( tokens.ToArray ( ) );
+			//}
+			//catch ( Exception ex )
+			//{
+			//	this.listBox1.Items.Add ( $"Invalid expression: {ex.GetType ( ).Name}" );
+			//	this.listBox1.Items.Add ( ex.Message );
+			//	this.listBox1.Items.AddRange ( ex.StackTrace.Split ( '\n' ) );
+			//	return;
+			//}
 
 			try
 			{
@@ -110,8 +111,8 @@ namespace Calculator.UI.Forms
 				swTotal.Stop ( );
 			}
 
-			this.txtTimeLexing.Text = swPart.ElapsedMilliseconds + "ms";
-			this.txtTimeTotal.Text = swTotal.ElapsedMilliseconds + "ms";
+			this.txtTimeLexing.Text = swPart.ElapsedMicroseconds + " μs";
+			this.txtTimeTotal.Text = swTotal.ElapsedMicroseconds + " μs";
 		}
 	}
 }
