@@ -66,24 +66,24 @@ namespace Calculator.UI.Forms
 			var swTotal = new PrecisionStopwatch ( );
 			IEnumerable<Token> tokens;
 
-			//try
-			//{
-			swTotal.Start ( );
-			swPart.Start ( );
-			tokens = Lexer.Process ( this.txtExpression.Text );
-			swPart.Stop ( );
-			swTotal.Stop ( );
+			try
+			{
+				swTotal.Start ( );
+				swPart.Start ( );
+				tokens = Lexer.Process ( this.txtExpression.Text );
+				swPart.Stop ( );
+				swTotal.Stop ( );
 
-			this.txtTimeTokenizing.Text = swPart.ElapsedMicroseconds + " μs";
-			this.listBox1.Items.AddRange ( tokens.ToArray ( ) );
-			//}
-			//catch ( Exception ex )
-			//{
-			//	this.listBox1.Items.Add ( $"Invalid expression: {ex.GetType ( ).Name}" );
-			//	this.listBox1.Items.Add ( ex.Message );
-			//	this.listBox1.Items.AddRange ( ex.StackTrace.Split ( '\n' ) );
-			//	return;
-			//}
+				this.txtTimeTokenizing.Text = $"{swPart.ElapsedMicroseconds} µs | {swPart.ElapsedNanoseconds} ns";
+				this.listBox1.Items.AddRange ( tokens.ToArray ( ) );
+			}
+			catch ( Exception ex )
+			{
+				this.listBox1.Items.Add ( $"Invalid expression: {ex.GetType ( ).Name}" );
+				this.listBox1.Items.Add ( ex.Message );
+				this.listBox1.Items.AddRange ( ex.StackTrace.Split ( '\n' ) );
+				return;
+			}
 
 			try
 			{
@@ -111,8 +111,8 @@ namespace Calculator.UI.Forms
 				swTotal.Stop ( );
 			}
 
-			this.txtTimeLexing.Text = swPart.ElapsedMicroseconds + " μs";
-			this.txtTimeTotal.Text = swTotal.ElapsedMicroseconds + " μs";
+			this.txtTimeLexing.Text = $"{swPart.ElapsedMicroseconds} µs | {swPart.ElapsedNanoseconds} ns";
+			this.txtTimeTotal.Text = $"{swTotal.ElapsedMicroseconds} µs | {swTotal.ElapsedNanoseconds} ns";
 		}
 	}
 }
