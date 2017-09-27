@@ -4,6 +4,18 @@ using System.Reflection;
 
 namespace Calculator.Core.Runtime.Base
 {
+	#region Delegates
+
+	public delegate Double SingleParamMathFunction ( Double x );
+
+	public delegate Double DoubleParamMathFunction ( Double x, Double y );
+
+	public delegate Double TripleParamMathFunction ( Double x, Double y, Double z );
+
+	public delegate Double VarargParamMathFunction ( params Double[] args );
+
+	#endregion Delegates
+
 	public class MathFunction
 	{
 		/// <summary>
@@ -21,9 +33,17 @@ namespace Calculator.Core.Runtime.Base
 		/// </summary>
 		private readonly Delegate Action;
 
-		public Double Execute ( Double[] Args ) => ( Double ) ( this.VariableArgumentCount
-														? this.Action.DynamicInvoke ( new Object[] { Args } )
-														: this.Action.DynamicInvoke ( Args ) );
+		public Double Execute ( Double[] Args )
+		{
+			if ( this.VariableArgumentCount )
+				return ( Double ) this.Action.DynamicInvoke ( new Object[] { Args } );
+			else
+			{
+				var oArgs = new Object[Args.Length];
+				Array.Copy ( Args, oArgs, Args.Length );
+				return ( Double ) this.Action.DynamicInvoke ( oArgs );
+			}
+		}
 
 		public MathFunction ( Delegate Action )
 		{
