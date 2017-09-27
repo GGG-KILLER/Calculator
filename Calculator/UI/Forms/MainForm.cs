@@ -2,8 +2,9 @@
 using Calculator.Core.Lexing;
 using Calculator.Core.Parsing;
 using Calculator.Core.Parsing.Nodes.Base;
-using Calculator.Core.Runtime;
-using Calculator.Core.Timing;
+using Calculator.Core.Runtime.Base;
+using Calculator.Core.Runtime.Operators;
+using GUtils.Benchmarking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,43 +18,35 @@ namespace Calculator.UI.Forms
 		{
 			InitializeComponent ( );
 
+			#region constant: π
 			Language.AddConstant ( "PI", Math.PI );
 			Language.AddConstant ( "Pi", Math.PI );
 			Language.AddConstant ( "pI", Math.PI );
 			Language.AddConstant ( "pi", Math.PI );
+			Language.AddConstant ( "π", Math.PI );
+			#endregion constant: π
 
+			#region constant: e
 			Language.AddConstant ( "E", Math.E );
 			Language.AddConstant ( "e", Math.E );
+			#endregion constant: e
 
-			Language.AddOperator ( "+", new AdditionOperator
-			{
-				BackupPriority = 1,
-				OwnPriority = 1
-			} );
+			#region Operators
+			// Priority: 1
+			Language.AddOperator ( "+", new AdditionOperator ( 1, Associativity.Left ) );
+			Language.AddOperator ( "-", new SubtractionOperator ( 1, Associativity.Left ) );
+			// Priority: 2
+			Language.AddOperator ( "*", new MultiplicationOperator ( 2, Associativity.Left ) );
+			Language.AddOperator ( "/", new DivisionOperator ( 2, Associativity.Left ) );
+			Language.AddOperator ( "%", new ModuloOperator ( 2, Associativity.Left ) );
+			// Priority: 3
+			Language.AddOperator ( "^", new ExponentiationOperator ( 3, Associativity.Right ) );
+			#endregion Operators
 
-			Language.AddOperator ( "-", new SubtractionOperator
-			{
-				BackupPriority = 1,
-				OwnPriority = 1
-			} );
-
-			Language.AddOperator ( "*", new MultiplicationOperator
-			{
-				BackupPriority = 2,
-				OwnPriority = 2
-			} );
-
-			Language.AddOperator ( "/", new DivisionOperator
-			{
-				BackupPriority = 2,
-				OwnPriority = 2
-			} );
-
-			Language.AddOperator ( "^", new ExponentiationOperator
-			{
-				BackupPriority = 3,
-				OwnPriority = 4
-			} );
+			#region function: sin(x)
+			Language.AddFunction ( "sin", new MathFunction ( ( SingleParamMathFunction ) Math.Sin ) );
+			Language.AddFunction ( "cos", new MathFunction ( ( SingleParamMathFunction ) Math.Cos ) );
+			#endregion function: sin(x)
 		}
 
 		private void BtnEquals_Click ( Object sender, EventArgs e )
@@ -152,6 +145,20 @@ namespace Calculator.UI.Forms
 		private void SetTotalTime ( PrecisionStopwatch sw )
 		{
 			this.txtTimeTotal.Text = FormatSWTime ( sw );
+		}
+
+		private void TxtBench_Click ( Object sender, EventArgs e )
+		{
+			var expr = this.txtExpression.Text;
+			var bench = new Benchmark ( );
+			var res = bench.Run ( ( ) =>
+			{
+				IEnumerable<Token> tokens = Lexer.Process ( expr );
+				ASTNode ast = Parser.Parse ( tokens );
+				Double expres = ( ( ValueExpression ) ast.Resolve ( ) ).Value;
+			} );
+			this.listBox2.Items.Add ( $"Benchmark result for {expr}" );
+			this.listBox2.Items.Add ( $"	Average time of {res} μs" );
 		}
 	}
 }

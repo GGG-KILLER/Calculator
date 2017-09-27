@@ -40,6 +40,7 @@
 			this.txtTimeExecuting = new System.Windows.Forms.ToolStripStatusLabel();
 			this.txtTimeTotal = new System.Windows.Forms.ToolStripStatusLabel();
 			this.txtResult = new System.Windows.Forms.TextBox();
+			this.txtBench = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel1.SuspendLayout();
 			this.splitContainer1.Panel2.SuspendLayout();
@@ -50,7 +51,7 @@
 			// btnEquals
 			// 
 			this.btnEquals.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.btnEquals.Location = new System.Drawing.Point(570, 39);
+			this.btnEquals.Location = new System.Drawing.Point(570, 37);
 			this.btnEquals.Name = "btnEquals";
 			this.btnEquals.Size = new System.Drawing.Size(43, 23);
 			this.btnEquals.TabIndex = 1;
@@ -156,14 +157,26 @@
 			this.txtResult.Location = new System.Drawing.Point(12, 39);
 			this.txtResult.Name = "txtResult";
 			this.txtResult.ReadOnly = true;
-			this.txtResult.Size = new System.Drawing.Size(552, 20);
+			this.txtResult.Size = new System.Drawing.Size(484, 20);
 			this.txtResult.TabIndex = 4;
+			// 
+			// txtBench
+			// 
+			this.txtBench.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.txtBench.Location = new System.Drawing.Point(502, 37);
+			this.txtBench.Name = "txtBench";
+			this.txtBench.Size = new System.Drawing.Size(62, 23);
+			this.txtBench.TabIndex = 5;
+			this.txtBench.Text = "bench";
+			this.txtBench.UseVisualStyleBackColor = true;
+			this.txtBench.Click += new System.EventHandler(this.TxtBench_Click);
 			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(625, 268);
+			this.Controls.Add(this.txtBench);
 			this.Controls.Add(this.txtResult);
 			this.Controls.Add(this.statusStrip1);
 			this.Controls.Add(this.splitContainer1);
@@ -196,5 +209,6 @@
         private System.Windows.Forms.ToolStripStatusLabel txtTimeTotal;
 		private System.Windows.Forms.TextBox txtResult;
 		private System.Windows.Forms.ToolStripStatusLabel txtTimeExecuting;
+		private System.Windows.Forms.Button txtBench;
 	}
 }
