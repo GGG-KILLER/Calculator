@@ -43,7 +43,7 @@ namespace Calculator.Core.Lexing
 				}
 				// + and - will always be unary operators as they
 				//   need to work with unary operations
-				else if ( ( ch == '+' || ch == '-' ) && !this.LastToken.IsPossibleValue ( ) )
+				else if ( ( ch == '+' || ch == '-' ) && ( this.LastToken == null || !this.LastToken.IsPossibleValue ( ) ) )
 				{
 					var op = this._reader.ReadString ( 1 );
 					// We'll only consider - unary operators as +
@@ -53,10 +53,12 @@ namespace Calculator.Core.Lexing
 						// If last was a - too, then remove the
 						// last token and ignore current one and
 						// continue the lexing loop
-						if ( this.LastToken.Type == TokenType.UnaryOp && this.LastToken.Raw == "-" )
+						if ( this.LastToken != null && this.LastToken.Type == TokenType.UnaryOp && this.LastToken.Raw == "-" )
 						{
 							this.Tokens.RemoveAt ( this.Tokens.Count - 1 );
-							this.LastToken = this.Tokens[this.Tokens.Count - 1];
+							this.LastToken = this.Tokens.Count > 1
+								? this.Tokens[this.Tokens.Count - 1]
+								: null;
 							continue;
 						}
 						// Otherwise add the - to the token list
