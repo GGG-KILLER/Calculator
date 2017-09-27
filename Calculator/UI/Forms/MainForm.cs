@@ -1,15 +1,13 @@
 ﻿using Calculator.Core;
-using Calculator.Core.Parsing.Nodes.Base;
-using Calculator.Core.Parsing.Nodes.Literals;
 using Calculator.Core.Lexing;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Windows.Forms;
 using Calculator.Core.Parsing;
+using Calculator.Core.Parsing.Nodes.Base;
 using Calculator.Core.Runtime;
 using Calculator.Core.Timing;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace Calculator.UI.Forms
 {
@@ -54,7 +52,7 @@ namespace Calculator.UI.Forms
 			Language.AddOperator ( "^", new ExponentiationOperator
 			{
 				BackupPriority = 3,
-				OwnPriority = 3
+				OwnPriority = 4
 			} );
 		}
 
@@ -74,7 +72,7 @@ namespace Calculator.UI.Forms
 				swPart.Stop ( );
 				swTotal.Stop ( );
 
-				this.txtTimeTokenizing.Text = $"{swPart.ElapsedMicroseconds} µs | {swPart.ElapsedNanoseconds} ns";
+				this.SetLexingTime ( swPart );
 				this.listBox1.Items.AddRange ( tokens.ToArray ( ) );
 			}
 			catch ( Exception ex )
@@ -85,19 +83,27 @@ namespace Calculator.UI.Forms
 				return;
 			}
 
+			ASTNode exp = null;
 			try
 			{
 				swTotal.Start ( );
 				swPart.Restart ( );
-				var parser = new Parser ( tokens, Console.WriteLine );
-				ASTNode exp = parser.Parse ( );
+				exp = Parser.Parse ( tokens, Console.WriteLine );
+				swPart.Stop ( );
+				swTotal.Stop ( );
+
+				this.SetParsingTime ( swPart );
 				if ( exp != null )
 				{
 					this.listBox2.Items.Add ( exp );
 					this.listBox2.Items.Add ( exp.Resolve ( ) );
+					this.listBox2.Items.Add ( exp.Resolve ( ) );
+					this.listBox2.Items.Add ( ( ( ValueExpression ) exp.Resolve ( ) ).Value );
 				}
 				else
-					this.listBox2.Items.Add ( "Expression null." );
+				{
+					this.listBox2.Items.Add ( "Expression was null (some error ocurred)." );
+				}
 			}
 			catch ( Exception ex )
 			{
@@ -105,14 +111,47 @@ namespace Calculator.UI.Forms
 				this.listBox2.Items.Add ( ex.Message );
 				this.listBox2.Items.AddRange ( ex.StackTrace.Split ( '\n' ) );
 			}
-			finally
+
+			try
 			{
+				swTotal.Start ( );
+				swPart.Restart ( );
+				Double res = ( ( ValueExpression ) exp.Resolve ( ) ).Value;
 				swPart.Stop ( );
 				swTotal.Stop ( );
-			}
 
-			this.txtTimeLexing.Text = $"{swPart.ElapsedMicroseconds} µs | {swPart.ElapsedNanoseconds} ns";
-			this.txtTimeTotal.Text = $"{swTotal.ElapsedMicroseconds} µs | {swTotal.ElapsedNanoseconds} ns";
+				this.txtResult.Text = res.ToString ( );
+				this.SetExecutingTime ( swPart );
+				this.SetTotalTime ( swTotal );
+			}
+			catch ( Exception ex )
+			{
+				this.listBox2.Items.Add ( $"Error solving: {ex.GetType ( ).Name}" );
+				this.listBox2.Items.Add ( ex.Message );
+				this.listBox2.Items.AddRange ( ex.StackTrace.Split ( '\n' ) );
+			}
+		}
+
+		private static String FormatSWTime ( PrecisionStopwatch sw ) => $"{sw.ElapsedMicroseconds}µs";
+
+		private void SetLexingTime ( PrecisionStopwatch sw )
+		{
+			this.txtTimeLexing.Text = FormatSWTime ( sw );
+		}
+
+		private void SetParsingTime ( PrecisionStopwatch sw )
+		{
+			this.txtTimeParsing.Text = FormatSWTime ( sw );
+		}
+
+		private void SetExecutingTime ( PrecisionStopwatch sw )
+		{
+			this.txtTimeExecuting.Text = FormatSWTime ( sw );
+		}
+
+		private void SetTotalTime ( PrecisionStopwatch sw )
+		{
+			this.txtTimeTotal.Text = FormatSWTime ( sw );
 		}
 	}
 }

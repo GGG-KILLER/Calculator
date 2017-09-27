@@ -35,9 +35,11 @@
 			this.listBox2 = new System.Windows.Forms.ListBox();
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
 			this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
-			this.txtTimeTokenizing = new System.Windows.Forms.ToolStripStatusLabel();
 			this.txtTimeLexing = new System.Windows.Forms.ToolStripStatusLabel();
+			this.txtTimeParsing = new System.Windows.Forms.ToolStripStatusLabel();
+			this.txtTimeExecuting = new System.Windows.Forms.ToolStripStatusLabel();
 			this.txtTimeTotal = new System.Windows.Forms.ToolStripStatusLabel();
+			this.txtResult = new System.Windows.Forms.TextBox();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel1.SuspendLayout();
 			this.splitContainer1.Panel2.SuspendLayout();
@@ -47,11 +49,10 @@
 			// 
 			// btnEquals
 			// 
-			this.btnEquals.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.btnEquals.Location = new System.Drawing.Point(13, 40);
+			this.btnEquals.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.btnEquals.Location = new System.Drawing.Point(570, 39);
 			this.btnEquals.Name = "btnEquals";
-			this.btnEquals.Size = new System.Drawing.Size(600, 23);
+			this.btnEquals.Size = new System.Drawing.Size(43, 23);
 			this.btnEquals.TabIndex = 1;
 			this.btnEquals.Text = "=";
 			this.btnEquals.UseVisualStyleBackColor = true;
@@ -71,7 +72,7 @@
 			this.splitContainer1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.splitContainer1.Location = new System.Drawing.Point(13, 70);
+			this.splitContainer1.Location = new System.Drawing.Point(13, 68);
 			this.splitContainer1.Name = "splitContainer1";
 			// 
 			// splitContainer1.Panel1
@@ -81,7 +82,7 @@
 			// splitContainer1.Panel2
 			// 
 			this.splitContainer1.Panel2.Controls.Add(this.listBox2);
-			this.splitContainer1.Size = new System.Drawing.Size(600, 173);
+			this.splitContainer1.Size = new System.Drawing.Size(600, 175);
 			this.splitContainer1.SplitterDistance = 112;
 			this.splitContainer1.TabIndex = 2;
 			// 
@@ -91,7 +92,7 @@
 			this.listBox1.FormattingEnabled = true;
 			this.listBox1.Location = new System.Drawing.Point(0, 0);
 			this.listBox1.Name = "listBox1";
-			this.listBox1.Size = new System.Drawing.Size(112, 173);
+			this.listBox1.Size = new System.Drawing.Size(112, 175);
 			this.listBox1.TabIndex = 0;
 			// 
 			// listBox2
@@ -100,15 +101,16 @@
 			this.listBox2.FormattingEnabled = true;
 			this.listBox2.Location = new System.Drawing.Point(0, 0);
 			this.listBox2.Name = "listBox2";
-			this.listBox2.Size = new System.Drawing.Size(484, 173);
+			this.listBox2.Size = new System.Drawing.Size(484, 175);
 			this.listBox2.TabIndex = 0;
 			// 
 			// statusStrip1
 			// 
 			this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1,
-            this.txtTimeTokenizing,
             this.txtTimeLexing,
+            this.txtTimeParsing,
+            this.txtTimeExecuting,
             this.txtTimeTotal});
 			this.statusStrip1.Location = new System.Drawing.Point(0, 246);
 			this.statusStrip1.Name = "statusStrip1";
@@ -122,17 +124,23 @@
 			this.toolStripStatusLabel1.Size = new System.Drawing.Size(76, 17);
 			this.toolStripStatusLabel1.Text = "Times Taken:";
 			// 
-			// txtTimeTokenizing
-			// 
-			this.txtTimeTokenizing.Name = "txtTimeTokenizing";
-			this.txtTimeTokenizing.Size = new System.Drawing.Size(64, 17);
-			this.txtTimeTokenizing.Text = "Tokenizing";
-			// 
 			// txtTimeLexing
 			// 
 			this.txtTimeLexing.Name = "txtTimeLexing";
 			this.txtTimeLexing.Size = new System.Drawing.Size(41, 17);
 			this.txtTimeLexing.Text = "Lexing";
+			// 
+			// txtTimeParsing
+			// 
+			this.txtTimeParsing.Name = "txtTimeParsing";
+			this.txtTimeParsing.Size = new System.Drawing.Size(46, 17);
+			this.txtTimeParsing.Text = "Parsing";
+			// 
+			// txtTimeExecuting
+			// 
+			this.txtTimeExecuting.Name = "txtTimeExecuting";
+			this.txtTimeExecuting.Size = new System.Drawing.Size(58, 17);
+			this.txtTimeExecuting.Text = "Executing";
 			// 
 			// txtTimeTotal
 			// 
@@ -140,11 +148,23 @@
 			this.txtTimeTotal.Size = new System.Drawing.Size(33, 17);
 			this.txtTimeTotal.Text = "Total";
 			// 
+			// txtResult
+			// 
+			this.txtResult.AllowDrop = true;
+			this.txtResult.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.txtResult.Location = new System.Drawing.Point(12, 39);
+			this.txtResult.Name = "txtResult";
+			this.txtResult.ReadOnly = true;
+			this.txtResult.Size = new System.Drawing.Size(552, 20);
+			this.txtResult.TabIndex = 4;
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(625, 268);
+			this.Controls.Add(this.txtResult);
 			this.Controls.Add(this.statusStrip1);
 			this.Controls.Add(this.splitContainer1);
 			this.Controls.Add(this.btnEquals);
@@ -171,8 +191,10 @@
         private System.Windows.Forms.ListBox listBox2;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
-        private System.Windows.Forms.ToolStripStatusLabel txtTimeTokenizing;
         private System.Windows.Forms.ToolStripStatusLabel txtTimeLexing;
+        private System.Windows.Forms.ToolStripStatusLabel txtTimeParsing;
         private System.Windows.Forms.ToolStripStatusLabel txtTimeTotal;
-    }
+		private System.Windows.Forms.TextBox txtResult;
+		private System.Windows.Forms.ToolStripStatusLabel txtTimeExecuting;
+	}
 }

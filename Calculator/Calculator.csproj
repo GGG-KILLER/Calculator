@@ -69,8 +69,8 @@
     <Compile Include="Core\Lexing\Lexer.cs" />
     <Compile Include="Core\Parsing\Nodes\Base\BinaryOperatorExpression.cs" />
     <Compile Include="Core\Parsing\Nodes\Literals\ConstantLiteral.cs" />
-    <Compile Include="Core\Parsing\Nodes\Literals\NumberLiteral.cs" />
     <Compile Include="Core\Parsing\Nodes\Base\ValueExpression.cs" />
+    <Compile Include="Core\Parsing\Nodes\Literals\NumericLiteral.cs" />
     <Compile Include="Core\Parsing\Sign.cs" />
     <Compile Include="Core\Runtime\AdditionOperator.cs" />
     <Compile Include="Core\Runtime\DivisionOperator.cs" />
@@ -80,7 +80,7 @@
     <Compile Include="Core\Parsing\Parser.cs" />
     <Compile Include="Core\Runtime\SubtractionOperator.cs" />
     <Compile Include="Core\Lexing\Token.cs" />
-    <Compile Include="Core\Timing\MicroStopwatch.cs" />
+    <Compile Include="Core\Timing\PrecisionStopwatch.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -129,9 +129,6 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Core\grammar.ebnf" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GUtils\GUtils.Text\GUtils.Text.csproj">
