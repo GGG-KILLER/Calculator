@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Calculator.Core.Parsing.Nodes.Literals;
+using System;
 
 namespace Calculator.Core.Parsing.Nodes.Base
 {
@@ -16,7 +17,7 @@ namespace Calculator.Core.Parsing.Nodes.Base
 		public override ASTNode Resolve ( )
 		{
 			if ( this.Sign == Sign.Negative )
-				this.Value = -this.Value;
+				return new NumericLiteral ( -this.Value );
 			return this;
 		}
 	}
