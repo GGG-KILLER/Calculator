@@ -65,11 +65,6 @@ namespace Calculator.Core.Lexing
 						this.Tokens.Add ( this.LastToken = new Token ( TokenType.UnaryOp, op ) );
 					}
 				}
-				else if ( Language.IsOperator ( ch ) )
-				{
-					var op = this._reader.ReadString ( 1 );
-					this.Tokens.Add ( this.LastToken = new Token ( TokenType.BinaryOp, op ) );
-				}
 				else
 				{
 					switch ( ch )
@@ -79,17 +74,26 @@ namespace Calculator.Core.Lexing
 							break;
 
 						case '(':
-							this.Tokens.Add ( this.LastToken = new Token ( TokenType.LParen,
-								this._reader.ReadString ( 1 ) ) );
+							this.Tokens.Add ( this.LastToken = new Token ( TokenType.LParen, this._reader.ReadString ( 1 ) ) );
 							break;
 
 						case ')':
-							this.Tokens.Add ( this.LastToken = new Token ( TokenType.RParen,
-								this._reader.ReadString ( 1 ) ) );
+							this.Tokens.Add ( this.LastToken = new Token ( TokenType.RParen, this._reader.ReadString ( 1 ) ) );
+							break;
+
+						case ',':
+							this.Tokens.Add ( this.LastToken = new Token ( TokenType.Comma, this._reader.ReadString ( 1 ) ) );
 							break;
 
 						default:
-							throw new InvalidDataException ( $"Unexpected \"{ch}\" after \"{this.LastToken.Raw}\"" );
+							var op = this._reader.ReadWhile ( opch =>
+								opch != ' ' && opch != '(' && opch != ')' && opch != ',' && !Char.IsLetterOrDigit ( opch ) );
+
+							if ( !Language.IsOperator ( op ) )
+								throw new Exception ( $"Unexpected \"{op}\" near \"{this.LastToken.Raw}\"." );
+
+							this.Tokens.Add ( this.LastToken = new Token ( TokenType.BinaryOp, op ) );
+							break;
 					}
 				}
 			}
