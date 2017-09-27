@@ -1,5 +1,5 @@
-﻿using Calculator.Core.Parsing.Nodes.Base;
-using Calculator.Core.Lexing;
+﻿using Calculator.Core.Lexing;
+using Calculator.Core.Parsing.Nodes.Base;
 using System;
 
 namespace Calculator.Core.Parsing.Nodes.Literals
