@@ -1,11 +1,10 @@
-﻿using Calculator.Core.Parsing.Nodes;
+﻿using Calculator.Core.Lexing;
 using Calculator.Core.Parsing.Nodes.Base;
 using Calculator.Core.Parsing.Nodes.Literals;
-using Calculator.Core.Lexing;
+using Calculator.Core.Runtime.Base;
 using GUtils.Text;
 using System;
 using System.Collections.Generic;
-using Calculator.Core.Runtime;
 
 namespace Calculator.Core.Parsing
 {
@@ -77,14 +76,32 @@ namespace Calculator.Core.Parsing
 
 		#endregion 1. Token Reading
 
+		private FunctionCallExpression ParseFunctionCallExpression ( Token identifier )
+		{
+			if ( !Language.IsFunction ( identifier.Raw ) )
+				throw new Exception ( $"Invalid function call, {identifier.Raw} is not a function!" );
+			var args = new List<ASTNode> ( );
+
+			this.Expect ( TokenType.LParen );
+			do
+			{
+				args.Add ( this.ParseLiteral ( ) );
+				this.Consume ( TokenType.Comma );
+			}
+			while ( this.IsNext ( TokenType.Comma ) );
+			this.Expect ( TokenType.RParen );
+
+			return new FunctionCallExpression ( identifier, args );
+		}
+
 		private ASTNode ParseParenthesisExpresion ( )
 		{
-			ASTNode expr = this.ParseExpression ( 0 );
+			ASTNode expr = this.ParseExpression ( "", 0 );
 			this.Expect ( TokenType.RParen );
 			return expr;
 		}
 
-		//literal ::= [op], ident | [op], number | [op], '(', expr, ')';
+		//literal ::= [op], ident | [op], number | [op], '(', expr, ')' ;
 		public ASTNode ParseLiteral ( )
 		{
 			Token unary = this.Consume ( TokenType.UnaryOp );
@@ -92,11 +109,20 @@ namespace Calculator.Core.Parsing
 			this.Log ( $"Unary operator {( unary != null ? "was" : "wasn't" )} found" );
 
 			Token tok = this.Expect ( TokenType.Identifier, TokenType.Number, TokenType.LParen );
+
 			Sign sign = unary != null && unary.Raw == "-" ? Sign.Negative : Sign.Positive;
+
 			if ( tok.Type == TokenType.Identifier )
 			{
-				this.Log ( $"Reading constant: {tok.Raw}" );
-				value = new ConstantLiteral ( tok, sign );
+				if ( this.HasNext ( ) && this.IsNext ( TokenType.LParen ) )
+				{
+					value = this.ParseFunctionCallExpression ( tok );
+				}
+				else
+				{
+					this.Log ( $"Reading constant: {tok.Raw}" );
+					value = new ConstantLiteral ( tok, sign );
+				}
 			}
 			else if ( tok.Type == TokenType.Number )
 			{
@@ -119,7 +145,7 @@ namespace Calculator.Core.Parsing
 		}
 
 		//expr	::= expr, operator, literal | literal ;
-		public ASTNode ParseExpression ( Int32 PreviousOperatorPriority )
+		public ASTNode ParseExpression ( String PreviousOperatorRaw, Int32 PreviousOperatorPriority )
 		{
 			//expr ::= expr, operator, literal | literal
 			if ( this.HasNext ( ) && this.IsNext ( TokenType.UnaryOp, TokenType.Number, TokenType.Identifier, TokenType.LParen ) )
@@ -133,12 +159,14 @@ namespace Calculator.Core.Parsing
 					if ( this.HasNext ( ) && this.IsNext ( TokenType.BinaryOp ) )
 					{
 						this.Log ( "Reading operator" );
-						Operator op = Language.Operators[this.TokenReader.Peek ( ).Raw];
-						if ( op.OwnPriority > PreviousOperatorPriority )
+						var opRaw = this.TokenReader.Peek ( ).Raw;
+						Operator op = Language.Operators[opRaw];
+						if ( op.Priority > PreviousOperatorPriority
+							|| ( opRaw == PreviousOperatorRaw && op.Associativity == Associativity.Right ) )
 						{
 							// Read the operator as we only peeked it
 							this.Consume ( TokenType.BinaryOp );
-							ASTNode rhs = this.ParseExpression ( op.BackupPriority );
+							ASTNode rhs = this.ParseExpression ( opRaw, op.Priority );
 							expression = new BinaryOperatorExpression (
 								LeftHandSide: expression,
 								RightHandSide: rhs,
@@ -167,7 +195,7 @@ namespace Calculator.Core.Parsing
 
 		#region 3. Entry Point
 
-		public ASTNode Parse ( ) => this.ParseExpression ( -1 );
+		public ASTNode Parse ( ) => this.ParseExpression ( "", -1 );
 
 		#endregion 3. Entry Point
 	}

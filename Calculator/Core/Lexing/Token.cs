@@ -9,7 +9,8 @@ namespace Calculator.Core.Lexing
 		LParen,
 		RParen,
 		BinaryOp,
-		UnaryOp
+		UnaryOp,
+		Comma
 	}
 
 	public class Token
