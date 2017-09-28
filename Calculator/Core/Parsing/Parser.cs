@@ -80,6 +80,7 @@ namespace Calculator.Core.Parsing
 
 		private FunctionCallExpression ParseFunctionCallExpression ( Token identifier )
 		{
+			this.Log ( $"\tParseFunctionCallExpression ( {identifier} )" );
 			if ( !Language.IsFunction ( identifier.Raw ) )
 				throw new ExpressionException ( $"Invalid function call, {identifier.Raw} is not a function!" );
 			var args = new List<ASTNode> ( );
@@ -101,6 +102,7 @@ namespace Calculator.Core.Parsing
 
 		private ASTNode ParseParenthesisExpresion ( )
 		{
+			this.Log ( $"\tParseParenthesisExpresion ( )" );
 			ASTNode expr = this.ParseExpression ( "", 0 );
 			this.Expect ( TokenType.RParen );
 			return expr;
@@ -109,9 +111,10 @@ namespace Calculator.Core.Parsing
 		//literal ::= [op], ident | [op], number | [op], '(', expr, ')' ;
 		public ASTNode ParseLiteral ( )
 		{
+			this.Log ( $"\tParseLiteral ( )" );
 			Token unary = this.Consume ( TokenType.UnaryOp );
 			ASTNode value = null;
-			this.Log ( $"Unary operator {( unary != null ? "was" : "wasn't" )} found" );
+			this.Log ( $"\t\tUnary operator {( unary != null ? "was" : "wasn't" )} found" );
 
 			Token tok = this.Expect ( TokenType.Identifier, TokenType.Number, TokenType.LParen );
 
@@ -125,7 +128,7 @@ namespace Calculator.Core.Parsing
 				}
 				else
 				{
-					this.Log ( $"Reading constant: {tok.Raw}" );
+					this.Log ( $"\t\tReading constant: {tok.Raw}" );
 					if ( !Language.IsConstant ( tok.Raw ) )
 						throw new ExpressionException ( $"Unknown constant {tok.Raw}." );
 					value = new ConstantLiteral ( tok, sign );
@@ -133,12 +136,12 @@ namespace Calculator.Core.Parsing
 			}
 			else if ( tok.Type == TokenType.Number )
 			{
-				this.Log ( $"Reading number: {tok.Raw}" );
+				this.Log ( $"\t\tReading number: {tok.Raw}" );
 				value = new NumericLiteral ( tok, sign );
 			}
 			else if ( tok.Type == TokenType.LParen )
 			{
-				this.Log ( $"Reading parenthesized expression." );
+				this.Log ( $"\t\tReading parenthesized expression." );
 				value = this.ParseParenthesisExpresion ( );
 			}
 			else
@@ -154,10 +157,10 @@ namespace Calculator.Core.Parsing
 		//expr	::= expr, operator, literal | literal ;
 		public ASTNode ParseExpression ( String PreviousOperatorRaw, Int32 PreviousOperatorPriority )
 		{
+			this.Log ( $"\tParseExpression ( {PreviousOperatorRaw}, {PreviousOperatorPriority} )" );
 			//expr ::= expr, operator, literal | literal
 			if ( this.HasNext ( ) && this.IsNext ( TokenType.UnaryOp, TokenType.Number, TokenType.Identifier, TokenType.LParen ) )
 			{
-				this.Log ( "Parsing number or operation" );
 				// Everything starts with a literal
 				ASTNode expression = this.ParseLiteral ( );
 
@@ -165,7 +168,6 @@ namespace Calculator.Core.Parsing
 				{
 					if ( this.HasNext ( ) && this.IsNext ( TokenType.BinaryOp ) )
 					{
-						this.Log ( "Reading operator" );
 						var opRaw = this.TokenReader.Peek ( ).Raw;
 						Operator op = Language.Operators[opRaw];
 						if ( op.Priority > PreviousOperatorPriority
@@ -185,13 +187,9 @@ namespace Calculator.Core.Parsing
 							break;
 						}
 					}
-					else if ( !this.HasNext ( ) )
-					{
-						break;
-					}
 					else
 					{
-						throw new ExpressionException ( $"Unexpected {this.TokenReader.Peek ( ).Raw} near {this.TokenReader.Peek ( 0 ).Raw}" );
+						break;
 					}
 				}
 
