@@ -83,7 +83,95 @@ namespace Calculator.Core
 		public static readonly IDictionary<String, MathFunction> Functions = new Dictionary<String, MathFunction> ( );
 
 		/// <summary>
-		/// Adds a function that can be used
+		/// Adds a function to the language using
+		/// <paramref name="Function" />'s name in lower-case as name
+		/// </summary>
+		/// <param name="Function"></param>
+		public static void AddFunction ( SingleParamMathFunction Function )
+		{
+			if ( String.IsNullOrEmpty ( Function.Method.Name ) )
+				throw new Exception ( "Function must have a name" );
+			if ( Function.Method.Name.Contains ( '<' ) )
+				throw new Exception ( "Function must not be a lambda." );
+
+			AddFunction ( Function.Method.Name.ToLowerInvariant ( ), Function );
+		}
+
+		/// <summary>
+		/// Adds a function to the language using
+		/// <paramref name="Function" />'s name in lower-case as name
+		/// </summary>
+		/// <param name="Function"></param>
+		public static void AddFunction ( DoubleParamMathFunction Function )
+		{
+			if ( String.IsNullOrEmpty ( Function.Method.Name ) )
+				throw new Exception ( "Function must have a name" );
+			if ( Function.Method.Name.Contains ( '<' ) )
+				throw new Exception ( "Function must not be a lambda." );
+
+			AddFunction ( Function.Method.Name.ToLowerInvariant ( ), Function );
+		}
+
+		/// <summary>
+		/// Adds a function to the language using
+		/// <paramref name="Function" />'s name in lower-case as name
+		/// </summary>
+		/// <param name="Function"></param>
+		public static void AddFunction ( TripleParamMathFunction Function )
+		{
+			if ( String.IsNullOrEmpty ( Function.Method.Name ) )
+				throw new Exception ( "Function must have a name" );
+			if ( Function.Method.Name.Contains ( '<' ) )
+				throw new Exception ( "Function must not be a lambda." );
+
+			AddFunction ( Function.Method.Name.ToLowerInvariant ( ), Function );
+		}
+
+		/// <summary>
+		/// Adds a function to the language using
+		/// <paramref name="Function" />'s name in lower-case as name
+		/// </summary>
+		/// <param name="Function"></param>
+		public static void AddFunction ( VarargParamMathFunction Function )
+		{
+			if ( String.IsNullOrEmpty ( Function.Method.Name ) )
+				throw new Exception ( "Function must have a name" );
+			if ( Function.Method.Name.Contains ( '<' ) )
+				throw new Exception ( "Function must not be a lambda." );
+
+			AddFunction ( Function.Method.Name.ToLowerInvariant ( ), Function );
+		}
+
+		/// <summary>
+		/// Adds a function to the language
+		/// </summary>
+		/// <param name="Name"></param>
+		/// <param name="Function"></param>
+		public static void AddFunction ( String Name, SingleParamMathFunction Function ) => AddFunction ( Name, new MathFunction ( Function ) );
+
+		/// <summary>
+		/// Adds a function to the language
+		/// </summary>
+		/// <param name="Name"></param>
+		/// <param name="Function"></param>
+		public static void AddFunction ( String Name, DoubleParamMathFunction Function ) => AddFunction ( Name, new MathFunction ( Function ) );
+
+		/// <summary>
+		/// Adds a function to the language
+		/// </summary>
+		/// <param name="Name"></param>
+		/// <param name="Function"></param>
+		public static void AddFunction ( String Name, TripleParamMathFunction Function ) => AddFunction ( Name, new MathFunction ( Function ) );
+
+		/// <summary>
+		/// Adds a function to the language
+		/// </summary>
+		/// <param name="Name"></param>
+		/// <param name="Function"></param>
+		public static void AddFunction ( String Name, VarargParamMathFunction Function ) => AddFunction ( Name, new MathFunction ( Function ) );
+
+		/// <summary>
+		/// Adds a function to the language
 		/// </summary>
 		/// <param name="Name"></param>
 		/// <param name="Function"></param>
