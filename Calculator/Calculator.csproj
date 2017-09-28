@@ -75,15 +75,20 @@
     <Compile Include="Core\Parsing\Nodes\Literals\NumericLiteral.cs" />
     <Compile Include="Core\Parsing\Sign.cs" />
     <Compile Include="Core\Runtime\Base\MathFunction.cs" />
-    <Compile Include="Core\Runtime\Operators\AdditionOperator.cs" />
-    <Compile Include="Core\Runtime\Operators\DivisionOperator.cs" />
-    <Compile Include="Core\Runtime\Operators\ExponentiationOperator.cs" />
-    <Compile Include="Core\Runtime\Operators\ModuloOperator.cs" />
-    <Compile Include="Core\Runtime\Operators\MultiplicationOperator.cs" />
+    <Compile Include="Core\Runtime\Operators\Mathematics\AdditionOperator.cs" />
+    <Compile Include="Core\Runtime\Operators\Mathematics\DivisionOperator.cs" />
+    <Compile Include="Core\Runtime\Operators\Mathematics\ExponentiationOperator.cs" />
+    <Compile Include="Core\Runtime\Operators\Mathematics\ModuloOperator.cs" />
+    <Compile Include="Core\Runtime\Operators\Mathematics\MultiplicationOperator.cs" />
     <Compile Include="Core\Runtime\Base\Operator.cs" />
     <Compile Include="Core\Parsing\Parser.cs" />
-    <Compile Include="Core\Runtime\Operators\SubtractionOperator.cs" />
+    <Compile Include="Core\Runtime\Operators\Mathematics\SubtractionOperator.cs" />
     <Compile Include="Core\Lexing\Token.cs" />
+    <Compile Include="Core\Runtime\Operators\Programming\BinaryAndOperator.cs" />
+    <Compile Include="Core\Runtime\Operators\Programming\BinaryOrOperator.cs" />
+    <Compile Include="Core\Runtime\Operators\Programming\LShiftOperator.cs" />
+    <Compile Include="Core\Runtime\Operators\Programming\RShiftOperator.cs" />
+    <Compile Include="Core\Runtime\Operators\Programming\XOROperator.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -143,6 +148,7 @@
       <Name>GUtils.Text</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
