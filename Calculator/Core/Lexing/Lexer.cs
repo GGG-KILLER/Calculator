@@ -90,7 +90,7 @@ namespace Calculator.Core.Lexing
 								opch != ' ' && opch != '(' && opch != ')' && opch != ',' && !Char.IsLetterOrDigit ( opch ) );
 
 							if ( !Language.IsOperator ( op ) )
-								throw new Exception ( $"Unexpected \"{op}\" near \"{this.LastToken.Raw}\"." );
+								throw new ExpressionException ( $"Unexpected \"{op}\" near \"{this.LastToken.Raw}\"." );
 
 							this.Tokens.Add ( this.LastToken = new Token ( TokenType.BinaryOp, op ) );
 							break;
@@ -122,7 +122,7 @@ namespace Calculator.Core.Lexing
 			}
 
 			if ( num.ToString ( ) == "" || num.ToString ( ) == "." )
-				throw new Exception ( $"Unexpected \"{num}\"." );
+				throw new ExpressionException ( $"Unexpected \"{num}\"." );
 			return new Token ( TokenType.Number, num.ToString ( ) );
 		}
 	}

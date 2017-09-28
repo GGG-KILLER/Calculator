@@ -40,7 +40,7 @@ namespace Calculator.Core.Parsing
 		{
 			Token next = this.TokenReader.Read ( );
 			if ( next.Type != Type )
-				throw new Exception ( $"Expected {Type} but received {next.Type}" );
+				throw new ExpressionException ( $"Expected {Type} but received {next.Type}" );
 			return next;
 		}
 
@@ -48,7 +48,7 @@ namespace Calculator.Core.Parsing
 		{
 			Token next = this.TokenReader.Read ( );
 			if ( next.Type != Type1 && next.Type != Type2 )
-				throw new Exception ( $"Expected {Type1} or {Type2} but received {next.Type}" );
+				throw new ExpressionException ( $"Expected {Type1} or {Type2} but received {next.Type}" );
 			return next;
 		}
 
@@ -56,7 +56,7 @@ namespace Calculator.Core.Parsing
 		{
 			Token next = this.TokenReader.Read ( );
 			if ( next.Type != Type1 && next.Type != Type2 && next.Type != Type3 )
-				throw new Exception ( $"Expected {Type1} or {Type2} but received {next.Type}" );
+				throw new ExpressionException ( $"Expected {Type1} or {Type2} but received {next.Type}" );
 			return next;
 		}
 
@@ -76,10 +76,12 @@ namespace Calculator.Core.Parsing
 
 		#endregion 1. Token Reading
 
+		#region 2. Parsing
+
 		private FunctionCallExpression ParseFunctionCallExpression ( Token identifier )
 		{
 			if ( !Language.IsFunction ( identifier.Raw ) )
-				throw new Exception ( $"Invalid function call, {identifier.Raw} is not a function!" );
+				throw new ExpressionException ( $"Invalid function call, {identifier.Raw} is not a function!" );
 			var args = new List<ASTNode> ( );
 
 			this.Expect ( TokenType.LParen );
@@ -90,6 +92,9 @@ namespace Calculator.Core.Parsing
 			}
 			while ( this.IsNext ( TokenType.Comma ) );
 			this.Expect ( TokenType.RParen );
+
+			if ( args.Count > Language.Functions[identifier.Raw].ArgumentCount )
+				throw new ExpressionException ( $"Too many arguments passed to {identifier.Raw}." );
 
 			return new FunctionCallExpression ( identifier, args );
 		}
@@ -121,6 +126,8 @@ namespace Calculator.Core.Parsing
 				else
 				{
 					this.Log ( $"Reading constant: {tok.Raw}" );
+					if ( !Language.IsConstant ( tok.Raw ) )
+						throw new ExpressionException ( $"Unknown constant {tok.Raw}." );
 					value = new ConstantLiteral ( tok, sign );
 				}
 			}
@@ -136,7 +143,7 @@ namespace Calculator.Core.Parsing
 			}
 			else
 			{
-				throw new Exception ( $"Unexpected token type: {tok.Type}" );
+				throw new ExpressionException ( $"Unexpected token type: {tok.Type}" );
 			}
 
 			this.Log ( $"Final expression: {value}" );
@@ -178,20 +185,25 @@ namespace Calculator.Core.Parsing
 							break;
 						}
 					}
-					else
+					else if ( !this.HasNext ( ) )
 					{
 						break;
 					}
+					else
+					{
+						throw new ExpressionException ( $"Unexpected {this.TokenReader.Peek ( ).Raw} near {this.TokenReader.Peek ( 0 ).Raw}" );
+					}
 				}
 
-				// expr ::= literal
 				return expression;
 			}
 			else
 			{
-				throw new Exception ( $"Unexpected {this.TokenReader.Peek ( ).Raw} near {this.TokenReader.Peek ( 0 ).Raw}" );
+				throw new ExpressionException ( $"Unexpected {this.TokenReader.Peek ( ).Raw} near {this.TokenReader.Peek ( 0 ).Raw}" );
 			}
 		}
+
+		#endregion 2. Parsing
 
 		#region 3. Entry Point
 

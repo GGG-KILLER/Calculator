@@ -35,10 +35,12 @@ namespace Calculator.UI.Forms
 			// Priority: 1
 			Language.AddOperator ( "+", new AdditionOperator ( 1, Associativity.Left ) );
 			Language.AddOperator ( "-", new SubtractionOperator ( 1, Associativity.Left ) );
+
 			// Priority: 2
 			Language.AddOperator ( "*", new MultiplicationOperator ( 2, Associativity.Left ) );
 			Language.AddOperator ( "/", new DivisionOperator ( 2, Associativity.Left ) );
 			Language.AddOperator ( "%", new ModuloOperator ( 2, Associativity.Left ) );
+
 			// Priority: 3
 			Language.AddOperator ( "^", new ExponentiationOperator ( 3, Associativity.Right ) );
 			#endregion Operators
@@ -68,11 +70,14 @@ namespace Calculator.UI.Forms
 				this.SetLexingTime ( swPart );
 				this.listBox1.Items.AddRange ( tokens.ToArray ( ) );
 			}
-			catch ( Exception ex )
+			catch ( ExpressionException ex )
 			{
-				this.listBox1.Items.Add ( $"Invalid expression: {ex.GetType ( ).Name}" );
-				this.listBox1.Items.Add ( ex.Message );
-				this.listBox1.Items.AddRange ( ex.StackTrace.Split ( '\n' ) );
+				this.listBox2.Items.Add ( $"Syntax Error: {ex.Message}" );
+				return;
+			}
+			catch ( Exception )
+			{
+				this.listBox2.Items.Add ( "Unknown error." );
 				return;
 			}
 
@@ -89,20 +94,21 @@ namespace Calculator.UI.Forms
 				if ( exp != null )
 				{
 					this.listBox2.Items.Add ( exp );
-					this.listBox2.Items.Add ( exp.Resolve ( ) );
-					this.listBox2.Items.Add ( exp.Resolve ( ) );
-					this.listBox2.Items.Add ( ( ( ValueExpression ) exp.Resolve ( ) ).Value );
 				}
 				else
 				{
 					this.listBox2.Items.Add ( "Expression was null (some error ocurred)." );
 				}
 			}
-			catch ( Exception ex )
+			catch ( ExpressionException ex )
 			{
-				this.listBox2.Items.Add ( $"Invalid expression: {ex.GetType ( ).Name}" );
-				this.listBox2.Items.Add ( ex.Message );
-				this.listBox2.Items.AddRange ( ex.StackTrace.Split ( '\n' ) );
+				this.listBox2.Items.Add ( $"Syntax Error: {ex.Message}" );
+				return;
+			}
+			catch ( Exception )
+			{
+				this.listBox2.Items.Add ( "Unknown error." );
+				return;
 			}
 
 			try
@@ -119,9 +125,7 @@ namespace Calculator.UI.Forms
 			}
 			catch ( Exception ex )
 			{
-				this.listBox2.Items.Add ( $"Error solving: {ex.GetType ( ).Name}" );
-				this.listBox2.Items.Add ( ex.Message );
-				this.listBox2.Items.AddRange ( ex.StackTrace.Split ( '\n' ) );
+				this.listBox2.Items.Add ( $"Error solving: {ex.Message}" );
 			}
 		}
 
@@ -153,9 +157,13 @@ namespace Calculator.UI.Forms
 			var bench = new Benchmark ( );
 			var res = bench.Run ( ( ) =>
 			{
-				IEnumerable<Token> tokens = Lexer.Process ( expr );
-				ASTNode ast = Parser.Parse ( tokens );
-				Double expres = ( ( ValueExpression ) ast.Resolve ( ) ).Value;
+				try
+				{
+					IEnumerable<Token> tokens = Lexer.Process ( expr );
+					ASTNode ast = Parser.Parse ( tokens );
+					Double expres = ( ( ValueExpression ) ast.Resolve ( ) ).Value;
+				}
+				catch ( Exception ) { }
 			} );
 			this.listBox2.Items.Add ( $"Benchmark result for {expr}" );
 			this.listBox2.Items.Add ( $"	Average time of {res} μs" );
