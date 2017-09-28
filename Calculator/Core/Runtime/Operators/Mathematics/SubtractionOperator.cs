@@ -1,7 +1,7 @@
 ﻿using Calculator.Core.Runtime.Base;
 using System;
 
-namespace Calculator.Core.Runtime.Operators
+namespace Calculator.Core.Runtime.Operators.Mathematics
 {
 	public class SubtractionOperator : Operator
 	{
