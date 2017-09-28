@@ -1,6 +1,6 @@
 ﻿expr	::= literal, binaryop, expr | literal;
 
-literal	::= [unaryop], ident | [unaryop], number | [unaryop], '(', expr, ')';
+literal	::= [unaryop], ident | [unaryop], number | [unaryop], '(', expr, ')' | [unaryop], ident, '(', { literal }, ')' ;
 
 number	::= { digit }, [ ".",  { digit } ] | ".", { digit };
 
