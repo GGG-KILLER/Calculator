@@ -41,6 +41,7 @@
 			this.txtTimeTotal = new System.Windows.Forms.ToolStripStatusLabel();
 			this.txtResult = new System.Windows.Forms.TextBox();
 			this.txtBench = new System.Windows.Forms.Button();
+			this.txtAST = new System.Windows.Forms.TextBox();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel1.SuspendLayout();
 			this.splitContainer1.Panel2.SuspendLayout();
@@ -63,9 +64,9 @@
 			// 
 			this.txtExpression.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.txtExpression.Location = new System.Drawing.Point(13, 13);
+			this.txtExpression.Location = new System.Drawing.Point(12, 13);
 			this.txtExpression.Name = "txtExpression";
-			this.txtExpression.Size = new System.Drawing.Size(600, 20);
+			this.txtExpression.Size = new System.Drawing.Size(601, 20);
 			this.txtExpression.TabIndex = 0;
 			// 
 			// splitContainer1
@@ -73,7 +74,7 @@
 			this.splitContainer1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.splitContainer1.Location = new System.Drawing.Point(13, 68);
+			this.splitContainer1.Location = new System.Drawing.Point(13, 97);
 			this.splitContainer1.Name = "splitContainer1";
 			// 
 			// splitContainer1.Panel1
@@ -83,7 +84,7 @@
 			// splitContainer1.Panel2
 			// 
 			this.splitContainer1.Panel2.Controls.Add(this.listBox2);
-			this.splitContainer1.Size = new System.Drawing.Size(600, 175);
+			this.splitContainer1.Size = new System.Drawing.Size(600, 146);
 			this.splitContainer1.SplitterDistance = 112;
 			this.splitContainer1.TabIndex = 2;
 			// 
@@ -93,7 +94,7 @@
 			this.listBox1.FormattingEnabled = true;
 			this.listBox1.Location = new System.Drawing.Point(0, 0);
 			this.listBox1.Name = "listBox1";
-			this.listBox1.Size = new System.Drawing.Size(112, 175);
+			this.listBox1.Size = new System.Drawing.Size(112, 146);
 			this.listBox1.TabIndex = 0;
 			// 
 			// listBox2
@@ -102,7 +103,7 @@
 			this.listBox2.FormattingEnabled = true;
 			this.listBox2.Location = new System.Drawing.Point(0, 0);
 			this.listBox2.Name = "listBox2";
-			this.listBox2.Size = new System.Drawing.Size(484, 175);
+			this.listBox2.Size = new System.Drawing.Size(484, 146);
 			this.listBox2.TabIndex = 0;
 			// 
 			// statusStrip1
@@ -171,11 +172,22 @@
 			this.txtBench.UseVisualStyleBackColor = true;
 			this.txtBench.Click += new System.EventHandler(this.TxtBench_Click);
 			// 
+			// txtAST
+			// 
+			this.txtAST.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.txtAST.Location = new System.Drawing.Point(12, 65);
+			this.txtAST.Name = "txtAST";
+			this.txtAST.ReadOnly = true;
+			this.txtAST.Size = new System.Drawing.Size(601, 20);
+			this.txtAST.TabIndex = 6;
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(625, 268);
+			this.Controls.Add(this.txtAST);
 			this.Controls.Add(this.txtBench);
 			this.Controls.Add(this.txtResult);
 			this.Controls.Add(this.statusStrip1);
@@ -210,5 +222,6 @@
 		private System.Windows.Forms.TextBox txtResult;
 		private System.Windows.Forms.ToolStripStatusLabel txtTimeExecuting;
 		private System.Windows.Forms.Button txtBench;
+		private System.Windows.Forms.TextBox txtAST;
 	}
 }

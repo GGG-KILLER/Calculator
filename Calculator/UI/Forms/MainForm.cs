@@ -3,7 +3,8 @@ using Calculator.Core.Lexing;
 using Calculator.Core.Parsing;
 using Calculator.Core.Parsing.Nodes.Base;
 using Calculator.Core.Runtime.Base;
-using Calculator.Core.Runtime.Operators;
+using Calculator.Core.Runtime.Operators.Mathematics;
+using Calculator.Core.Runtime.Operators.Programming;
 using GUtils.Benchmarking;
 using System;
 using System.Collections.Generic;
@@ -42,13 +43,49 @@ namespace Calculator.UI.Forms
 			Language.AddOperator ( "%", new ModuloOperator ( 2, Associativity.Left ) );
 
 			// Priority: 3
-			Language.AddOperator ( "^", new ExponentiationOperator ( 3, Associativity.Right ) );
+			Language.AddOperator ( "**", new ExponentiationOperator ( 3, Associativity.Right ) );
+
+			// Priority: 4
+			Language.AddOperator ( "<<", new LShiftOperator ( 4, Associativity.Left ) );
+			Language.AddOperator ( ">>", new RShiftOperator ( 4, Associativity.Left ) );
+
+			// Priority: 5
+			Language.AddOperator ( "&", new BitwiseAndOperator ( 5, Associativity.Left ) );
+
+			// Priority: 6
+			Language.AddOperator ( "^", new XOROperator ( 6, Associativity.Left ) );
+
+			// Priority: 7
+			Language.AddOperator ( "|", new BitwiseOrOperator ( 7, Associativity.Left ) );
 			#endregion Operators
 
-			#region function: sin(x)
-			Language.AddFunction ( "sin", new MathFunction ( ( SingleParamMathFunction ) Math.Sin ) );
-			Language.AddFunction ( "cos", new MathFunction ( ( SingleParamMathFunction ) Math.Cos ) );
-			#endregion function: sin(x)
+			#region function
+
+			Language.AddFunction ( Math.Abs );
+			Language.AddFunction ( Math.Acos );
+			Language.AddFunction ( Math.Asin );
+			Language.AddFunction ( Math.Atan );
+			Language.AddFunction ( Math.Atan2 );
+			Language.AddFunction ( "ceil", Math.Ceiling );
+			Language.AddFunction ( Math.Cos );
+			Language.AddFunction ( Math.Cosh );
+			Language.AddFunction ( Math.Exp );
+			Language.AddFunction ( Math.Floor );
+			Language.AddFunction ( "ln", ( SingleParamMathFunction ) Math.Log );
+			Language.AddFunction ( ( DoubleParamMathFunction ) Math.Log );
+			Language.AddFunction ( Math.Log10 );
+			Language.AddFunction ( Math.Max );
+			Language.AddFunction ( Math.Min );
+			Language.AddFunction ( Math.Pow );
+			Language.AddFunction ( Math.Round );
+			Language.AddFunction ( Math.Sin );
+			Language.AddFunction ( Math.Sinh );
+			Language.AddFunction ( Math.Sqrt );
+			Language.AddFunction ( Math.Tan );
+			Language.AddFunction ( Math.Tanh );
+			Language.AddFunction ( Math.Truncate );
+
+			#endregion function
 		}
 
 		private void BtnEquals_Click ( Object sender, EventArgs e )
@@ -72,11 +109,13 @@ namespace Calculator.UI.Forms
 			}
 			catch ( ExpressionException ex )
 			{
+				Console.WriteLine ( ex.ToString ( ) );
 				this.listBox2.Items.Add ( $"Syntax Error: {ex.Message}" );
 				return;
 			}
-			catch ( Exception )
+			catch ( Exception ex )
 			{
+				Console.WriteLine ( ex.ToString ( ) );
 				this.listBox2.Items.Add ( "Unknown error." );
 				return;
 			}
@@ -94,6 +133,7 @@ namespace Calculator.UI.Forms
 				if ( exp != null )
 				{
 					this.listBox2.Items.Add ( exp );
+					this.txtAST.Text = exp.ToString ( );
 				}
 				else
 				{
@@ -102,11 +142,13 @@ namespace Calculator.UI.Forms
 			}
 			catch ( ExpressionException ex )
 			{
+				Console.WriteLine ( ex.ToString ( ) );
 				this.listBox2.Items.Add ( $"Syntax Error: {ex.Message}" );
 				return;
 			}
-			catch ( Exception )
+			catch ( Exception ex )
 			{
+				Console.WriteLine ( ex.ToString ( ) );
 				this.listBox2.Items.Add ( "Unknown error." );
 				return;
 			}
@@ -125,6 +167,7 @@ namespace Calculator.UI.Forms
 			}
 			catch ( Exception ex )
 			{
+				Console.WriteLine ( ex.ToString ( ) );
 				this.listBox2.Items.Add ( $"Error solving: {ex.Message}" );
 			}
 		}
