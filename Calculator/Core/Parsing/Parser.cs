@@ -88,7 +88,7 @@ namespace Calculator.Core.Parsing
 			this.Expect ( TokenType.LParen );
 			do
 			{
-				args.Add ( this.ParseLiteral ( ) );
+				args.Add ( this.ParseExpression ( "", -1 ) );
 				this.Consume ( TokenType.Comma );
 			}
 			while ( this.IsNext ( TokenType.Comma ) );

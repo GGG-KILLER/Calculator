@@ -87,7 +87,7 @@ namespace Calculator.Core.Lexing
 
 						default:
 							var op = this._reader.ReadWhile ( opch =>
-								opch != ' ' && opch != '(' && opch != ')' && opch != ',' && !Char.IsLetterOrDigit ( opch ) );
+								!NonOperatorChar ( opch ) && !Char.IsLetterOrDigit ( opch ) );
 
 							if ( !Language.IsOperator ( op ) )
 								throw new ExpressionException ( $"Unexpected \"{op}\" near \"{this.LastToken.Raw}\"." );
@@ -101,6 +101,8 @@ namespace Calculator.Core.Lexing
 
 			return this.Tokens;
 		}
+
+		private static Boolean NonOperatorChar ( Char ch ) => ch == ' ' || ch == '(' || ch == ')' || ch == ',';
 
 		//ident	 ::= letter, { letter | number } ;
 		private Token GetIdentifier ( )
