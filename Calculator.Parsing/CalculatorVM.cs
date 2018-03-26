@@ -16,7 +16,7 @@ namespace Calculator.Parsing
             this.Language = language;
         }
 
-        public Double Execute ( String value )
+        public Double Execute ( String value ) 
         {
             var lexer = new CalculatorLexer ( this.Language, value );
             var parser = new CalculatorParser ( this.Language, lexer );
@@ -44,12 +44,27 @@ namespace Calculator.Parsing
             else if ( node is FunctionCallExpression functionCall )
             {
                 Delegate func = this.Language.GetFunction ( functionCall.Identifier );
-                if ( func is Func<Double, Double> f1 )
+                if ( func is Func<Double> f0)
+                {
+                    if ( functionCall.Arguments.Length != 0 )
+                        throw new Exception ( $"{functionCall.Identifier} called with too many arguments." );
+                }
+                else if ( func is Func<Double, Double> f1 )
+                {
+                    if ( functionCall.Arguments.Length != 1 )
+                        throw new Exception ( $"{functionCall.Identifier} called with too many arguments." );
                     return f1 ( this.Execute ( functionCall.Arguments[0] ) );
+                }
                 else if ( func is Func<Double, Double, Double> f2 )
+                {
+                    if ( functionCall.Arguments.Length != 2 )
+                        throw new Exception ( $"{functionCall.Identifier} called with too many arguments." );
                     return f2 ( this.Execute ( functionCall.Arguments[0] ), this.Execute ( functionCall.Arguments[1] ) );
+                }
                 else
+                {
                     return ( func as Func<Double[], Double> ) ( functionCall.Arguments.Select ( this.Execute ).ToArray ( ) );
+                }
             }
             else if ( node is NumberExpression number )
                 return number.Value;
