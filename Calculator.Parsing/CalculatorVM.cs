@@ -48,6 +48,7 @@ namespace Calculator.Parsing
                 {
                     if ( functionCall.Arguments.Length != 0 )
                         throw new Exception ( $"{functionCall.Identifier} called with too many arguments." );
+                    return f0 ( );
                 }
                 else if ( func is Func<Double, Double> f1 )
                 {
