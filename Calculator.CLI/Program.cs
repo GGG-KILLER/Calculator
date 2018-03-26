@@ -68,8 +68,10 @@ namespace Calculator.CLI
             lang.AddUnaryOperator ( UnaryOperatorFix.Prefix, "~", 1, n => ~( ( Int64 ) n ) );
             lang.AddUnaryOperator ( UnaryOperatorFix.Postfix, "!", 1, n =>
             {
+                if ( Double.IsInfinity ( n ) )
+                    return n;
                 var r = 1D;
-                for ( var i = 2; i < n; i++ )
+                for ( var i = 2; i < n && !Double.IsInfinity ( r ) && !Double.IsInfinity ( i ); i++ )
                     r *= i;
                 return r;
             } );
