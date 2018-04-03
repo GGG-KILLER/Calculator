@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
 using Calculator.Common;
 using Calculator.Parsing;
+using Calculator.Parsing.AST;
 using GParse.Lexing;
 using GParse.Lexing.Errors;
 using GParse.Parsing.Errors;
@@ -21,11 +23,19 @@ namespace Calculator.CLI
                     break;
                 try
                 {
+                    var sw = Stopwatch.StartNew ( );
                     var lexer = new CalculatorLexer ( lang, line );
                     var parser = new CalculatorParser ( lang, lexer );
-                    Console.Write ( parser.Parse ( ) );
+                    ASTNode ast = parser.Parse ( );
+                    sw.Stop ( );
+                    Console.WriteLine ( $"{HumanTime ( sw.ElapsedTicks )} elapsed parsing." );
+                    sw.Restart ( );
+                    var res = vm.Execute ( line );
+                    sw.Stop ( );
+                    Console.WriteLine ( $"{HumanTime ( sw.ElapsedTicks )} elapsed parsing + VM." );
+                    Console.Write ( ast );
                     Console.Write ( " = " );
-                    Console.WriteLine ( vm.Execute ( line ) );
+                    Console.WriteLine ( res );
                 }
                 catch ( LexException ex )
                 {
@@ -118,6 +128,20 @@ namespace Calculator.CLI
             lang.AddFunction ( "xor", ( lhs, rhs ) => ( Int64 ) lhs ^ ( Int64 ) rhs );
 
             return lang;
+        }
+
+        private static readonly Double TicksPerMicrosecond = TimeSpan.TicksPerMillisecond / 1000D;
+
+        private static String HumanTime ( Int64 ticks )
+        {
+            if ( ticks > TimeSpan.TicksPerMinute )
+                return $"{( Double ) ticks / TimeSpan.TicksPerMinute}m";
+            else if ( ticks > TimeSpan.TicksPerSecond )
+                return $"{( Double ) ticks / TimeSpan.TicksPerSecond}s";
+            else if ( ticks > TimeSpan.TicksPerMillisecond )
+                return $"{( Double ) ticks / TimeSpan.TicksPerMillisecond}ms";
+            else
+                return $"{( Double ) ticks / TicksPerMicrosecond}μs";
         }
     }
 }
