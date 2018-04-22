@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Calculator.Parsing.AST
+namespace Calculator.Runtime.AST
 {
     public class ConstantExpression : ASTNode
     {

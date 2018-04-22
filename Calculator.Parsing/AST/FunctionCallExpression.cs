@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace Calculator.Parsing.AST
+namespace Calculator.Runtime.AST
 {
     public class FunctionCallExpression : ASTNode
     {

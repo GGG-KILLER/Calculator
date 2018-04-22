@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Calculator.Parsing.AST
+namespace Calculator.Runtime.AST
 {
     public class BinaryOperatorExpression : ASTNode
     {

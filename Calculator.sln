@@ -12,17 +12,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Calculator.Common", "Calculator.Common\Calculator.Common.csproj", "{89F6D7A2-F51F-43D4-BE59-84E3FB32A071}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GParse", "GParse", "{12D9E60F-4FCB-4A45-9FF9-E2033D005274}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GParse.Lexing", "GParse\GParse.Lexing\GParse.Lexing.csproj", "{E32F7D86-F377-4776-B849-31F38CDD0D59}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GParse.Parsing", "GParse\GParse.Parsing\GParse.Parsing.csproj", "{9BC797E0-DC16-4694-BBFE-1534D61CAA1A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calculator.Parsing", "Calculator.Parsing\Calculator.Parsing.csproj", "{95728EDD-A0D9-4FFA-BC1B-95F79311F303}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Calculator.Runtime", "Calculator.Parsing\Calculator.Runtime.csproj", "{95728EDD-A0D9-4FFA-BC1B-95F79311F303}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calculator.CLI", "Calculator.CLI\Calculator.CLI.csproj", "{77A3BF53-0C9E-4D65-AAAA-F05E3A0AFF24}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Calculator.CLI", "Calculator.CLI\Calculator.CLI.csproj", "{77A3BF53-0C9E-4D65-AAAA-F05E3A0AFF24}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,10 +28,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{89F6D7A2-F51F-43D4-BE59-84E3FB32A071}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{89F6D7A2-F51F-43D4-BE59-84E3FB32A071}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{89F6D7A2-F51F-43D4-BE59-84E3FB32A071}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{89F6D7A2-F51F-43D4-BE59-84E3FB32A071}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E32F7D86-F377-4776-B849-31F38CDD0D59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E32F7D86-F377-4776-B849-31F38CDD0D59}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E32F7D86-F377-4776-B849-31F38CDD0D59}.Release|Any CPU.ActiveCfg = Release|Any CPU

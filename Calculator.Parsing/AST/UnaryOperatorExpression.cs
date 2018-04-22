@@ -1,7 +1,7 @@
 ﻿using System;
-using Calculator.Common;
+using Calculator.Runtime.Definitions;
 
-namespace Calculator.Parsing.AST
+namespace Calculator.Runtime.AST
 {
     public class UnaryOperatorExpression : ASTNode
     {

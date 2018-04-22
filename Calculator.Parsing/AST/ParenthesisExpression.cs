@@ -1,4 +1,4 @@
-﻿namespace Calculator.Parsing.AST
+﻿namespace Calculator.Runtime.AST
 {
     internal class ParenthesisExpression : ASTNode
     {

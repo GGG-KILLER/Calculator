@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using Calculator.Common;
-using Calculator.Parsing.AST;
+using Calculator.Runtime.Definitions;
+using Calculator.Runtime.AST;
 using GParse.Lexing;
 using GParse.Parsing;
 using GParse.Parsing.Errors;
 
-namespace Calculator.Parsing
+namespace Calculator.Runtime
 {
     public class CalculatorParser : ParserBase
     {

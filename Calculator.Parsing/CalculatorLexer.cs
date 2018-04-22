@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Text;
-using Calculator.Common;
+using Calculator.Runtime.Definitions;
 using GParse.Lexing;
 using GParse.Lexing.Errors;
 using GParse.Lexing.Settings;
 
-namespace Calculator.Parsing
+namespace Calculator.Runtime
 {
     public class CalculatorLexer : LexerBase
     {

@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
-using Calculator.Common;
-using Calculator.Parsing;
-using Calculator.Parsing.AST;
-using GParse.Lexing;
+using Calculator.Runtime;
+using Calculator.Runtime.AST;
+using Calculator.Runtime.Definitions;
 using GParse.Lexing.Errors;
 using GParse.Parsing.Errors;
 

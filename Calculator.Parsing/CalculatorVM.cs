@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Calculator.Common;
-using Calculator.Parsing.AST;
+using Calculator.Runtime.Definitions;
+using Calculator.Runtime.AST;
 
-namespace Calculator.Parsing
+namespace Calculator.Runtime
 {
     public class CalculatorVM
     {
