@@ -100,7 +100,7 @@ namespace Calculator.Runtime
             }
 
             // Postfix operators
-            if ( this.Language.HasUnaryOperator ( this.Peek ( ).ID )
+            while ( this.Language.HasUnaryOperator ( this.Peek ( ).ID )
                 && ( !this.Language.HasBinaryOperator ( this.Peek ( ).ID ) || this.Peek ( 1 ).Type != TokenType.Number ) )
             {
                 Token unOp = this.Expect<Token> ( TokenType.Operator );

@@ -20,6 +20,14 @@ namespace Calculator.CLI
                 line = line.Trim ( );
                 if ( line == "exit" )
                     break;
+                //                CalculatorService.CalculatorResult res = CalculatorService.Execute ( line );
+                //                Console.WriteLine ( $@"{{
+                //    Lexing:    {res.Lexing:##0.00}μs
+                //    Parsing:   {res.Parsing:##0.00}μs
+                //    Executing: {res.Executing:##0.00}μs
+                //    Result:    {res.Result}
+                //    AST: {res.ast}
+                //}}" );
                 try
                 {
                     var sw = Stopwatch.StartNew ( );
