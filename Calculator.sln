@@ -18,7 +18,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GParse.Lexing", "GParse\GPa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GParse.Parsing", "GParse\GParse.Parsing\GParse.Parsing.csproj", "{9BC797E0-DC16-4694-BBFE-1534D61CAA1A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Calculator.Runtime", "Calculator.Parsing\Calculator.Runtime.csproj", "{95728EDD-A0D9-4FFA-BC1B-95F79311F303}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Calculator.Runtime", "Calculator.Runtime\Calculator.Runtime.csproj", "{95728EDD-A0D9-4FFA-BC1B-95F79311F303}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Calculator.CLI", "Calculator.CLI\Calculator.CLI.csproj", "{77A3BF53-0C9E-4D65-AAAA-F05E3A0AFF24}"
 EndProject

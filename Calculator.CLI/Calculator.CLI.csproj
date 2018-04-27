@@ -7,6 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Calculator.Parsing\Calculator.Runtime.csproj" />
+    <ProjectReference Include="..\Calculator.Runtime\Calculator.Runtime.csproj" />
   </ItemGroup>
 </Project>
