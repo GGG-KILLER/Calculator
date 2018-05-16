@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Calculator.Runtime\Calculator.Runtime.csproj" />
+    <ProjectReference Include="..\Calculator.Lib\Calculator.Lib.csproj" />
+    <ProjectReference Include="..\GParse\GParse.Common\GParse.Common.csproj" />
   </ItemGroup>
 </Project>

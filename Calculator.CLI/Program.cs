@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
-using Calculator.Runtime;
-using Calculator.Runtime.AST;
-using Calculator.Runtime.Definitions;
-using GParse.Lexing.Errors;
-using GParse.Parsing.Errors;
+using Calculator.Lib;
+using Calculator.Lib.AST;
+using Calculator.Lib.Definitions;
+using GParse.Common.Errors;
 
 namespace Calculator.CLI
 {
@@ -20,51 +19,51 @@ namespace Calculator.CLI
                 line = line.Trim ( );
                 if ( line == "exit" )
                     break;
-                //                CalculatorService.CalculatorResult res = CalculatorService.Execute ( line );
-                //                Console.WriteLine ( $@"{{
-                //    Lexing:    {res.Lexing:##0.00}μs
-                //    Parsing:   {res.Parsing:##0.00}μs
-                //    Executing: {res.Executing:##0.00}μs
-                //    Result:    {res.Result}
-                //    AST: {res.ast}
-                //}}" );
-                try
-                {
-                    var sw = Stopwatch.StartNew ( );
-                    var lexer = new CalculatorLexer ( lang, line );
-                    var parser = new CalculatorParser ( lang, lexer );
-                    ASTNode ast = parser.Parse ( );
-                    sw.Stop ( );
-                    Console.WriteLine ( $"{HumanTime ( sw.ElapsedTicks )} elapsed parsing." );
-                    sw.Restart ( );
-                    var res = vm.Execute ( line );
-                    sw.Stop ( );
-                    Console.WriteLine ( $"{HumanTime ( sw.ElapsedTicks )} elapsed parsing + VM." );
-                    Console.Write ( ast );
-                    Console.Write ( " = " );
-                    Console.WriteLine ( res );
-                }
-                catch ( LexException ex )
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine ( );
-                    Console.WriteLine ( $"{ex.Location} {ex}" );
-                    Console.ResetColor ( );
-                }
-                catch ( ParseException ex )
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine ( );
-                    Console.WriteLine ( $"{ex.Location} {ex}" );
-                    Console.ResetColor ( );
-                }
-                catch ( Exception ex )
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine ( );
-                    Console.WriteLine ( $"VM: {ex}" );
-                    Console.ResetColor ( );
-                }
+                CalculatorService.CalculatorResult res = CalculatorService.Execute ( line );
+                Console.WriteLine ( $@"{{
+                    Lexing:    {res.Lexing:##0.00}μs
+                    Parsing:   {res.Parsing:##0.00}μs
+                    Executing: {res.Executing:##0.00}μs
+                    Result:    {res.Result}
+                    AST: {res.ast}
+                }}" );
+                //try
+                //{
+                //    var sw = Stopwatch.StartNew ( );
+                //    var lexer = new CalculatorLexer ( lang, line );
+                //    var parser = new CalculatorParser ( lang, lexer );
+                //    ASTNode ast = parser.Parse ( );
+                //    sw.Stop ( );
+                //    Console.WriteLine ( $"{HumanTime ( sw.ElapsedTicks )} elapsed parsing." );
+                //    sw.Restart ( );
+                //    var res = vm.Execute ( line );
+                //    sw.Stop ( );
+                //    Console.WriteLine ( $"{HumanTime ( sw.ElapsedTicks )} elapsed parsing + VM." );
+                //    Console.Write ( ast );
+                //    Console.Write ( " = " );
+                //    Console.WriteLine ( res );
+                //}
+                //catch ( LexException ex )
+                //{
+                //    Console.ForegroundColor = ConsoleColor.Red;
+                //    Console.WriteLine ( );
+                //    Console.WriteLine ( $"{ex.Location} {ex}" );
+                //    Console.ResetColor ( );
+                //}
+                //catch ( ParseException ex )
+                //{
+                //    Console.ForegroundColor = ConsoleColor.Red;
+                //    Console.WriteLine ( );
+                //    Console.WriteLine ( $"{ex.Location} {ex}" );
+                //    Console.ResetColor ( );
+                //}
+                //catch ( Exception ex )
+                //{
+                //    Console.ForegroundColor = ConsoleColor.Red;
+                //    Console.WriteLine ( );
+                //    Console.WriteLine ( $"VM: {ex}" );
+                //    Console.ResetColor ( );
+                //}
             }
             while ( true );
         }
