@@ -11,11 +11,15 @@ namespace Calculator.CLI
 {
     internal class Program
     {
+        private static CalculatorLang Language;
+        private static MathExpressionReconstructor ExpressionReconstructor;
+        private static CNodeTreeExecutor TreeExecutor;
+
         private static void Main ( )
         {
-            CalculatorLang lang = BuildLanguage ( );
-            var reconstructor = new MathExpressionReconstructor ( );
-            var executor = new CNodeTreeExecutor ( lang );
+            Language = BuildLanguage ( );
+            ExpressionReconstructor = new MathExpressionReconstructor ( );
+            TreeExecutor = new CNodeTreeExecutor ( Language );
 
             while ( true )
             {
@@ -24,44 +28,11 @@ namespace Calculator.CLI
                 if ( line == "exit" )
                     break;
 
-                try
-                {
-                    var sw = Stopwatch.StartNew ( );
-                    var lexer = new CalculatorLexer ( lang, line );
-                    var parser = new CalculatorParser ( lang, lexer );
-                    CASTNode ast = parser.Parse ( );
-                    sw.Stop ( );
-                    Console.WriteLine ( $"{HumanTime ( sw.ElapsedTicks )} elapsed parsing." );
-                    sw.Restart ( );
-                    Double res = ast.Accept ( executor );
-                    sw.Stop ( );
-                    Console.WriteLine ( $"{HumanTime ( sw.ElapsedTicks )} elapsed executing." );
-                    Console.WriteLine ( $"{ast.Accept ( reconstructor )} = {res}" );
-                }
-                catch ( LexException ex )
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine ( $"{ex.Location} {ex}" );
-                    Console.ResetColor ( );
-                }
-                catch ( ParseException ex )
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine ( $"{ex.Location} {ex}" );
-                    Console.ResetColor ( );
-                }
-                catch ( CalculatorException ex )
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine ( $"Runtime exception: {ex.Message}" );
-                    Console.ResetColor ( );
-                }
-                catch ( Exception ex )
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine ( $"Unexpected exception: {ex}" );
-                    Console.ResetColor ( );
-                }
+                if ( line.StartsWith ( "b " ) || line.StartsWith ( "bench " ) )
+                    BenchmarkWithExpression ( line.Substring ( line.IndexOf ( ' ' ) ) );
+                else
+                    ExecuteExpression ( line );
+
             }
         }
 
@@ -131,6 +102,54 @@ namespace Calculator.CLI
             lang.AddFunction ( "xor", ( lhs, rhs ) => ( Int64 ) lhs ^ ( Int64 ) rhs );
 
             return lang;
+        }
+
+        private static void ExecuteExpression ( String expression )
+        {
+            try
+            {
+                var sw = Stopwatch.StartNew ( );
+                var lexer = new CalculatorLexer ( Language, expression );
+                var parser = new CalculatorParser ( Language, lexer );
+                CASTNode ast = parser.Parse ( );
+                sw.Stop ( );
+                Console.WriteLine ( $"{HumanTime ( sw.ElapsedTicks )} elapsed parsing." );
+                sw.Restart ( );
+                Double res = ast.Accept ( TreeExecutor );
+                sw.Stop ( );
+                Console.WriteLine ( $"{HumanTime ( sw.ElapsedTicks )} elapsed executing." );
+                Console.WriteLine ( $"{ast.Accept ( ExpressionReconstructor )} = {res}" );
+            }
+            catch ( LexException ex )
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine ( $"{ex.Location} {ex}" );
+                Console.ResetColor ( );
+            }
+            catch ( ParseException ex )
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine ( $"{ex.Location} {ex}" );
+                Console.ResetColor ( );
+            }
+            catch ( CalculatorException ex )
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine ( $"Runtime exception: {ex.Message}" );
+                Console.ResetColor ( );
+            }
+            catch ( Exception ex )
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine ( $"Unexpected exception: {ex}" );
+                Console.ResetColor ( );
+            }
+        }
+
+        private static void BenchmarkWithExpression ( String expression )
+        {
+            for ( var i = 0; i < 50; i++ )
+                ExecuteExpression ( expression );
         }
 
         private static readonly Double TicksPerMicrosecond = TimeSpan.TicksPerMillisecond / 1000D;
