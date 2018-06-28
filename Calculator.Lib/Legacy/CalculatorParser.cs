@@ -26,12 +26,12 @@ namespace Calculator.Lib
             new ConstantExpression ( this.Expect<Token> ( TokenType.Identifier ).Raw );
 
         // Parenthesised expressions and numeric expressions
-        private ASTNode ParsePrimaryExpression ( )
+        private CASTNode ParsePrimaryExpression ( )
         {
             if ( this.NextIs ( "(" ) )
             {
                 this.Expect<Token> ( "(" );
-                ASTNode expr = this.ParseExpression ( );
+                CASTNode expr = this.ParseExpression ( );
                 this.Expect<Token> ( ")" );
                 return new ParenthesisExpression ( expr );
             }
@@ -47,7 +47,7 @@ namespace Calculator.Lib
             if ( !this.Language.HasFunction ( ident ) )
                 throw new ParseException ( this.GetLocation ( ), $"Unknown function {ident}" );
 
-            var args = new List<ASTNode> ( );
+            var args = new List<CASTNode> ( );
             this.Expect<Token> ( "(" );
             while ( !this.Consume ( ")", out Token _ ) )
             {
@@ -63,9 +63,9 @@ namespace Calculator.Lib
         }
 
         // Constant expressions or function calls
-        private ASTNode ParseConstantOrFunctionCall ( )
+        private CASTNode ParseConstantOrFunctionCall ( )
         {
-            ASTNode primary = this.ParsePrimaryExpression ( );
+            CASTNode primary = this.ParsePrimaryExpression ( );
             if ( this.NextIs ( "(" ) )
             {
                 if ( !( primary is ConstantExpression ) )
@@ -77,15 +77,15 @@ namespace Calculator.Lib
         }
 
         // Number expressions, constant expressions or function calls
-        private ASTNode ParseLiteral ( ) =>
+        private CASTNode ParseLiteral ( ) =>
             this.NextIs ( TokenType.Number )
                 ? this.ParseNumberExpression ( )
                 : this.ParseConstantOrFunctionCall ( );
 
         // Unary operators and binary operators
-        private ASTNode ParseOperatorExpression ( Int32 lastPrecedence )
+        private CASTNode ParseOperatorExpression ( Int32 lastPrecedence )
         {
-            ASTNode expr;
+            CASTNode expr;
 
             // Prefix operators
             if ( this.NextIs ( TokenType.Operator ) )
@@ -115,7 +115,7 @@ namespace Calculator.Lib
                 if ( precedence > lastPrecedence )
                 {
                     this.Get<Token> ( );
-                    ASTNode rhs = this.ParseOperatorExpression ( precedence );
+                    CASTNode rhs = this.ParseOperatorExpression ( precedence );
                     expr = new BinaryOperatorExpression ( opDef.Operator, expr, rhs );
                 }
                 else
@@ -126,9 +126,9 @@ namespace Calculator.Lib
         }
 
         // All things
-        private ASTNode ParseExpression ( ) => this.ParseOperatorExpression ( 0 );
+        private CASTNode ParseExpression ( ) => this.ParseOperatorExpression ( 0 );
 
         // Alias
-        public ASTNode Parse ( ) => this.ParseExpression ( );
+        public CASTNode Parse ( ) => this.ParseExpression ( );
     }
 }
