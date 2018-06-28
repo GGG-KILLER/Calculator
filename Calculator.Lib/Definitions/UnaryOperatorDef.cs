@@ -20,24 +20,24 @@ namespace Calculator.Lib.Definitions
         /// <summary>
         /// The *fix-ness of the unary operator
         /// </summary>
-        public UnaryOperatorFix Fix;
+        public readonly UnaryOperatorFix Fix;
 
         /// <summary>
         /// The operator itself
         /// </summary>
-        public String Operator;
+        public readonly String Operator;
 
         /// <summary>
         /// Works the same as in binary operators but is mainly
         /// used to decide disambiguation between prefix and
         /// suffix unary operators
         /// </summary>
-        public Int32 Precedence;
+        public readonly Int32 Precedence;
 
         /// <summary>
         /// The action performed by the operator
         /// </summary>
-        public Func<Double, Double> Action;
+        public readonly Func<Double, Double> Action;
 
         public UnaryOperatorDef ( UnaryOperatorFix fix, String @operator, Int32 precedence, Func<Double, Double> action )
         {

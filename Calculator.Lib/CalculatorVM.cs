@@ -2,6 +2,7 @@
 using Calculator.Lib.AST;
 using Calculator.Lib.Definitions;
 using GParse.Common;
+using GParse.Common.AST;
 
 namespace Calculator.Lib
 {

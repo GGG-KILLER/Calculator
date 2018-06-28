@@ -7,7 +7,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GParse\GParse.Common\GParse.Common.csproj" />
-    <ProjectReference Include="..\GParse\GParse.Lexing\GParse.Lexing.csproj" />
     <ProjectReference Include="..\GParse\GParse.Parsing\GParse.Parsing.csproj" />
   </ItemGroup>
 </Project>

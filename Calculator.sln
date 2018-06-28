@@ -14,8 +14,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GParse", "GParse", "{12D9E60F-4FCB-4A45-9FF9-E2033D005274}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GParse.Lexing", "GParse\GParse.Lexing\GParse.Lexing.csproj", "{E32F7D86-F377-4776-B849-31F38CDD0D59}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GParse.Parsing", "GParse\GParse.Parsing\GParse.Parsing.csproj", "{9BC797E0-DC16-4694-BBFE-1534D61CAA1A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Calculator.Lib", "Calculator.Lib\Calculator.Lib.csproj", "{95728EDD-A0D9-4FFA-BC1B-95F79311F303}"
@@ -30,10 +28,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{E32F7D86-F377-4776-B849-31F38CDD0D59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E32F7D86-F377-4776-B849-31F38CDD0D59}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E32F7D86-F377-4776-B849-31F38CDD0D59}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E32F7D86-F377-4776-B849-31F38CDD0D59}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9BC797E0-DC16-4694-BBFE-1534D61CAA1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9BC797E0-DC16-4694-BBFE-1534D61CAA1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9BC797E0-DC16-4694-BBFE-1534D61CAA1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -55,7 +49,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{E32F7D86-F377-4776-B849-31F38CDD0D59} = {12D9E60F-4FCB-4A45-9FF9-E2033D005274}
 		{9BC797E0-DC16-4694-BBFE-1534D61CAA1A} = {12D9E60F-4FCB-4A45-9FF9-E2033D005274}
 		{2AC7558A-0D9D-439C-B5A8-2E740A981A50} = {12D9E60F-4FCB-4A45-9FF9-E2033D005274}
 	EndGlobalSection

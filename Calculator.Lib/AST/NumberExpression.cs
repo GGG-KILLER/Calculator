@@ -1,11 +1,12 @@
 ﻿using System;
 using GParse.Common;
+using GParse.Common.AST;
 
 namespace Calculator.Lib.AST
 {
     public class NumberExpression : ASTNode
     {
-        public Double Value;
+        public readonly Double Value;
 
         public NumberExpression ( Double num )
         {

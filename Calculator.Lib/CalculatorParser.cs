@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using Calculator.Lib.Definitions;
 using Calculator.Lib.AST;
-using GParse.Lexing;
-using GParse.Parsing;
+using Calculator.Lib.Definitions;
+using GParse.Common.AST;
 using GParse.Common.Errors;
-using GParse.Common;
+using GParse.Parsing;
 
 namespace Calculator.Lib
 {

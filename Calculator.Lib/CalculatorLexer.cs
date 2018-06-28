@@ -3,8 +3,8 @@ using System.Text;
 using Calculator.Lib.Definitions;
 using GParse.Common;
 using GParse.Common.Errors;
-using GParse.Lexing;
-using GParse.Lexing.Settings;
+using GParse.Parsing;
+using GParse.Parsing.Settings;
 
 namespace Calculator.Lib
 {

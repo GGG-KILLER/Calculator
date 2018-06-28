@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using GParse.Common;
+using GParse.Common.AST;
 
 namespace Calculator.Lib.AST
 {

@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using GParse.Common;
+using GParse.Common.AST;
 
 namespace Calculator.Lib.AST
 {

@@ -25,22 +25,22 @@ namespace Calculator.Lib.Definitions
         /// <summary>
         /// Operator associativity
         /// </summary>
-        public OperatorAssociativity Associativity;
+        public readonly OperatorAssociativity Associativity;
 
         /// <summary>
         /// The operator itself
         /// </summary>
-        public String Operator;
+        public readonly String Operator;
 
         /// <summary>
         /// Operator precedence (higher = executed first)
         /// </summary>
-        public Int32 Precedence;
+        public readonly Int32 Precedence;
 
         /// <summary>
         /// The action performed by the operator
         /// </summary>
-        public Func<Double, Double, Double> Action;
+        public readonly Func<Double, Double, Double> Action;
 
         public BinaryOperatorDef ( OperatorAssociativity associativity, String @operator, Int32 precedence, Func<Double, Double, Double> action )
         {
