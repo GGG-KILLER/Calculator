@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 using Calculator.Lib;
+using Calculator.Lib.AST;
 using Calculator.Lib.Definitions;
-using GParse.Common.AST;
+using Calculator.Lib.Exceptions;
+using Calculator.Lib.Visitors;
 using GParse.Common.Errors;
 
 namespace Calculator.CLI
@@ -12,52 +14,55 @@ namespace Calculator.CLI
         private static void Main ( )
         {
             CalculatorLang lang = BuildLanguage ( );
-            var vm = new CalculatorVM ( lang );
-            do
+            var reconstructor = new MathExpressionReconstructor ( );
+            var executor = new CNodeTreeExecutor ( lang );
+
+            while ( true )
             {
                 var line = Console.ReadLine ( );
                 line = line.Trim ( );
                 if ( line == "exit" )
                     break;
+
                 try
                 {
                     var sw = Stopwatch.StartNew ( );
                     var lexer = new CalculatorLexer ( lang, line );
                     var parser = new CalculatorParser ( lang, lexer );
-                    ASTNode ast = parser.Parse ( );
+                    CASTNode ast = parser.Parse ( );
                     sw.Stop ( );
                     Console.WriteLine ( $"{HumanTime ( sw.ElapsedTicks )} elapsed parsing." );
                     sw.Restart ( );
-                    var res = vm.Execute ( line );
+                    Double res = ast.Accept ( executor );
                     sw.Stop ( );
-                    Console.WriteLine ( $"{HumanTime ( sw.ElapsedTicks )} elapsed parsing + VM." );
-                    Console.Write ( ast );
-                    Console.Write ( " = " );
-                    Console.WriteLine ( res );
+                    Console.WriteLine ( $"{HumanTime ( sw.ElapsedTicks )} elapsed executing." );
+                    Console.WriteLine ( $"{ast.Accept ( reconstructor )} = {res}" );
                 }
                 catch ( LexException ex )
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine ( );
                     Console.WriteLine ( $"{ex.Location} {ex}" );
                     Console.ResetColor ( );
                 }
                 catch ( ParseException ex )
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine ( );
                     Console.WriteLine ( $"{ex.Location} {ex}" );
+                    Console.ResetColor ( );
+                }
+                catch ( CalculatorException ex )
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine ( $"Runtime exception: {ex.Message}" );
                     Console.ResetColor ( );
                 }
                 catch ( Exception ex )
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine ( );
-                    Console.WriteLine ( $"VM: {ex}" );
+                    Console.WriteLine ( $"Unexpected exception: {ex}" );
                     Console.ResetColor ( );
                 }
             }
-            while ( true );
         }
 
         private static CalculatorLang BuildLanguage ( )
