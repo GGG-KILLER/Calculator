@@ -1,9 +1,10 @@
 ﻿using System;
+using Calculator.Lib.Abstractions;
 using GParse.Common.AST;
 
 namespace Calculator.Lib.AST
 {
-    public class ConstantExpression : ASTNode
+    public class ConstantExpression : CASTNode
     {
         public readonly String Identifier;
 
@@ -11,6 +12,10 @@ namespace Calculator.Lib.AST
         {
             this.Identifier = Id;
         }
+
+        public override void Accept ( ICNodeTreeVisitor visitor ) => visitor.Visit ( this );
+
+        public override T Accept<T> ( ICNodeTreeVisitor<T> visitor ) => visitor.Visit ( this );
 
         public override String ToString ( ) => $"Const<{this.Identifier}>";
     }

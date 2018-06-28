@@ -1,10 +1,9 @@
 ﻿using System;
-using GParse.Common;
-using GParse.Common.AST;
+using Calculator.Lib.Abstractions;
 
 namespace Calculator.Lib.AST
 {
-    public class NumberExpression : ASTNode
+    public class NumberExpression : CASTNode
     {
         public readonly Double Value;
 
@@ -12,6 +11,10 @@ namespace Calculator.Lib.AST
         {
             this.Value = num;
         }
+
+        public override void Accept ( ICNodeTreeVisitor visitor ) => visitor.Visit ( this );
+
+        public override T Accept<T> ( ICNodeTreeVisitor<T> visitor ) => visitor.Visit ( this );
 
         public override String ToString ( ) => $"Num<{this.Value}>";
     }
