@@ -124,9 +124,6 @@ namespace Calculator.Lib.Definitions
         public Delegate GetFunction ( String id ) =>
             this.FunctionDefs.FirstOrDefault ( funcdef => funcdef.Key == id ).Value;
 
-        public UnaryOperatorDef GetUnaryOperator ( String op ) =>
-            this.UnaryOperatorDefs.FirstOrDefault ( opdef => opdef.Operator == op );
-
         public UnaryOperatorDef GetUnaryOperator ( String @operator, UnaryOperatorFix fix ) =>
             this.UnaryOperatorDefs.FirstOrDefault ( opdef => opdef.Operator == @operator && opdef.Fix == fix );
 
@@ -139,7 +136,7 @@ namespace Calculator.Lib.Definitions
         public Boolean HasFunction ( String id ) =>
             this.FunctionDefs.ContainsKey ( id );
 
-        public Boolean HasUnaryOperator ( String op ) =>
-            this.UnaryOperatorDefs.Any ( opdef => opdef.Operator == op );
+        public Boolean HasUnaryOperator ( String op, UnaryOperatorFix fix ) =>
+            this.UnaryOperatorDefs.Any ( opdef => opdef.Operator == op && opdef.Fix == fix );
     }
 }
