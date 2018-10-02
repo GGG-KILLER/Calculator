@@ -13,7 +13,7 @@ namespace Calculator.Lib.Visitors
             => constant.Identifier;
 
         public String Visit ( FunctionCallExpression functionCall )
-            => $"{functionCall.Identifier} ( {String.Join ( ", ", Array.ConvertAll ( functionCall.Arguments, node => node.Accept ( this ) ) )} )";
+            => $"{functionCall.Identifier}({String.Join ( ", ", Array.ConvertAll ( functionCall.Arguments, node => node.Accept ( this ) ) )})";
 
         public String Visit ( NumberExpression number )
             => number.Value.ToString ( );
