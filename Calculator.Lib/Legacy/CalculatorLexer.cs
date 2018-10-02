@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Calculator.Lib.Definitions;
 using GParse.Common;
@@ -16,19 +18,16 @@ namespace Calculator.Lib
         {
             this.Language = lang;
 
-            // Add operators and constants of the language (using
-            // a hack to ignore already-added operators)
-            foreach ( UnaryOperatorDef unaryop in lang.UnaryOperators )
-                try { this.tokenManager.AddToken ( unaryop.Operator, unaryop.Operator, TokenType.Operator ); }
-                catch { }
+            var unique = new HashSet<String> ( lang.UnaryOperators.Select ( op => op.Operator )
+                .Concat ( lang.BinaryOperators.Select ( op => op.Operator ) ) );
+            // Add operators and constants of the language
+            foreach ( String op in unique )
+                this.tokenManager.AddToken ( op, op, TokenType.Operator );
 
-            foreach ( BinaryOperatorDef binaryop in lang.BinaryOperators )
-                try { this.tokenManager.AddToken ( binaryop.Operator, binaryop.Operator, TokenType.Operator ); }
-                catch { }
-
-            foreach ( ConstantDef constdef in lang.Constants )
-                try { this.tokenManager.AddToken ( constdef.Identifier, constdef.Identifier, TokenType.Identifier, next => !Char.IsLetterOrDigit ( next ) ); }
-                catch { }
+            unique.Clear ( );
+            unique.UnionWith ( lang.Constants.Select ( @const => @const.Identifier ) );
+            foreach ( String @const in unique )
+                this.tokenManager.AddToken ( @const, @const, TokenType.Identifier, next => !Char.IsLetterOrDigit ( next ) );
 
             // Parenthesis and commas aren't operators
             this.tokenManager
