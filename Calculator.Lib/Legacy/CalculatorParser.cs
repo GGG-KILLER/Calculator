@@ -91,6 +91,8 @@ namespace Calculator.Lib
             if ( this.NextIs ( TokenType.Operator ) )
             {
                 Token unOp = this.Expect<Token> ( TokenType.Operator );
+                if ( !this.Language.HasUnaryOperator ( unOp.ID, UnaryOperatorFix.Prefix ) )
+                    throw new ParseException ( unOp.Range.Start, "Unknown prefix operator " + unOp.ID );
                 expr = new UnaryOperatorExpression ( unOp.Raw, this.ParseOperatorExpression ( 0 ), UnaryOperatorFix.Prefix );
             }
             // No prefix operators
@@ -100,8 +102,10 @@ namespace Calculator.Lib
             }
 
             // Postfix operators
-            while ( this.Language.HasUnaryOperator ( this.Peek ( ).ID )
-                && ( !this.Language.HasBinaryOperator ( this.Peek ( ).ID ) || this.Peek ( 1 ).Type != TokenType.Number ) )
+            while ( this.Language.HasUnaryOperator ( this.Peek ( ).ID, UnaryOperatorFix.Postfix )
+                && ( !this.Language.HasBinaryOperator ( this.Peek ( ).ID )
+                    || ( this.Peek ( 1 ).Type != TokenType.Number && this.Peek ( 1 ).Type != TokenType.LParen
+                        && this.Peek ( 1 ).Type != TokenType.Identifier ) ) )
             {
                 Token unOp = this.Expect<Token> ( TokenType.Operator );
                 expr = new UnaryOperatorExpression ( unOp.Raw, expr, UnaryOperatorFix.Postfix );
@@ -129,6 +133,12 @@ namespace Calculator.Lib
         private CASTNode ParseExpression ( ) => this.ParseOperatorExpression ( 0 );
 
         // Alias
-        public CASTNode Parse ( ) => this.ParseExpression ( );
+        public CASTNode Parse ( )
+        {
+            CASTNode expr = this.ParseExpression ( );
+            if ( this.Position < this.TokenList.Count - 1 )
+                throw new ParseException ( this.TokenList[this.Position + 1].Range.Start, "Unfinished expression." );
+            return expr;
+        }
     }
 }
