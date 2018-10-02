@@ -29,7 +29,7 @@ namespace Calculator.Lib.Visitors
         public Double Visit ( FunctionCallExpression functionCall )
             => this.Language.HasFunction ( functionCall.Identifier )
                 ? ( Double ) this.Language.GetFunction ( functionCall.Identifier )
-                    .DynamicInvoke ( Array.ConvertAll ( functionCall.Arguments, node => node.Accept ( this ) ) )
+                    .DynamicInvoke ( Array.ConvertAll ( functionCall.Arguments, node => node.Accept ( this ) as Object ) )
                 : throw new CalculatorRuntimeException ( $"Function {functionCall.Identifier} does not exist in this language." );
 
         public Double Visit ( NumberExpression number )
@@ -39,8 +39,8 @@ namespace Calculator.Lib.Visitors
             => parenthesis.InnerExpression.Accept ( this );
 
         public Double Visit ( UnaryOperatorExpression unaryOperator )
-            => this.Language.HasUnaryOperator ( unaryOperator.Operator )
-                ? this.Language.GetUnaryOperator ( unaryOperator.Operator )
+            => this.Language.HasUnaryOperator ( unaryOperator.Operator, unaryOperator.Fix )
+                ? this.Language.GetUnaryOperator ( unaryOperator.Operator, unaryOperator.Fix )
                     .Action ( unaryOperator.Operand.Accept ( this ) )
                 : throw new CalculatorRuntimeException ( $"Unary operator {unaryOperator.Operator} does not exist in this language." );
     }
