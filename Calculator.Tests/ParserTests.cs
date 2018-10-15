@@ -259,45 +259,6 @@ namespace Calculator.Tests
                 ))
             );
 
-        private readonly Random random = new Random ( );
-
-        private CalculatorASTNode GenerateRandomExpression ( Int32 maxDepth )
-        {
-            Definitions.UnaryOperatorDef[] unaryOperators   = this.Language.UnaryOperators.ToArray ( );
-            Definitions.BinaryOperatorDef[] binaryOperators = this.Language.BinaryOperators.ToArray ( );
-            Definitions.ConstantDef[] constants             = this.Language.Constants.ToArray ( );
-
-            if ( maxDepth > 0 )
-            {
-                switch ( this.random.Next ( 0, 3 ) )
-                {
-                    case 0:
-                        Definitions.UnaryOperatorDef unop = unaryOperators[this.random.Next ( 0, unaryOperators.Length )];
-                        return UnaryOperator ( unop.Operator, this.GenerateRandomExpression ( maxDepth - 1 ), unop.Fix );
-
-                    case 1:
-                        Definitions.BinaryOperatorDef binop = binaryOperators[this.random.Next ( 0, binaryOperators.Length )];
-                        return BinaryOperator ( this.GenerateRandomExpression ( maxDepth - 1 ), binop.Operator, this.GenerateRandomExpression ( maxDepth - 1 ) );
-
-                    case 2:
-                        var args = new Object[this.random.Next ( 0, 10 )];
-                        for ( var i = 0; i < args.Length; i++ )
-                            args[i] = this.GenerateRandomExpression ( maxDepth - 1 );
-                        return FunctionCall ( "func", args );
-
-                    // Will never arrive here anyways.
-                    default:
-                        throw null;
-                }
-            }
-            else
-            {
-                return this.random.Next ( 0, 2 ) == 1
-                    ? Number ( this.random.NextDouble ( ) )
-                    : ( CalculatorASTNode ) Identifier ( "const" );
-            }
-        }
-
         [TestMethod]
         public void ComplexExpressionsAreParsedProperly ( )
         {
