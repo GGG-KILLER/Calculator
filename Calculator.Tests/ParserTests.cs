@@ -5,7 +5,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Calculator.Tests
 {
-    using System.Linq;
     using Calculator.Parsing.Visitors;
     using static ASTHelper;
 

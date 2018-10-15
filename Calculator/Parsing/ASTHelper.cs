@@ -5,9 +5,9 @@ using Calculator.Parsing.AST;
 using GParse.Common;
 using GParse.Common.Lexing;
 
-namespace Calculator.Tests
+namespace Calculator.Parsing
 {
-    internal static class ASTHelper
+    public static class ASTHelper
     {
         public static Token<CalculatorTokenType> GetTok ( String id, CalculatorTokenType type, String raw = null, Object value = null ) =>
             new Token<CalculatorTokenType> ( id, raw ?? id, value ?? id, type, SourceRange.Zero );
