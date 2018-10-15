@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Calculator.Lib.Definitions
+namespace Calculator.Definitions
 {
     /// <summary>
     /// Operator associativity
@@ -8,19 +8,24 @@ namespace Calculator.Lib.Definitions
     public enum OperatorAssociativity
     {
         /// <summary>
-        /// a &lt;op&gt; b &lt;op&gt; c === (a &lt;op&gt; b)
+        /// a &lt;op&gt; b &lt;op&gt; c ≡ (a &lt;op&gt; b)
         /// &lt;op&gt; c
         /// </summary>
         Left,
 
         /// <summary>
-        /// a &lt;op&gt; b &lt;op&gt; c === a &lt;op&gt; (b
+        /// a &lt;op&gt; b &lt;op&gt; c ≡ a &lt;op&gt; (b
         /// &lt;op&gt; c)
         /// </summary>
-        Right
+        Right,
+
+        /// <summary>
+        /// Constitutes an error when used in sequence
+        /// </summary>
+        None
     }
 
-    public struct BinaryOperatorDef
+    public readonly struct BinaryOperatorDef
     {
         /// <summary>
         /// Operator associativity

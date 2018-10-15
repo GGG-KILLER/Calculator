@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Calculator.Lib.Definitions
+namespace Calculator.Definitions
 {
     public enum UnaryOperatorFix
     {
@@ -15,7 +15,7 @@ namespace Calculator.Lib.Definitions
         Postfix
     }
 
-    public struct UnaryOperatorDef
+    public readonly struct UnaryOperatorDef
     {
         /// <summary>
         /// The *fix-ness of the unary operator

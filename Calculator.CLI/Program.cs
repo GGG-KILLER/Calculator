@@ -1,19 +1,23 @@
 ﻿using System;
-using Calculator.Lib;
-using Calculator.Lib.AST;
-using Calculator.Lib.Definitions;
-using Calculator.Lib.Exceptions;
-using Calculator.Lib.Visitors;
+using System.Linq;
+using Calculator.Definitions;
+using Calculator.Lexing;
+using Calculator.Parsing;
+using Calculator.Parsing.AST;
+using Calculator.Parsing.Visitors;
 using GParse.Common.Errors;
+using GParse.Common.IO;
+using GParse.Parsing.Abstractions.Lexing;
+using GParse.Parsing.Lexing.Modules;
 using GUtils.Timing;
 
 namespace Calculator.CLI
 {
     internal class Program
     {
-        private static CalculatorLang Language;
-        private static MathExpressionReconstructor ExpressionReconstructor;
-        private static CNodeTreeExecutor TreeExecutor;
+        private static CalculatorLanguage Language;
+        private static TreeEvaluator Evaluator;
+        private static TreeReconstructor Reconstructor;
         private static TimingArea Root;
 
         private static void Main ( )
@@ -24,10 +28,10 @@ namespace Calculator.CLI
                 using ( Root = new TimingArea ( "Building the language", Root ) )
                     Language = BuildLanguage ( );
                 Root = r;
+                using ( Root.TimeLine ( "Initializing the evaluator" ) )
+                    Evaluator = new TreeEvaluator ( Language );
                 using ( Root.TimeLine ( "Initializing the reconstructor" ) )
-                    ExpressionReconstructor = new MathExpressionReconstructor ( );
-                using ( Root.TimeLine ( "Initializing the executor" ) )
-                    TreeExecutor = new CNodeTreeExecutor ( Language );
+                    Reconstructor = new TreeReconstructor ( );
             }
 
             while ( true )
@@ -40,24 +44,23 @@ namespace Calculator.CLI
 
                 if ( line.StartsWith ( "b " ) || line.StartsWith ( "bench " ) )
                     BenchmarkWithExpression ( line.Substring ( line.IndexOf ( ' ' ) ) );
+                else if ( line.StartsWith ( "l " ) || line.StartsWith ( "lex " ) )
+                    LexExpression ( line.Substring ( line.IndexOf ( ' ' ) + 1 ) );
                 else
                     ExecuteExpression ( line );
             }
         }
 
-        private static CalculatorLang BuildLanguage ( )
+        private static CalculatorLanguage BuildLanguage ( )
         {
-            var lang = new CalculatorLang ( "Math", new Version ( 1, 0, 0 ) );
+            var lang = new CalculatorLanguage ( );
 
             // Constants
             using ( Root.TimeLine ( "Adding constants" ) )
             {
-                lang.AddConstant ( "E", Math.E );
-                lang.AddConstant ( "e", Math.E );
-                lang.AddConstant ( "PI", Math.PI );
-                lang.AddConstant ( "Pi", Math.PI );
-                lang.AddConstant ( "pi", Math.PI );
-                lang.AddConstant ( "π", Math.PI );
+                lang.AddConstant ( "E", Math.E, false );
+                lang.AddConstant ( "pi", Math.PI, false );
+                lang.AddConstant ( "π", Math.PI, false );
             }
 
             // Unary operators
@@ -144,48 +147,57 @@ namespace Calculator.CLI
             return lang;
         }
 
+        private static void LexExpression ( String expression )
+        {
+            using ( var lexArea = new TimingArea ( $"Lexing: {expression}" ) )
+            {
+                ILexer<CalculatorTokenType> lexer;
+
+                using ( lexArea.TimeLine ( "Lexer init" ) )
+                    lexer = Language.GetLexer ( expression );
+
+                using ( var tokArea = new TimingArea ( "Tokens", lexArea ) )
+                    while ( !lexer.EOF )
+                        tokArea.Log ( lexer.ConsumeToken ( ) );
+            }
+        }
+
         private static void ExecuteExpression ( String expression )
         {
             try
             {
                 using ( var exArea = new TimingArea ( $"Executing: {expression}" ) )
                 {
+                    ILexer<CalculatorTokenType> lexer;
                     CalculatorParser parser;
-                    CASTNode ast;
+                    CalculatorASTNode node;
                     Double res;
                     String rec;
 
-                    using ( exArea.TimeLine ( "Lexing" ) )
-                        parser = new CalculatorParser ( Language, new CalculatorLexer ( Language, expression ) );
+                    using ( exArea.TimeLine ( "Lexer + Parser initialization" ) )
+                    {
+                        lexer = Language.GetLexer ( expression );
+                        parser = new CalculatorParser ( lexer, Language );
+                    }
 
                     using ( exArea.TimeLine ( "Parsing" ) )
-                        ast = parser.Parse ( );
+                        node = parser.Parse ( );
 
-                    using ( exArea.TimeLine ( "Execution" ) )
-                        res = ast.Accept ( TreeExecutor );
+                    using ( exArea.TimeLine ( "Evaluation" ) )
+                        res = node.Accept ( Evaluator );
 
                     using ( exArea.TimeLine ( "Reconstruction" ) )
-                        rec = ast.Accept ( ExpressionReconstructor );
+                        rec = node.Accept ( Reconstructor );
 
                     exArea.Log ( $"{rec} = {res}" );
                 }
             }
-            catch ( LexException ex )
+            catch ( LocationBasedException lbex )
             {
+                Console.WriteLine ( expression );
+                Console.WriteLine ( new String ( ' ', lbex.Location.Byte ) + '^' );
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine ( $"{ex.Location} {ex}" );
-                Console.ResetColor ( );
-            }
-            catch ( ParseException ex )
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine ( $"{ex.Location} {ex}" );
-                Console.ResetColor ( );
-            }
-            catch ( CalculatorException ex )
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine ( $"Runtime exception: {ex.Message}" );
+                Console.WriteLine ( $"{lbex.Location}: {lbex.Message}" );
                 Console.ResetColor ( );
             }
             catch ( Exception ex )

@@ -7,11 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GUtils.Timing" Version="1.1.1" />
+    <PackageReference Include="GUtils.Timing" Version="2.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Calculator.Lib\Calculator.Lib.csproj" />
+    <ProjectReference Include="..\Calculator\Calculator.csproj" />
     <ProjectReference Include="..\GParse\GParse.Common\GParse.Common.csproj" />
   </ItemGroup>
 </Project>
