@@ -1,1 +1,29 @@
-﻿
+﻿identifier          = ? C#: Char.IsLetter ?, { ? C#: Char.IsLetterOrDigit ? }
+
+binary_digit        = '0' | '1'
+binary_integer      = '0b', binary_digit, { binary_digit }
+octal_digit         = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7'
+octal_integer       = '0o', octal_digit, { octal_digit }
+decimal_digit       = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
+decimal_integer     = decimal_digit, { decimal_digit }
+decimal_number      = ( decimal_integer, [ '.', decimal_integer ] | '.', decimal_integer ), [ ( 'e' | 'E' ), [ '_' | '+' ], decimal_integer ]
+hexadecimal_digit   = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
+                    | [ 'a' | 'A' ] | [ 'b' | 'B' ] | [ 'c' | 'C' ] | [ 'd' | 'D' ] | [ 'e' | 'E' ] | [ 'f' | 'F' ]
+hexadecimal_integer = '0x', hexadecimal_digit, { hexadecimal_digit }
+number              = binary_integer | octal_integer | decimal_number | hexadecimal_integer
+
+function_call       = identifier, '(', [ expression, { ',', expression } ]  , ')'
+
+atomic              = '(', expression, ')' | function_call | identifier | number
+
+prefix_unary_operator = ? user-defined ?
+prefixed_expression = prefix_unary_operator, prefixed_expression
+                    | atomic
+
+suffix_unary_operator = ? user-defined ?
+suffixed_expression = suffixed_expression, suffix_unary_operator
+                    | prefixed_expression
+
+binary_operator = ? user-defined ?
+binary_expression = binary_expression, binary_operator, binary_expression
+                  | suffixed_expression
