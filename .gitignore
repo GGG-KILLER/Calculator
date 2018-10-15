@@ -302,5 +302,5 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-Calculator.CLI/CalculatorService.cs
-!Calculator.Lib/
+# Things
+.vscode/
