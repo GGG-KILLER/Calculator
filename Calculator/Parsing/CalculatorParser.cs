@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Calculator.Definitions;
 using Calculator.Lexing;
 using Calculator.Parsing.AST;
-using Calculator.Parsing.Visitors;
 using GParse.Common.Errors;
 using GParse.Common.Lexing;
 using GParse.Parsing.Abstractions.Lexing;
