@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Text;
 using Calculator.Definitions;
 using Calculator.Lexing;
 using Calculator.Parsing;
@@ -22,6 +24,7 @@ namespace Calculator.CLI
 
         private static void Main ( )
         {
+            const Int32 BufferSize = 4096;
             using ( Root = new TimingArea ( "Initialization" ) )
             {
                 TimingArea r = Root;
@@ -34,25 +37,28 @@ namespace Calculator.CLI
                     Reconstructor = new TreeReconstructor ( );
             }
 
-            Root = new TimingArea ( "Runtime" );
-            while ( true )
+            using ( Root = new TimingArea ( "Runtime" ) )
+            using ( var reader = new StreamReader ( Console.OpenStandardInput ( BufferSize ), Encoding.Unicode ) )
             {
-                Console.Write ( '>' );
-                var line = Console.ReadLine ( );
-                line = line.Trim ( );
-                if ( line == "q" || line == "e" || line == "quit" || line == "exit" )
-                    break;
+                while ( true )
+                {
+                    Console.Write ( '>' );
+                    var line = reader.ReadToEnd ( );
+                    line = line.Trim ( );
+                    if ( line == "q" || line == "e" || line == "quit" || line == "exit" )
+                        break;
 
-                if ( line.StartsWith ( "b " ) || line.StartsWith ( "bench " ) )
-                    BenchmarkWithExpression ( line.Substring ( line.IndexOf ( ' ' ) ) );
-                else if ( line.StartsWith ( "l " ) || line.StartsWith ( "lex " ) )
-                    LexExpression ( line.Substring ( line.IndexOf ( ' ' ) + 1 ) );
-                else if ( line.StartsWith ( "r " ) || line.StartsWith ( "random " ) )
-                    GenerateRandomExpression ( line.Substring ( line.IndexOf ( ' ' ) + 1 ) );
-                else if ( line.StartsWith ( "v " ) || line.StartsWith ( "verbose " ) )
-                    ExecuteExpressionVerbose ( line.Substring ( line.IndexOf ( ' ' ) + 1 ) );
-                else
-                    ExecuteExpression ( line );
+                    if ( line.StartsWith ( "b " ) || line.StartsWith ( "bench " ) )
+                        BenchmarkWithExpression ( line.Substring ( line.IndexOf ( ' ' ) ) );
+                    else if ( line.StartsWith ( "l " ) || line.StartsWith ( "lex " ) )
+                        LexExpression ( line.Substring ( line.IndexOf ( ' ' ) + 1 ) );
+                    else if ( line.StartsWith ( "r " ) || line.StartsWith ( "random " ) )
+                        GenerateRandomExpression ( line.Substring ( line.IndexOf ( ' ' ) + 1 ) );
+                    else if ( line.StartsWith ( "v " ) || line.StartsWith ( "verbose " ) )
+                        ExecuteExpressionVerbose ( line.Substring ( line.IndexOf ( ' ' ) + 1 ) );
+                    else
+                        ExecuteExpression ( line );
+                }
             }
         }
 
@@ -173,11 +179,23 @@ namespace Calculator.CLI
             {
                 Root.Log ( $"{expression} = {new CalculatorParser ( Language.GetLexer ( expression ), Language ).Parse ( ).Accept ( Evaluator )}" );
             }
-            catch ( LocationBasedException lbex )
+            catch ( GParse.Parsing.Lexing.Errors.UnableToContinueLexingException ex )
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Root.Log ( expression );
-                Root.Log ( new String ( ' ', lbex.Location.Byte ) + '^' );
+                Root.Log ( $"Lexer 🅱roke at {ex.Location}." );
+                Root.Log ( $"Content left: {ex.Reader}" );
+                Root.Log ( $"Peek: '{ex.Reader.Peek ( )}' 0x{( Int32 ) ex.Reader.Peek ( ):X2} " );
+                Console.ResetColor ( );
+            }
+            catch ( LocationBasedException lbex )
+            {
+                var pad = Math.Min ( lbex.Location.Byte, 20 );
+                var start = lbex.Location.Byte - pad;
+                var end = Math.Min ( lbex.Location.Byte + pad, expression.Length );
+
+                Console.ForegroundColor = ConsoleColor.Red;
+                Root.Log ( expression.Substring ( start, end - start ) );
+                Root.Log ( new String ( ' ', pad ) + '^' );
                 Root.Log ( $"{lbex.Location}: {lbex.Message}" );
                 Console.ResetColor ( );
             }
