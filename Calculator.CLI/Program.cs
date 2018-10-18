@@ -38,7 +38,7 @@ namespace Calculator.CLI
             }
 
             using ( Root = new TimingArea ( "Runtime" ) )
-            using ( var reader = new StreamReader ( Console.OpenStandardInput ( BufferSize ), Encoding.Unicode ) )
+            using ( var reader = new StreamReader ( Console.OpenStandardInput ( BufferSize ), Encoding.Default, false, BufferSize ) )
             {
                 while ( true )
                 {

@@ -12,6 +12,5 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Calculator\Calculator.csproj" />
-    <ProjectReference Include="..\GParse\GParse.Common\GParse.Common.csproj" />
   </ItemGroup>
 </Project>
