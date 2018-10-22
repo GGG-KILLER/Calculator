@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Text;
 using Calculator.Definitions;
 using Calculator.Lexing;
 using Calculator.Parsing;
@@ -24,7 +22,6 @@ namespace Calculator.CLI
 
         private static void Main ( )
         {
-            const Int32 BufferSize = 4096;
             using ( Root = new TimingArea ( "Initialization" ) )
             {
                 TimingArea r = Root;
@@ -35,15 +32,16 @@ namespace Calculator.CLI
                     Evaluator = new TreeEvaluator ( Language );
                 using ( Root.TimeLine ( "Initializing the reconstructor" ) )
                     Reconstructor = new TreeReconstructor ( );
+
+                Console.InputEncoding = Console.OutputEncoding = System.Text.Encoding.Unicode;
             }
 
             using ( Root = new TimingArea ( "Runtime" ) )
-            using ( var reader = new StreamReader ( Console.OpenStandardInput ( BufferSize ), Encoding.Default, false, BufferSize ) )
             {
                 while ( true )
                 {
                     Console.Write ( '>' );
-                    var line = reader.ReadToEnd ( );
+                    var line = Console.ReadLine ( );
                     line = line.Trim ( );
                     if ( line == "q" || line == "e" || line == "quit" || line == "exit" )
                         break;
