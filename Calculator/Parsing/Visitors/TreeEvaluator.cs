@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Calculator.Errors;
 using Calculator.Parsing.Abstractions;
 using Calculator.Parsing.AST;

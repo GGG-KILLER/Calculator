@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using Calculator.Lexing;
 using Calculator.Parsing.Abstractions;
 using GParse.Common.AST;
-using GParse.Common.Lexing;
 
 namespace Calculator.Parsing.AST
 {

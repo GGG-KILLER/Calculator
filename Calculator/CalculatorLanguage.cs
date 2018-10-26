@@ -4,7 +4,6 @@ using System.Linq;
 using Calculator.Definitions;
 using Calculator.Lexing;
 using Calculator.Lexing.Modules;
-using GParse.Common.IO;
 using GParse.Parsing.Abstractions.Lexing;
 using GParse.Parsing.Lexing;
 using GParse.Parsing.Lexing.Modules;

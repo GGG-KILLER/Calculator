@@ -21,9 +21,9 @@ namespace Calculator.Definitions
 
         public ConstantDef ( String ident, Boolean isCaseSensitive, Double val )
         {
-            this.Identifier      = ident;
+            this.Identifier = ident;
             this.IsCaseSensitive = isCaseSensitive;
-            this.Value           = val;
+            this.Value = val;
         }
     }
 }
