@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using Calculator.Lexing;
 using Calculator.Parsing.Abstractions;
 using GParse.Common.Lexing;
@@ -17,8 +15,6 @@ namespace Calculator.Parsing.AST
             this.Token = token;
             this.Value = ( Double ) token.Value;
         }
-
-        public override IEnumerable<CalculatorASTNode> Children => Enumerable.Empty<CalculatorASTNode> ( );
 
         public override void Accept ( ITreeVisitor visitor ) => visitor.Visit ( this );
 

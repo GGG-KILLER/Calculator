@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Calculator.Definitions;
 using Calculator.Lexing;
 using Calculator.Parsing.Abstractions;
@@ -15,17 +14,9 @@ namespace Calculator.Parsing.AST
 
         public UnaryOperatorExpression ( Token<CalculatorTokenType> Operator, CalculatorASTNode Operand, UnaryOperatorFix fix )
         {
-            this.Operator    = Operator;
-            this.Operand     = Operand;
+            this.Operator = Operator;
+            this.Operand = Operand;
             this.OperatorFix = fix;
-        }
-
-        public override IEnumerable<CalculatorASTNode> Children
-        {
-            get
-            {
-                yield return this.Operand;
-            }
         }
 
         public override void Accept ( ITreeVisitor visitor ) => visitor.Visit ( this );

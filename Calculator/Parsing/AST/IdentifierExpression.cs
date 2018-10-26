@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using Calculator.Lexing;
 using Calculator.Parsing.Abstractions;
 using GParse.Common.Lexing;
@@ -16,8 +13,6 @@ namespace Calculator.Parsing.AST
         {
             this.Identifier = ident;
         }
-
-        public override IEnumerable<CalculatorASTNode> Children => Enumerable.Empty<CalculatorASTNode> ( );
 
         public override void Accept ( ITreeVisitor visitor ) => visitor.Visit ( this );
 

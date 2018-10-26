@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Calculator.Lexing;
 using Calculator.Parsing.Abstractions;
-using GParse.Common.AST;
 using GParse.Common.Lexing;
 
 namespace Calculator.Parsing.AST
@@ -19,8 +18,6 @@ namespace Calculator.Parsing.AST
             this._tokens = tokens.ToArray ( );
             this.Arguments = args;
         }
-
-        public override IEnumerable<CalculatorASTNode> Children => this.Arguments;
 
         public override void Accept ( ITreeVisitor visitor ) => visitor.Visit ( this );
 

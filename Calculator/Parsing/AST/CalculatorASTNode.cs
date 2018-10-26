@@ -10,8 +10,6 @@ namespace Calculator.Parsing.AST
 {
     public abstract class CalculatorASTNode : ASTNode
     {
-        public abstract IEnumerable<CalculatorASTNode> Children { get; }
-
         public abstract void Accept ( ITreeVisitor visitor );
 
         public abstract T Accept<T> ( ITreeVisitor<T> visitor );
