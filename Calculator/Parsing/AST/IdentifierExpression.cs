@@ -17,14 +17,6 @@ namespace Calculator.Parsing.AST
             this.Identifier = ident;
         }
 
-        public override IEnumerable<Token<CalculatorTokenType>> Tokens
-        {
-            get
-            {
-                yield return this.Identifier;
-            }
-        }
-
         public override IEnumerable<CalculatorASTNode> Children => Enumerable.Empty<CalculatorASTNode> ( );
 
         public override void Accept ( ITreeVisitor visitor ) => visitor.Visit ( this );

@@ -18,7 +18,7 @@ namespace Calculator.Parsing.Visitors
         public Double Visit ( BinaryOperatorExpression binaryOperator )
         {
             if ( !this.Language.HasBinaryOperator ( binaryOperator.Operator.Raw ) )
-                throw new EvaluationException ( binaryOperator.Tokens.First ( ).Range.Start, $"Unkown binary operator '{binaryOperator.Operator}'." );
+                throw new EvaluationException ( binaryOperator.Operator.Range.Start, $"Unkown binary operator '{binaryOperator.Operator}'." );
 
             return this.Language.GetBinaryOperator ( binaryOperator.Operator.Raw )
                 .Action ( binaryOperator.LeftHandSide.Accept ( this ), binaryOperator.RightHandSide.Accept ( this ) );
@@ -50,7 +50,7 @@ namespace Calculator.Parsing.Visitors
         {
             var op = unaryOperator.Operator.Raw;
             if ( !this.Language.HasUnaryOperator ( op, unaryOperator.OperatorFix ) )
-                throw new EvaluationException ( ( unaryOperator.OperatorFix == Definitions.UnaryOperatorFix.Postfix ? unaryOperator.Tokens.Last ( ) : unaryOperator.Tokens.First ( ) ).Range.Start, $"Unknown unary operator '{op}'." );
+                throw new EvaluationException ( unaryOperator.Operator.Range.Start, $"Unknown unary operator '{op}'." );
 
             return this.Language.GetUnaryOperator ( op, unaryOperator.OperatorFix ).Action ( unaryOperator.Operand.Accept ( this ) );
         }

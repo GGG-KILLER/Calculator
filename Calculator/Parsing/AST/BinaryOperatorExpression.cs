@@ -19,20 +19,6 @@ namespace Calculator.Parsing.AST
             this.RightHandSide = rhs;
         }
 
-        public override IEnumerable<Token<CalculatorTokenType>> Tokens
-        {
-            get
-            {
-                foreach ( Token<CalculatorTokenType> token in this.LeftHandSide.Tokens )
-                    yield return token;
-
-                yield return this.Operator;
-
-                foreach ( Token<CalculatorTokenType> token in this.RightHandSide.Tokens )
-                    yield return token;
-            }
-        }
-
         public override IEnumerable<CalculatorASTNode> Children
         {
             get

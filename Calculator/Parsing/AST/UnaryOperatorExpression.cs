@@ -20,25 +20,6 @@ namespace Calculator.Parsing.AST
             this.OperatorFix = fix;
         }
 
-        public override IEnumerable<Token<CalculatorTokenType>> Tokens
-        {
-            get
-            {
-                if ( this.OperatorFix == UnaryOperatorFix.Prefix )
-                {
-                    yield return this.Operator;
-                    foreach ( Token<CalculatorTokenType> token in this.Operand.Tokens )
-                        yield return token;
-                }
-                else
-                {
-                    foreach ( Token<CalculatorTokenType> token in this.Operand.Tokens )
-                        yield return token;
-                    yield return this.Operator;
-                }
-            }
-        }
-
         public override IEnumerable<CalculatorASTNode> Children
         {
             get

@@ -20,23 +20,6 @@ namespace Calculator.Parsing.AST
             this.Arguments = args;
         }
 
-        public override IEnumerable<Token<CalculatorTokenType>> Tokens
-        {
-            get
-            {
-                var i = 0;
-                yield return this._tokens[i++];
-                yield return this._tokens[i++];
-                foreach ( CalculatorASTNode arg in this.Arguments )
-                {
-                    foreach ( Token<CalculatorTokenType> token in arg.Tokens )
-                        yield return token;
-                    yield return this._tokens[i++];
-                }
-                yield return this._tokens[i];
-            }
-        }
-
         public override IEnumerable<CalculatorASTNode> Children => this.Arguments;
 
         public override void Accept ( ITreeVisitor visitor ) => visitor.Visit ( this );

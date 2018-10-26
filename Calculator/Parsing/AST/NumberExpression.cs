@@ -10,19 +10,12 @@ namespace Calculator.Parsing.AST
     public class NumberExpression : CalculatorASTNode
     {
         private readonly Token<CalculatorTokenType> Token;
-        public Double Value => ( Double ) this.Token.Value;
+        public readonly Double Value;
 
         public NumberExpression ( Token<CalculatorTokenType> token )
         {
             this.Token = token;
-        }
-
-        public override IEnumerable<Token<CalculatorTokenType>> Tokens
-        {
-            get
-            {
-                yield return this.Token;
-            }
+            this.Value = ( Double ) token.Value;
         }
 
         public override IEnumerable<CalculatorASTNode> Children => Enumerable.Empty<CalculatorASTNode> ( );
