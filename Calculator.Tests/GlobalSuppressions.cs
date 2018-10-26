@@ -1,8 +1,6 @@
-﻿
-// This file is used by Code Analysis to maintain SuppressMessage 
-// attributes that are applied to this project.
-// Project-level suppressions either have no target or are given 
-// a specific target and scoped to a namespace, type, member, etc.
+﻿// This file is used by Code Analysis to maintain SuppressMessage
+// attributes that are applied to this project. Project-level
+// suppressions either have no target or are given a specific
+// target and scoped to a namespace, type, member, etc.
 
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage ( "Design", "CC0120:Your Switch maybe include default clause", Justification = "<Pending>", Scope = "member", Target = "~M:Calculator.Tests.ParserTests.GenerateRandomExpression(System.Int32)~Calculator.Parsing.AST.CalculatorASTNode" )]
-
