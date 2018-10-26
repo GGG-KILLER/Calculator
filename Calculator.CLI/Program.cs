@@ -106,6 +106,7 @@ namespace Calculator.CLI
                 lang.AddBinaryOperator ( OperatorAssociativity.Left, ">>", 4, ( lhs, rhs ) => ( Int64 ) lhs >> ( Int32 ) rhs );
                 lang.AddBinaryOperator ( OperatorAssociativity.Left, "&", 5, ( lhs, rhs ) => ( Int64 ) lhs & ( Int64 ) rhs );
                 lang.AddBinaryOperator ( OperatorAssociativity.Left, "|", 5, ( lhs, rhs ) => ( Int64 ) lhs | ( Int64 ) rhs );
+                lang.AddBinaryOperator ( OperatorAssociativity.Left, "xor", 5, ( lhs, rhs ) => ( Int64 ) lhs ^ ( Int64 ) rhs );
             }
 
             // Functions Functions - Math
@@ -147,12 +148,6 @@ namespace Calculator.CLI
                 lang.AddFunction ( "ruleOfThree", ( a, b, c ) => ( b * c ) / a );
             }
 
-            // Functions - Logical
-            using ( Root.TimeLine ( "Adding logical functions" ) )
-            {
-                lang.AddFunction ( "xor", ( lhs, rhs ) => ( Int64 ) lhs ^ ( Int64 ) rhs );
-            }
-
             return lang;
         }
 
@@ -188,7 +183,7 @@ namespace Calculator.CLI
             catch ( LocationBasedException lbex )
             {
                 var pad = Math.Min ( lbex.Location.Byte, 20 );
-                var start = lbex.Location.Byte - pad;
+                var start = Math.Max ( lbex.Location.Byte - pad, 0 );
                 var end = Math.Min ( lbex.Location.Byte + pad, expression.Length );
 
                 Console.ForegroundColor = ConsoleColor.Red;
