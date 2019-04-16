@@ -1,27 +1,50 @@
 ﻿using System;
 using Calculator.Lexing;
 using Calculator.Parsing.Abstractions;
-using GParse.Common.Lexing;
+using GParse.Lexing;
 
 namespace Calculator.Parsing.AST
 {
-    public class NumberExpression : CalculatorASTNode
+    /// <summary>
+    /// Represents a number
+    /// </summary>
+    public class NumberExpression : CalculatorTreeNode
     {
-        private readonly Token<CalculatorTokenType> Token;
-        public readonly Double Value;
+        /// <summary>
+        /// The value of the expression
+        /// </summary>
+        public Token<CalculatorTokenType> Value { get; }
 
-        public NumberExpression ( Token<CalculatorTokenType> token )
+        /// <summary>
+        /// Initializes this <see cref="NumberExpression" />
+        /// </summary>
+        /// <param name="value"></param>
+        public NumberExpression ( Token<CalculatorTokenType> value )
         {
-            this.Token = token;
-            this.Value = ( Double ) token.Value;
+            this.Value = value;
         }
 
+        /// <summary>
+        /// <inheritdoc />
+        /// </summary>
+        /// <param name="visitor"></param>
         public override void Accept ( ITreeVisitor visitor ) => visitor.Visit ( this );
 
+        /// <summary>
+        /// <inheritdoc />
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="visitor"></param>
+        /// <returns></returns>
         public override T Accept<T> ( ITreeVisitor<T> visitor ) => visitor.Visit ( this );
 
-        public override Boolean StructurallyEquals ( CalculatorASTNode node ) =>
+        /// <summary>
+        /// <inheritdoc />
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        public override Boolean StructurallyEquals ( CalculatorTreeNode node ) =>
             node is NumberExpression numberExpression
-                && this.Value.Equals ( numberExpression.Value );
+                && this.Value.Value.Equals ( numberExpression.Value.Value );
     }
 }

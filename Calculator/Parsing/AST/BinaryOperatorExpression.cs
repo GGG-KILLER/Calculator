@@ -1,30 +1,65 @@
 ﻿using System;
 using Calculator.Lexing;
 using Calculator.Parsing.Abstractions;
-using GParse.Common.Lexing;
+using GParse.Lexing;
 
 namespace Calculator.Parsing.AST
 {
-    public class BinaryOperatorExpression : CalculatorASTNode
+    /// <summary>
+    /// Represents an infix expression
+    /// </summary>
+    public class BinaryOperatorExpression : CalculatorTreeNode
     {
-        public readonly CalculatorASTNode LeftHandSide;
-        public readonly CalculatorASTNode RightHandSide;
-        public readonly Token<CalculatorTokenType> Operator;
+        /// <summary>
+        /// The expression to the left of the operator
+        /// </summary>
+        public CalculatorTreeNode LeftHandSide { get; }
 
-        public BinaryOperatorExpression ( Token<CalculatorTokenType> Operator, CalculatorASTNode lhs, CalculatorASTNode rhs )
+        /// <summary>
+        /// The expression to the right of the operator
+        /// </summary>
+        public CalculatorTreeNode RightHandSide { get; }
+
+        /// <summary>
+        /// The operator itself
+        /// </summary>
+        public Token<CalculatorTokenType> Operator { get; }
+
+        /// <summary>
+        /// Initializes this <see cref="BinaryOperatorExpression" />
+        /// </summary>
+        /// <param name="operator"></param>
+        /// <param name="lhs"></param>
+        /// <param name="rhs"></param>
+        public BinaryOperatorExpression ( Token<CalculatorTokenType> @operator, CalculatorTreeNode lhs, CalculatorTreeNode rhs )
         {
-            this.Operator = Operator;
+            this.Operator = @operator;
             this.LeftHandSide = lhs;
             this.RightHandSide = rhs;
         }
 
+        /// <summary>
+        /// <inheritdoc />
+        /// </summary>
+        /// <param name="visitor"></param>
         public override void Accept ( ITreeVisitor visitor ) => visitor.Visit ( this );
 
+        /// <summary>
+        /// <inheritdoc />
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="visitor"></param>
+        /// <returns></returns>
         public override T Accept<T> ( ITreeVisitor<T> visitor ) => visitor.Visit ( this );
 
-        public override Boolean StructurallyEquals ( CalculatorASTNode node ) =>
+        /// <summary>
+        /// <inheritdoc />
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        public override Boolean StructurallyEquals ( CalculatorTreeNode node ) =>
             node is BinaryOperatorExpression binaryOperatorExpression
-                && this.Operator.Raw.Equals ( binaryOperatorExpression.Operator.Raw )
+                && this.Operator.Raw.Equals ( binaryOperatorExpression.Operator.Raw, StringComparison.OrdinalIgnoreCase )
                 && this.LeftHandSide.StructurallyEquals ( binaryOperatorExpression.LeftHandSide )
                 && this.RightHandSide.StructurallyEquals ( binaryOperatorExpression.RightHandSide );
     }

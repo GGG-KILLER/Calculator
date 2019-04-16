@@ -1,226 +1,380 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Collections.Immutable;
 using Calculator.Definitions;
 using Calculator.Lexing;
-using Calculator.Lexing.Modules;
-using GParse.Parsing.Abstractions.Lexing;
-using GParse.Parsing.Lexing;
-using GParse.Parsing.Lexing.Modules;
+using Calculator.Parsing;
+using Calculator.Parsing.AST;
+using Calculator.Parsing.Visitors;
+using GParse;
+using GParse.IO;
+using GParse.Lexing;
 
 namespace Calculator
 {
-    public class CalculatorLanguage
+    /// <summary>
+    /// Defines the language used for a Calculator
+    /// </summary>
+    public readonly struct CalculatorLanguage : IEquatable<CalculatorLanguage>
     {
-        #region Definitions Storage
+        private CalculatorLexerBuilder LexerBuilder { get; }
+
+        private CalculatorParserBuilder ParserBuilder { get; }
 
         /// <summary>
         /// The list of the constants that this language has
         /// </summary>
-        private readonly List<ConstantDef> ConstantDefs = new List<ConstantDef> ( );
+        public ImmutableDictionary<String, Constant> Constants { get; }
 
         /// <summary>
         /// The list of unary operators that this language has
         /// </summary>
-        private readonly List<UnaryOperatorDef> UnaryOperatorDefs = new List<UnaryOperatorDef> ( );
+        public ImmutableDictionary<(UnaryOperatorFix, String), UnaryOperator> UnaryOperators { get; }
 
         /// <summary>
         /// The list of binary operators that this language has
         /// </summary>
-        private readonly List<BinaryOperatorDef> BinaryOperatorDefs = new List<BinaryOperatorDef> ( );
+        public ImmutableDictionary<String, BinaryOperator> BinaryOperators { get; }
 
         /// <summary>
         /// The list of functions that this language has
         /// </summary>
-        private readonly Dictionary<String, Delegate> FunctionDefs = new Dictionary<String, Delegate> ( );
-
-        #endregion Definitions Storage
+        public ImmutableDictionary<String, Function> Functions { get; }
 
         /// <summary>
-        /// The lexer builder of the language
+        /// The tree evaluator
         /// </summary>
-        private readonly LexerBuilder<CalculatorTokenType> lexerBuilder = new LexerBuilder<CalculatorTokenType> ( );
-
-        #region Definitions Enumeration
+        public StatelessTreeEvaluator TreeEvaluator { get; }
 
         /// <summary>
-        /// The list of the constants that this language has
+        /// Initializes a new <see cref="CalculatorLanguage" />
         /// </summary>
-        public IEnumerable<ConstantDef> Constants => this.ConstantDefs;
-
-        /// <summary>
-        /// The list of unary operators that this language has
-        /// </summary>
-        public IEnumerable<UnaryOperatorDef> UnaryOperators => this.UnaryOperatorDefs;
-
-        /// <summary>
-        /// The list of binary operators that this language has
-        /// </summary>
-        public IEnumerable<BinaryOperatorDef> BinaryOperators => this.BinaryOperatorDefs;
-
-        /// <summary>
-        /// The list of functions that this language has
-        /// </summary>
-        public IEnumerable<KeyValuePair<String, Delegate>> Functions => this.FunctionDefs;
-
-        #endregion Definitions Enumeration
-
-        public CalculatorLanguage ( )
+        /// <param name="constants"></param>
+        /// <param name="unaryOperators"></param>
+        /// <param name="binaryOperators"></param>
+        /// <param name="functions"></param>
+        internal CalculatorLanguage (
+            ImmutableDictionary<String, Constant> constants,
+            ImmutableDictionary<(UnaryOperatorFix, String), UnaryOperator> unaryOperators,
+            ImmutableDictionary<String, BinaryOperator> binaryOperators,
+            ImmutableDictionary<String, Function> functions )
         {
-            #region Lexer Builder Init
+            this.Constants = constants;
+            this.UnaryOperators = unaryOperators;
+            this.BinaryOperators = binaryOperators;
+            this.Functions = functions;
 
-            // Identifiers
-            this.lexerBuilder.AddModule ( new IdentifierLexerModule ( ) );
-
-            // Trivia
-            this.lexerBuilder.AddRegex ( "whitespace", CalculatorTokenType.Whitespace, @"\s+", true );
-
-            // Punctuations
-            this.lexerBuilder.AddLiteral ( "(", CalculatorTokenType.LParen, "(" );
-            this.lexerBuilder.AddLiteral ( ")", CalculatorTokenType.RParen, ")" );
-            this.lexerBuilder.AddLiteral ( ",", CalculatorTokenType.Comma, "," );
-
-            // Numbers
-            this.lexerBuilder.AddRegex ( "bin-number", CalculatorTokenType.Number, "0b([01]+)", "0b", match =>
-            {
-                var conv = Convert.ToInt64 ( match.Groups[0].Value.Substring ( 2 ), 2 );
-                if ( conv > Int32.MaxValue )
-                    throw new Exception ( "Binary number is too large!" );
-                return ( Double ) conv;
-            } );
-
-            this.lexerBuilder.AddRegex ( "oct-number", CalculatorTokenType.Number, "0o([0-7]+)", "0o", match =>
-            {
-                var conv = Convert.ToInt64 ( match.Groups[0].Value.Substring ( 2 ), 8 );
-                if ( conv > Int32.MaxValue )
-                    throw new Exception ( "Octal number is too large!" );
-                return ( Double ) conv;
-            } );
-
-            this.lexerBuilder.AddRegex ( "dec-number", CalculatorTokenType.Number, @"(?:\d+(?:\.\d+)?|\.\d+)(?:e[+-]?\d+)?", match =>
-            {
-                return Convert.ToDouble ( match.Value );
-            } );
-
-            this.lexerBuilder.AddRegex ( "hex-number", CalculatorTokenType.Number, "0x([a-fA-F0-9]+)", "0x", match =>
-            {
-                var conv = Convert.ToInt64 ( match.Groups[0].Value.Substring ( 2 ), 16 );
-                if ( conv > Int32.MaxValue )
-                    throw new Exception ( "Hexadecimal number is too large!" );
-                return ( Double ) conv;
-            } );
-
-            #endregion Lexer Builder Init
+            this.LexerBuilder = null;
+            this.ParserBuilder = null;
+            this.TreeEvaluator = null;
+            this.LexerBuilder = new CalculatorLexerBuilder ( this );
+            this.ParserBuilder = new CalculatorParserBuilder ( this );
+            this.TreeEvaluator = new StatelessTreeEvaluator ( this );
         }
 
         #region Constant management
 
-        public void AddConstant ( String ident, Double val, Boolean isCaseSensitive )
-        {
-            if ( this.ConstantDefs.Any ( cons => cons.Identifier == ident ) )
-                throw new Exception ( "Duplicated constant." );
-            this.ConstantDefs.Add ( new ConstantDef ( ident, isCaseSensitive, val ) );
-        }
+        /// <summary>
+        /// Creates a new language with the given <see cref="Constant" /> set
+        /// </summary>
+        /// <param name="ident"></param>
+        /// <param name="value"></param>
+        public CalculatorLanguage SetConstant ( String ident, Double value ) =>
+            new CalculatorLanguage (
+                this.Constants.SetItem ( ident.ToLower ( ), new Constant ( ident, value ) ),
+                this.UnaryOperators,
+                this.BinaryOperators,
+                this.Functions
+            );
 
-        public Boolean HasConstant ( String id ) =>
-            this.ConstantDefs.Any ( constdef => constdef.Identifier.Equals ( id, constdef.IsCaseSensitive ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase ) );
+        /// <summary>
+        /// Checks whether this language has a <see cref="Constant" /> that matches the provided
+        /// <paramref name="id" />
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public Boolean HasConstant ( String id ) => this.Constants.ContainsKey ( id.ToLower ( ) );
 
-        public ConstantDef GetConstant ( String id ) =>
-            this.ConstantDefs.FirstOrDefault ( constdef => constdef.Identifier.Equals ( id, constdef.IsCaseSensitive ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase ) );
+        /// <summary>
+        /// Returns the <see cref="Constant" /> matches the provided <paramref name="id" />
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public Constant GetConstant ( String id ) => this.Constants[id.ToLower ( )];
 
         #endregion Constant management
 
         #region Unary operator management
 
-        public void AddUnaryOperator ( UnaryOperatorFix fix, String @operator, Int32 precedence, Func<Double, Double> action )
-        {
-            if ( this.UnaryOperatorDefs.Any ( op => op.Operator == @operator && op.Fix == fix ) )
-                throw new Exception ( "Duplicated operator." );
+        /// <summary>
+        /// Creates a new language with the provided <see cref="UnaryOperator" /> set
+        /// </summary>
+        /// <param name="fix"></param>
+        /// <param name="operator"></param>
+        /// <param name="precedence"></param>
+        /// <param name="action"></param>
+        public CalculatorLanguage AddUnaryOperator ( UnaryOperatorFix fix, String @operator, Int32 precedence, Func<Double, Double> action ) =>
+            new CalculatorLanguage (
+                this.Constants,
+                this.UnaryOperators.SetItem (
+                    (fix, @operator.ToLower ( )),
+                    new UnaryOperator ( fix, @operator, precedence, action )
+                ),
+                this.BinaryOperators,
+                this.Functions
+            );
 
-            this.AddOperator ( @operator );
-            this.UnaryOperatorDefs.Add ( new UnaryOperatorDef ( fix, @operator, precedence, action ) );
-        }
+        /// <summary>
+        /// Checks whether this language contains an <see cref="UnaryOperator" /> that matches the given
+        /// <paramref name="operator" />
+        /// </summary>
+        /// <param name="operator"></param>
+        /// <param name="fix"></param>
+        /// <returns></returns>
+        public Boolean HasUnaryOperator ( String @operator, UnaryOperatorFix fix ) =>
+            this.UnaryOperators.ContainsKey ( (fix, @operator.ToLower ( )) );
 
-        public Boolean HasUnaryOperator ( String op, UnaryOperatorFix fix ) =>
-            this.UnaryOperatorDefs.Any ( opdef => opdef.Operator == op && opdef.Fix == fix );
-
-        public UnaryOperatorDef GetUnaryOperator ( String @operator, UnaryOperatorFix fix ) =>
-            this.UnaryOperatorDefs.FirstOrDefault ( opdef => opdef.Operator == @operator && opdef.Fix == fix );
+        /// <summary>
+        /// Returns the <see cref="UnaryOperator" />
+        /// </summary>
+        /// <param name="operator"></param>
+        /// <param name="fix"></param>
+        /// <returns></returns>
+        public UnaryOperator GetUnaryOperator ( String @operator, UnaryOperatorFix fix ) =>
+            this.UnaryOperators[(fix, @operator.ToLower ( ))];
 
         #endregion Unary operator management
 
         #region Binary operator management
 
-        public void AddBinaryOperator ( OperatorAssociativity associativity, String @operator, Int32 precedence, Func<Double, Double, Double> action )
-        {
-            if ( this.BinaryOperatorDefs.Any ( op => op.Operator == @operator ) )
-                throw new Exception ( "Duplicated operator." );
+        /// <summary>
+        /// Returns a new language with the provided <see cref="BinaryOperator" /> set
+        /// </summary>
+        /// <param name="associativity"></param>
+        /// <param name="operator"></param>
+        /// <param name="precedence"></param>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        public CalculatorLanguage AddBinaryOperator ( OperatorAssociativity associativity, String @operator, Int32 precedence, Func<Double, Double, Double> action ) =>
+            new CalculatorLanguage (
+                this.Constants,
+                this.UnaryOperators,
+                this.BinaryOperators.SetItem ( @operator.ToLower ( ), new BinaryOperator ( associativity, @operator, precedence, action ) ),
+                this.Functions
+            );
 
-            this.AddOperator ( @operator );
-            this.BinaryOperatorDefs.Add ( new BinaryOperatorDef ( associativity, @operator, precedence, action ) );
-        }
+        /// <summary>
+        /// Checks whether this language contains a <see cref="BinaryOperator" /> that matches the
+        /// provided <paramref name="op" />
+        /// </summary>
+        /// <param name="op"></param>
+        /// <returns></returns>
+        public Boolean HasBinaryOperator ( String op ) => this.BinaryOperators.ContainsKey ( op.ToLower ( ) );
 
-        public Boolean HasBinaryOperator ( String op ) =>
-            this.BinaryOperatorDefs.Any ( opdef => opdef.Operator == op );
-
-        public BinaryOperatorDef GetBinaryOperator ( String op ) =>
-            this.BinaryOperatorDefs.FirstOrDefault ( opdef => opdef.Operator == op );
+        /// <summary>
+        /// Returns the <see cref="BinaryOperator" /> that matches the provided <paramref name="op" />
+        /// </summary>
+        /// <param name="op"></param>
+        /// <returns></returns>
+        public BinaryOperator GetBinaryOperator ( String op ) => this.BinaryOperators[op.ToLower ( )];
 
         #endregion Binary operator management
 
         #region Function management
 
-        public void AddFunction ( String name, Func<Double> func )
+        /// <summary>
+        /// Creates a new language with the provided <see cref="Function" /> set
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="overloadConfigurator"></param>
+        public CalculatorLanguage AddFunction ( in String name, Action<FunctionBuilder> overloadConfigurator )
         {
-            if ( this.FunctionDefs.ContainsKey ( name ) )
-                throw new Exception ( "Duplicate function." );
-            this.FunctionDefs[name] = func;
+            if ( overloadConfigurator == null )
+                throw new ArgumentNullException ( nameof ( overloadConfigurator ) );
+
+            var funDefBuilder = new FunctionBuilder ( name );
+            overloadConfigurator ( funDefBuilder );
+            Function definition = funDefBuilder.GetFunctionDefinition ( );
+
+            return new CalculatorLanguage (
+                this.Constants,
+                this.UnaryOperators,
+                this.BinaryOperators,
+                this.Functions.SetItem ( name.ToLower ( ), definition )
+            );
         }
 
-        public void AddFunction ( String name, Func<Double, Double> func )
-        {
-            if ( this.FunctionDefs.ContainsKey ( name ) )
-                throw new Exception ( "Duplicate function." );
-            this.FunctionDefs[name] = func;
-        }
+        /// <summary>
+        /// Checks whetehr this language contains a <see cref="Function" /> that matches the provided
+        /// <paramref name="id" />
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public Boolean HasFunction ( String id ) => this.Functions.ContainsKey ( id.ToLower ( ) );
 
-        public void AddFunction ( String name, Func<Double, Double, Double> func )
-        {
-            if ( this.FunctionDefs.ContainsKey ( name ) )
-                throw new Exception ( "Duplicate function." );
-            this.FunctionDefs[name] = func;
-        }
-
-        public void AddFunction ( String name, Func<Double, Double, Double, Double> func )
-        {
-            if ( this.FunctionDefs.ContainsKey ( name ) )
-                throw new Exception ( "Duplicate function." );
-            this.FunctionDefs[name] = func;
-        }
-
-        public Boolean HasFunction ( String id ) =>
-            this.FunctionDefs.ContainsKey ( id );
-
-        public Delegate GetFunction ( String id ) => this.FunctionDefs[id];
+        /// <summary>
+        /// Returns the <see cref="Function" /> that matches the provided <paramref name="id" />
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public Function GetFunction ( String id ) => this.Functions[id.ToLower ( )];
 
         #endregion Function management
 
-        #region Lexer Stuff
+        #region Factory Methods
 
-        private readonly HashSet<String> operators = new HashSet<String> ( );
+        /// <summary>
+        /// Builds a lexer for the provided <paramref name="expression" /> and
+        /// <paramref name="diagnosticReporter" />
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <param name="diagnosticReporter"></param>
+        /// <returns></returns>
+        public ILexer<CalculatorTokenType> GetLexer ( String expression, IProgress<Diagnostic> diagnosticReporter ) =>
+            this.LexerBuilder.BuildLexer ( expression, diagnosticReporter );
 
-        private void AddOperator ( String raw )
+        /// <summary>
+        /// Builds a lexer for the provided <paramref name="reader" /> and
+        /// <paramref name="diagnosticReporter" />
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <param name="diagnosticReporter"></param>
+        /// <returns></returns>
+        public ILexer<CalculatorTokenType> GetLexer ( SourceCodeReader reader, IProgress<Diagnostic> diagnosticReporter ) =>
+            this.LexerBuilder.BuildLexer ( reader, diagnosticReporter );
+
+        /// <summary>
+        /// Builds a parser for the provided <paramref name="expression" /> and
+        /// <paramref name="diagnosticReporter" />
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <param name="diagnosticReporter"></param>
+        /// <returns></returns>
+        public CalculatorParser GetParser ( String expression, IProgress<Diagnostic> diagnosticReporter ) =>
+            this.ParserBuilder.CreateParser (
+                new TokenReader<CalculatorTokenType> ( this.GetLexer ( expression, diagnosticReporter ) ),
+                diagnosticReporter ) as CalculatorParser;
+
+        /// <summary>
+        /// Builds a parser for the provided <paramref name="lexer" /> and
+        /// <paramref name="diagnosticReporter" />
+        /// </summary>
+        /// <param name="lexer"></param>
+        /// <param name="diagnosticReporter"></param>
+        /// <returns></returns>
+        public CalculatorParser GetParser ( ILexer<CalculatorTokenType> lexer, IProgress<Diagnostic> diagnosticReporter ) =>
+            this.ParserBuilder.CreateParser ( new TokenReader<CalculatorTokenType> ( lexer ), diagnosticReporter ) as CalculatorParser;
+
+        /// <summary>
+        /// Builds a parser for the provided <paramref name="tokenReader" /> and
+        /// <paramref name="diagnosticReporter" />
+        /// </summary>
+        /// <param name="tokenReader"></param>
+        /// <param name="diagnosticReporter"></param>
+        /// <returns></returns>
+        public CalculatorParser GetParser ( ITokenReader<CalculatorTokenType> tokenReader, IProgress<Diagnostic> diagnosticReporter ) =>
+            this.ParserBuilder.CreateParser ( tokenReader, diagnosticReporter ) as CalculatorParser;
+
+        #endregion Factory Methods
+
+        #region Direct Expression Execution Methods
+
+        /// <summary>
+        /// Lexes a given string and returns the tokens along with any diagnostics emmited by the lexer
+        /// modules
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <param name="diagnostics"></param>
+        /// <returns></returns>
+        public IEnumerable<Token<CalculatorTokenType>> Lex ( String expression, out IEnumerable<Diagnostic> diagnostics )
         {
-            if ( !this.operators.Contains ( raw ) )
-            {
-                this.operators.Add ( raw );
-                this.lexerBuilder.AddLiteral ( raw, CalculatorTokenType.Operator, raw );
-            }
+            var toks = new List<Token<CalculatorTokenType>> ( );
+            var diags = new DiagnosticList ( );
+            diagnostics = diags;
+            ILexer<CalculatorTokenType> lexer = this.LexerBuilder.BuildLexer ( expression, diags );
+            while ( !lexer.EOF )
+                toks.Add ( lexer.Consume ( ) );
+            return toks;
         }
 
-        public ILexer<CalculatorTokenType> GetLexer ( String expression ) =>
-            this.lexerBuilder.BuildLexer ( expression );
+        /// <summary>
+        /// Parses a given string and returns the result node along with any diagnostics emmited by the
+        /// lexer modules and/or parselets
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <param name="diagnostics"></param>
+        /// <returns></returns>
+        public CalculatorTreeNode Parse ( String expression, out IEnumerable<Diagnostic> diagnostics )
+        {
+            var diags = new DiagnosticList ( );
+            diagnostics = diags;
+            return ( this.ParserBuilder.CreateParser (
+                new TokenReader<CalculatorTokenType> ( this.LexerBuilder.BuildLexer ( expression, diags ) ),
+                diags
+            ) as CalculatorParser ).Parse ( );
+        }
 
-        #endregion Lexer Stuff
+        /// <summary>
+        /// Evaluates an expression and returns the evaluated value along with any diagnostics emmited by
+        /// the lexer modules and/or parselets
+        /// </summary>
+        /// <param name="expr"></param>
+        /// <param name="diagnostics"></param>
+        /// <returns></returns>
+        public Double Evaluate ( String expr, out IEnumerable<Diagnostic> diagnostics )
+        {
+            CalculatorTreeNode tree = this.Parse ( expr, out diagnostics );
+            return tree.Accept ( this.TreeEvaluator );
+        }
+
+        #endregion Direct Expression Execution Methods
+
+        #region Generated Code
+
+        /// <summary>
+        /// <inheritdoc />
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public override Boolean Equals ( Object obj ) => obj is CalculatorLanguage && this.Equals ( ( CalculatorLanguage ) obj );
+
+        /// <summary>
+        /// <inheritdoc />
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public Boolean Equals ( CalculatorLanguage other ) => EqualityComparer<ImmutableDictionary<String, Constant>>.Default.Equals ( this.Constants, other.Constants ) && EqualityComparer<ImmutableDictionary<(UnaryOperatorFix, String), UnaryOperator>>.Default.Equals ( this.UnaryOperators, other.UnaryOperators ) && EqualityComparer<ImmutableDictionary<String, BinaryOperator>>.Default.Equals ( this.BinaryOperators, other.BinaryOperators ) && EqualityComparer<ImmutableDictionary<String, Function>>.Default.Equals ( this.Functions, other.Functions );
+
+        /// <summary>
+        /// <inheritdoc />
+        /// </summary>
+        /// <returns></returns>
+        public override Int32 GetHashCode ( )
+        {
+            var hashCode = -780326226;
+            hashCode = hashCode * -1521134295 + EqualityComparer<ImmutableDictionary<String, Constant>>.Default.GetHashCode ( this.Constants );
+            hashCode = hashCode * -1521134295 + EqualityComparer<ImmutableDictionary<(UnaryOperatorFix, String), UnaryOperator>>.Default.GetHashCode ( this.UnaryOperators );
+            hashCode = hashCode * -1521134295 + EqualityComparer<ImmutableDictionary<String, BinaryOperator>>.Default.GetHashCode ( this.BinaryOperators );
+            hashCode = hashCode * -1521134295 + EqualityComparer<ImmutableDictionary<String, Function>>.Default.GetHashCode ( this.Functions );
+            return hashCode;
+        }
+
+        /// <summary>
+        /// <inheritdoc />
+        /// </summary>
+        /// <param name="language1"></param>
+        /// <param name="language2"></param>
+        /// <returns></returns>
+        public static Boolean operator == ( CalculatorLanguage language1, CalculatorLanguage language2 ) => language1.Equals ( language2 );
+
+        /// <summary>
+        /// <inheritdoc />
+        /// </summary>
+        /// <param name="language1"></param>
+        /// <param name="language2"></param>
+        /// <returns></returns>
+        public static Boolean operator != ( CalculatorLanguage language1, CalculatorLanguage language2 ) => !( language1 == language2 );
+
+        #endregion Generated Code
     }
 }

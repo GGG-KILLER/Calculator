@@ -1,25 +1,50 @@
 ﻿using System;
 using Calculator.Lexing;
 using Calculator.Parsing.Abstractions;
-using GParse.Common.Lexing;
+using GParse.Lexing;
 
 namespace Calculator.Parsing.AST
 {
-    public class IdentifierExpression : CalculatorASTNode
+    /// <summary>
+    /// Represents an identifier
+    /// </summary>
+    public class IdentifierExpression : CalculatorTreeNode
     {
-        public readonly Token<CalculatorTokenType> Identifier;
+        /// <summary>
+        /// The identifier itself
+        /// </summary>
+        public Token<CalculatorTokenType> Identifier { get; }
 
-        public IdentifierExpression ( Token<CalculatorTokenType> ident )
+        /// <summary>
+        /// Initializes this <see cref="IdentifierExpression" />
+        /// </summary>
+        /// <param name="identifier"></param>
+        public IdentifierExpression ( Token<CalculatorTokenType> identifier )
         {
-            this.Identifier = ident;
+            this.Identifier = identifier;
         }
 
+        /// <summary>
+        /// <inheritdoc />
+        /// </summary>
+        /// <param name="visitor"></param>
         public override void Accept ( ITreeVisitor visitor ) => visitor.Visit ( this );
 
+        /// <summary>
+        /// <inheritdoc />
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="visitor"></param>
+        /// <returns></returns>
         public override T Accept<T> ( ITreeVisitor<T> visitor ) => visitor.Visit ( this );
 
-        public override Boolean StructurallyEquals ( CalculatorASTNode node ) =>
+        /// <summary>
+        /// <inheritdoc />
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        public override Boolean StructurallyEquals ( CalculatorTreeNode node ) =>
             node is IdentifierExpression identifierExpression
-                && this.Identifier.Raw.Equals ( identifierExpression.Identifier.Raw );
+                && this.Identifier.Raw.Equals ( identifierExpression.Identifier.Raw, StringComparison.OrdinalIgnoreCase );
     }
 }

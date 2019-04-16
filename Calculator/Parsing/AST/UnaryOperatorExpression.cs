@@ -2,30 +2,78 @@
 using Calculator.Definitions;
 using Calculator.Lexing;
 using Calculator.Parsing.Abstractions;
-using GParse.Common.Lexing;
+using GParse.Lexing;
 
 namespace Calculator.Parsing.AST
 {
-    public class UnaryOperatorExpression : CalculatorASTNode
+    /// <summary>
+    /// Represents a prefix/postfix operation
+    /// </summary>
+    public class UnaryOperatorExpression : CalculatorTreeNode
     {
-        public readonly Token<CalculatorTokenType> Operator;
-        public readonly CalculatorASTNode Operand;
-        public readonly UnaryOperatorFix OperatorFix;
+        /// <summary>
+        /// The operator's location
+        /// </summary>
+        public UnaryOperatorFix OperatorFix { get; }
 
-        public UnaryOperatorExpression ( Token<CalculatorTokenType> Operator, CalculatorASTNode Operand, UnaryOperatorFix fix )
+        /// <summary>
+        /// The operator itself
+        /// </summary>
+        public Token<CalculatorTokenType> Operator { get; }
+
+        /// <summary>
+        /// The operand expression
+        /// </summary>
+        public CalculatorTreeNode Operand { get; }
+
+        /// <summary>
+        /// Initializes this <see cref="UnaryOperatorExpression" />
+        /// </summary>
+        /// <param name="fix"></param>
+        /// <param name="operator"></param>
+        /// <param name="operand"></param>
+        public UnaryOperatorExpression ( UnaryOperatorFix fix, Token<CalculatorTokenType> @operator, CalculatorTreeNode operand )
         {
-            this.Operator = Operator;
-            this.Operand = Operand;
             this.OperatorFix = fix;
+            this.Operator = @operator;
+            this.Operand = operand;
         }
 
+        /// <summary>
+        /// Initializes this <see cref="UnaryOperatorExpression" />
+        /// </summary>
+        /// <param name="fix"></param>
+        /// <param name="operand"></param>
+        /// <param name="operator"></param>
+        public UnaryOperatorExpression ( UnaryOperatorFix fix, CalculatorTreeNode operand, Token<CalculatorTokenType> @operator )
+        {
+            this.OperatorFix = fix;
+            this.Operator = @operator;
+            this.Operand = operand;
+        }
+
+        /// <summary>
+        /// <inheritdoc />
+        /// </summary>
+        /// <param name="visitor"></param>
         public override void Accept ( ITreeVisitor visitor ) => visitor.Visit ( this );
 
+        /// <summary>
+        /// <inheritdoc />
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="visitor"></param>
+        /// <returns></returns>
         public override T Accept<T> ( ITreeVisitor<T> visitor ) => visitor.Visit ( this );
 
-        public override Boolean StructurallyEquals ( CalculatorASTNode node ) =>
+        /// <summary>
+        /// <inheritdoc />
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        public override Boolean StructurallyEquals ( CalculatorTreeNode node ) =>
             node is UnaryOperatorExpression unaryOperatorExpression
-                && this.Operator.Raw.Equals ( unaryOperatorExpression.Operator.Raw )
+                && this.Operator.Raw.Equals ( unaryOperatorExpression.Operator.Raw, StringComparison.OrdinalIgnoreCase )
                 && this.OperatorFix.Equals ( unaryOperatorExpression.OperatorFix )
                 && this.Operand.StructurallyEquals ( unaryOperatorExpression.Operand );
     }
