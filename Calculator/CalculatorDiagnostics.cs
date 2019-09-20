@@ -9,6 +9,27 @@ namespace Calculator
     /// </summary>
     public static class CalculatorDiagnostics
     {
+        private static String PunctuateIfNecessary ( String str )
+        {
+            if ( str is null )
+                return null;
+            else if ( str.Length == 0 )
+                return null;
+
+            var last = str[str.Length - 1];
+            switch ( last )
+            {
+                case '.':
+                case '?':
+                case '!':
+                case ';':
+                    return str;
+
+                default:
+                    return str + '.';
+            }
+        }
+
         /// <summary>
         /// The class that stores the methods for all generated syntax error diagnostics
         /// </summary>
@@ -40,7 +61,7 @@ namespace Calculator
             /// <param name="for"></param>
             /// <returns></returns>
             public static Diagnostic ThingExpectedFor ( SourceRange range, Object expected, String @for ) =>
-                new Diagnostic ( "CALC0001", range, DiagnosticSeverity.Error, $"Syntax error, {expected} expected for {@for}." );
+                new Diagnostic ( "CALC0001", range, DiagnosticSeverity.Error, $"Syntax error, {expected} expected for {PunctuateIfNecessary ( @for )}" );
 
             /// <summary>
             /// Creates a <see cref="Diagnostic" /> saying something was expected for something else.
@@ -60,7 +81,7 @@ namespace Calculator
             /// <param name="after"></param>
             /// <returns></returns>
             public static Diagnostic ThingExpectedAfter ( SourceRange range, Object expected, String after ) =>
-                new Diagnostic ( "CALC0001", range, DiagnosticSeverity.Error, $"Syntax error, {expected} expected after {after}." );
+                new Diagnostic ( "CALC0001", range, DiagnosticSeverity.Error, $"Syntax error, {expected} expected after {PunctuateIfNecessary ( after )}" );
 
             /// <summary>
             /// Creates a <see cref="Diagnostic" /> saying something was expected after something else.
@@ -71,6 +92,36 @@ namespace Calculator
             /// <returns></returns>
             public static Diagnostic ThingExpectedAfter ( SourceLocation location, Object expected, String after ) =>
                 ThingExpectedAfter ( location.To ( location ), expected, after );
+
+            /// <summary>
+            /// Produces a <see cref="Diagnostic" /> reporting an invalid superscript.
+            /// </summary>
+            /// <param name="range"></param>
+            /// <param name="error"></param>
+            /// <returns></returns>
+            public static Diagnostic InvalidSuperscript ( SourceRange range, String error ) =>
+                new Diagnostic ( "CALC0002", range, DiagnosticSeverity.Error, $"Invalid superscript: {PunctuateIfNecessary ( error )}" );
+
+            /// <summary>
+            /// Produces a <see cref="Diagnostic" /> reporting an invalid number of type
+            /// <paramref name="numberType" />.
+            /// </summary>
+            /// <param name="range"></param>
+            /// <param name="numberType"></param>
+            /// <returns></returns>
+            public static Diagnostic InvalidNumber ( SourceRange range, String numberType ) =>
+                new Diagnostic ( "CALC0003", range, DiagnosticSeverity.Error, $"Invalid {numberType} number." );
+
+            /// <summary>
+            /// Produces a <see cref="Diagnostic" /> reporting an invalid number of type
+            /// <paramref name="numberType" />.
+            /// </summary>
+            /// <param name="range"></param>
+            /// <param name="numberType"></param>
+            /// <param name="reason"></param>
+            /// <returns></returns>
+            public static Diagnostic InvalidNumber ( SourceRange range, String numberType, String reason ) =>
+                new Diagnostic ( "CALC0003", range, DiagnosticSeverity.Error, $"Invalid {numberType} number: {PunctuateIfNecessary ( reason )}" );
         }
 
         /// <summary>

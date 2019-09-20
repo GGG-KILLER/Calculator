@@ -21,8 +21,10 @@ namespace Calculator.Parsing.Parselets
         /// Initializes this <see cref="ImplicitMultiplicationExpressionParselet" />
         /// </summary>
         /// <param name="precedence"></param>
-        public ImplicitMultiplicationExpressionParselet ( Int32 precedence ) =>
+        public ImplicitMultiplicationExpressionParselet ( Int32 precedence )
+        {
             this.Precedence = precedence;
+        }
 
         /// <summary>
         /// <inheritdoc />

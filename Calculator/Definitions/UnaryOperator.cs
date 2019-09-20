@@ -38,10 +38,10 @@ namespace Calculator.Definitions
         /// <param name="body"></param>
         public UnaryOperator ( UnaryOperatorFix fix, String @operator, Int32 precedence, Func<Double, Double> body )
         {
-            this.Fix = fix;
-            this.Operator = @operator?.ToLower ( ) ?? throw new ArgumentNullException ( nameof ( @operator ) );
+            this.Fix        = fix;
+            this.Operator   = @operator?.ToLower ( ) ?? throw new ArgumentNullException ( nameof ( @operator ) );
             this.Precedence = precedence;
-            this.Body = body ?? throw new ArgumentNullException ( nameof ( body ) );
+            this.Body       = body ?? throw new ArgumentNullException ( nameof ( body ) );
         }
 
         #region Generated Code

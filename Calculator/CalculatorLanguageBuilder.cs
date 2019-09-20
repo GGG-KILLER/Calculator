@@ -11,10 +11,47 @@ namespace Calculator
     /// </summary>
     public class CalculatorLanguageBuilder
     {
-        private readonly ImmutableDictionary<String, Constant>.Builder constantsBuilder = ImmutableDictionary.CreateBuilder<String, Constant> ( );
-        private readonly ImmutableDictionary<(UnaryOperatorFix, String), UnaryOperator>.Builder unaryOperatorsBuilder = ImmutableDictionary.CreateBuilder<(UnaryOperatorFix, String), UnaryOperator> ( );
-        private readonly ImmutableDictionary<String, BinaryOperator>.Builder binaryOperatorsBuilder = ImmutableDictionary.CreateBuilder<String, BinaryOperator> ( );
-        private readonly ImmutableDictionary<String, Function>.Builder functionsBuilder = ImmutableDictionary.CreateBuilder<String, Function> ( );
+        private class UnaryOperatorKeyPairEqualityComparer : IEqualityComparer<(UnaryOperatorFix fix, String op)>
+        {
+            private readonly StringComparer stringComparer;
+
+            public UnaryOperatorKeyPairEqualityComparer ( StringComparer stringComparer )
+            {
+                this.stringComparer = stringComparer;
+            }
+
+            public Boolean Equals ( (UnaryOperatorFix fix, String op) x, (UnaryOperatorFix fix, String op) y ) =>
+                x.fix == y.fix && this.stringComparer.Equals ( x.op, y.op );
+
+            public Int32 GetHashCode ( (UnaryOperatorFix fix, String op) obj ) =>
+                unchecked(obj.fix.GetHashCode ( ) * 31 + this.stringComparer.GetHashCode ( obj.op ));
+        }
+
+        private readonly ImmutableDictionary<String, Constant>.Builder constantsBuilder;
+        private readonly ImmutableDictionary<(UnaryOperatorFix, String), UnaryOperator>.Builder unaryOperatorsBuilder;
+        private readonly ImmutableDictionary<String, BinaryOperator>.Builder binaryOperatorsBuilder;
+        private readonly ImmutableDictionary<String, Function>.Builder functionsBuilder;
+
+        /// <summary>
+        /// Initializes a language with a specified identifier comparer
+        /// </summary>
+        /// <param name="identifierComparer"></param>
+        public CalculatorLanguageBuilder ( StringComparer identifierComparer )
+        {
+            this.constantsBuilder = ImmutableDictionary.CreateBuilder<String, Constant> ( identifierComparer );
+            this.unaryOperatorsBuilder = ImmutableDictionary.CreateBuilder<(UnaryOperatorFix, String), UnaryOperator> ( new UnaryOperatorKeyPairEqualityComparer ( identifierComparer ) );
+            this.binaryOperatorsBuilder = ImmutableDictionary.CreateBuilder<String, BinaryOperator> ( identifierComparer );
+            this.functionsBuilder = ImmutableDictionary.CreateBuilder<String, Function> ( identifierComparer );
+        }
+
+        /// <summary>
+        /// Initializes a case-insensitve language by using the
+        /// <see cref="CalculatorLanguageBuilder.CalculatorLanguageBuilder(StringComparer)" /> constructor
+        /// with the <see cref="StringComparer.InvariantCultureIgnoreCase" />
+        /// </summary>
+        public CalculatorLanguageBuilder ( ) : this ( StringComparer.InvariantCultureIgnoreCase )
+        {
+        }
 
         #region Constant Management
 
@@ -24,12 +61,12 @@ namespace Calculator
         /// <param name="identifier"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public CalculatorLanguageBuilder SetConstant ( String identifier, Double value )
+        public CalculatorLanguageBuilder AddConstant ( String identifier, Double value )
         {
             if ( String.IsNullOrWhiteSpace ( identifier ) )
-                throw new ArgumentException ( "message", nameof ( identifier ) );
+                throw new ArgumentException ( "The identifier must not be null, empty or contain whitespaces", nameof ( identifier ) );
 
-            this.constantsBuilder[identifier.ToLower ( )] = new Constant ( identifier.ToLower ( ), value );
+            this.constantsBuilder.Add ( identifier, new Constant ( identifier, value ) );
             return this;
         }
 
@@ -39,12 +76,12 @@ namespace Calculator
         /// <param name="identifiers"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public CalculatorLanguageBuilder SetConstant ( IEnumerable<String> identifiers, Double value )
+        public CalculatorLanguageBuilder AddConstants ( IEnumerable<String> identifiers, Double value )
         {
             if ( identifiers == null )
                 throw new ArgumentNullException ( nameof ( identifiers ) );
             foreach ( var alias in identifiers )
-                this.SetConstant ( alias, value );
+                this.AddConstant ( alias, value );
             return this;
         }
 
@@ -55,7 +92,7 @@ namespace Calculator
         /// <returns></returns>
         public CalculatorLanguageBuilder RemoveConstant ( String name )
         {
-            this.constantsBuilder.Remove ( name.ToLower ( ) );
+            this.constantsBuilder.Remove ( name );
             return this;
         }
 
@@ -66,7 +103,7 @@ namespace Calculator
         /// <returns></returns>
         public CalculatorLanguageBuilder RemoveConstants ( params String[] names )
         {
-            this.constantsBuilder.RemoveRange ( names.Select ( n => n.ToLower ( ) ) );
+            this.constantsBuilder.RemoveRange ( names );
             return this;
         }
 
@@ -82,7 +119,7 @@ namespace Calculator
         /// <param name="precedence"></param>
         /// <param name="body"></param>
         /// <returns></returns>
-        public CalculatorLanguageBuilder SetUnaryOperator ( UnaryOperatorFix fix, String @operator, Int32 precedence, Func<Double, Double> body )
+        public CalculatorLanguageBuilder AddUnaryOperator ( UnaryOperatorFix fix, String @operator, Int32 precedence, Func<Double, Double> body )
         {
             if ( fix < UnaryOperatorFix.Prefix || fix > UnaryOperatorFix.Postfix )
                 throw new ArgumentOutOfRangeException ( nameof ( fix ) );
@@ -93,7 +130,7 @@ namespace Calculator
             if ( body == null )
                 throw new ArgumentNullException ( nameof ( body ) );
 
-            this.unaryOperatorsBuilder[(fix, @operator.ToLower ( ))] = new UnaryOperator ( fix, @operator.ToLower ( ), precedence, body );
+            this.unaryOperatorsBuilder.Add ( (fix, @operator), new UnaryOperator ( fix, @operator, precedence, body ) );
             return this;
         }
 
@@ -105,12 +142,12 @@ namespace Calculator
         /// <param name="precedence"></param>
         /// <param name="body"></param>
         /// <returns></returns>
-        public CalculatorLanguageBuilder SetUnaryOperator ( UnaryOperatorFix fix, IEnumerable<String> operators, Int32 precedence, Func<Double, Double> body )
+        public CalculatorLanguageBuilder AddUnaryOperators ( UnaryOperatorFix fix, IEnumerable<String> operators, Int32 precedence, Func<Double, Double> body )
         {
             if ( operators == null )
                 throw new ArgumentNullException ( nameof ( operators ) );
             foreach ( var alias in operators )
-                this.SetUnaryOperator ( fix, alias, precedence, body );
+                this.AddUnaryOperator ( fix, alias, precedence, body );
             return this;
         }
 
@@ -122,7 +159,7 @@ namespace Calculator
         /// <returns></returns>
         public CalculatorLanguageBuilder RemoveUnaryOperator ( UnaryOperatorFix fix, String @operator )
         {
-            this.unaryOperatorsBuilder.Remove ( (fix, @operator.ToLower ( )) );
+            this.unaryOperatorsBuilder.Remove ( (fix, @operator) );
             return this;
         }
 
@@ -134,7 +171,7 @@ namespace Calculator
         /// <returns></returns>
         public CalculatorLanguageBuilder RemoveUnaryOperators ( UnaryOperatorFix fix, params String[] operators )
         {
-            this.unaryOperatorsBuilder.RemoveRange ( operators.Select ( alias => (fix, alias.ToLower ( )) ) );
+            this.unaryOperatorsBuilder.RemoveRange ( operators.Select ( alias => (fix, alias) ) );
             return this;
         }
 
@@ -150,16 +187,16 @@ namespace Calculator
         /// <param name="precedence"></param>
         /// <param name="body"></param>
         /// <returns></returns>
-        public CalculatorLanguageBuilder SetBinaryOperator ( OperatorAssociativity assoc, String @operator, Int32 precedence, Func<Double, Double, Double> body )
+        public CalculatorLanguageBuilder AddBinaryOperator ( Associativity assoc, String @operator, Int32 precedence, Func<Double, Double, Double> body )
         {
-            if ( assoc < OperatorAssociativity.None || OperatorAssociativity.Right < assoc )
+            if ( assoc < Associativity.None || Associativity.Right < assoc )
                 throw new ArgumentOutOfRangeException ( nameof ( assoc ) );
             if ( String.IsNullOrWhiteSpace ( @operator ) )
                 throw new ArgumentException ( "message", nameof ( @operator ) );
             if ( body == null )
                 throw new ArgumentNullException ( nameof ( body ) );
 
-            this.binaryOperatorsBuilder[@operator.ToLower ( )] = new BinaryOperator ( assoc, @operator.ToLower ( ), precedence, body );
+            this.binaryOperatorsBuilder.Add ( @operator, new BinaryOperator ( assoc, @operator.ToLower ( ), precedence, body ) );
             return this;
         }
 
@@ -171,12 +208,12 @@ namespace Calculator
         /// <param name="precedence"></param>
         /// <param name="body"></param>
         /// <returns></returns>
-        public CalculatorLanguageBuilder SetBinaryOperator ( OperatorAssociativity assoc, IEnumerable<String> operators, Int32 precedence, Func<Double, Double, Double> body )
+        public CalculatorLanguageBuilder AddBinaryOperators ( Associativity assoc, IEnumerable<String> operators, Int32 precedence, Func<Double, Double, Double> body )
         {
             if ( operators == null )
                 throw new ArgumentNullException ( nameof ( operators ) );
             foreach ( var alias in operators )
-                this.SetBinaryOperator ( assoc, alias, precedence, body );
+                this.AddBinaryOperator ( assoc, alias, precedence, body );
             return this;
         }
 
@@ -196,9 +233,32 @@ namespace Calculator
         /// </summary>
         /// <param name="operators"></param>
         /// <returns></returns>
-        public CalculatorLanguageBuilder RemoveBinaryOperator ( params String[] operators )
+        public CalculatorLanguageBuilder RemoveBinaryOperators ( params String[] operators )
         {
-            this.binaryOperatorsBuilder.RemoveRange ( operators.Select ( n => n.ToLower ( ) ) );
+            this.binaryOperatorsBuilder.RemoveRange ( operators );
+            return this;
+        }
+
+        /// <summary>
+        /// Adds implicit multiplication to the language. It's recommended that the precedence be higher
+        /// than division.
+        /// </summary>
+        /// <param name="precedence"></param>
+        /// <param name="body"></param>
+        /// <returns></returns>
+        public CalculatorLanguageBuilder AddImplicitMultiplication ( Int32 precedence, Func<Double, Double, Double> body )
+        {
+            this.binaryOperatorsBuilder.Add ( " ", new BinaryOperator ( precedence, body ) );
+            return this;
+        }
+
+        /// <summary>
+        /// Removes implicit multiplication from the language.
+        /// </summary>
+        /// <returns></returns>
+        public CalculatorLanguageBuilder RemoveImplicitMultiplication ( )
+        {
+            this.binaryOperatorsBuilder.Remove ( " " );
             return this;
         }
 
@@ -212,16 +272,16 @@ namespace Calculator
         /// <param name="name"></param>
         /// <param name="builder"></param>
         /// <returns></returns>
-        public CalculatorLanguageBuilder SetFunction ( String name, Action<FunctionBuilder> builder )
+        public CalculatorLanguageBuilder AddFunction ( String name, Action<FunctionBuilder> builder )
         {
             if ( String.IsNullOrWhiteSpace ( name ) )
                 throw new ArgumentException ( "message", nameof ( name ) );
             if ( builder == null )
                 throw new ArgumentNullException ( nameof ( builder ) );
 
-            var b = new FunctionBuilder ( name.ToLower ( ) );
+            var b = new FunctionBuilder ( name );
             builder ( b );
-            this.functionsBuilder[name.ToLower ( )] = b.GetFunctionDefinition ( );
+            this.functionsBuilder.Add ( name, b.GetFunctionDefinition ( ) );
             return this;
         }
 
@@ -231,12 +291,12 @@ namespace Calculator
         /// <param name="names"></param>
         /// <param name="builder"></param>
         /// <returns></returns>
-        public CalculatorLanguageBuilder SetFunction ( IEnumerable<String> names, Action<FunctionBuilder> builder )
+        public CalculatorLanguageBuilder AddFunctions ( IEnumerable<String> names, Action<FunctionBuilder> builder )
         {
             if ( names == null )
                 throw new ArgumentNullException ( nameof ( names ) );
             foreach ( var name in names )
-                this.SetFunction ( name, builder );
+                this.AddFunction ( name, builder );
             return this;
         }
 
@@ -247,7 +307,7 @@ namespace Calculator
         /// <returns></returns>
         public CalculatorLanguageBuilder RemoveFunction ( String name )
         {
-            this.functionsBuilder.Remove ( name.ToLower ( ) );
+            this.functionsBuilder.Remove ( name );
             return this;
         }
 
@@ -258,7 +318,7 @@ namespace Calculator
         /// <returns></returns>
         public CalculatorLanguageBuilder RemoveFunctions ( params String[] names )
         {
-            this.functionsBuilder.RemoveRange ( names.Select ( n => n.ToLower ( ) ) ); 
+            this.functionsBuilder.RemoveRange ( names );
             return this;
         }
 

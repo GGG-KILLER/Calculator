@@ -65,16 +65,20 @@ namespace Calculator.Parsing
                         } );
             }
 
+            Int32 implMulPrecedence = -1;
             foreach ( BinaryOperator binaryOp in language.BinaryOperators.Values )
             {
                 if ( binaryOp.Precedence > maxPrecedence )
                     maxPrecedence = binaryOp.Precedence;
 
+                if ( String.IsNullOrWhiteSpace ( binaryOp.Operator ) )
+                    implMulPrecedence = binaryOp.Precedence;
+
                 this.RegisterSingleTokenInfixOperator (
                     IsValidIdentifier ( binaryOp.Operator ) ? CalculatorTokenType.Identifier : CalculatorTokenType.Operator,
                     binaryOp.Operator,
                     binaryOp.Precedence,
-                    binaryOp.Associativity == OperatorAssociativity.Right,
+                    binaryOp.Associativity == Associativity.Right,
                     ( CalculatorTreeNode left, Token<CalculatorTokenType> op, CalculatorTreeNode right, out CalculatorTreeNode node ) =>
                     {
                         node = new BinaryOperatorExpression ( op, left, right );

@@ -43,13 +43,13 @@ namespace Calculator.Lexing
             this.AddLiteral ( ",", CalculatorTokenType.Comma, "," );
 
             // Numbers
-            this.AddRegex ( "bin-number", CalculatorTokenType.Number, "0b([01]+)", "0b", match => (Double) Convert.ToInt64 ( match.Groups[1].Value, 2 ) );
+            this.AddRegex ( "bin-number", CalculatorTokenType.Number, "0b([01]+)", "0b", match => ( Double ) Convert.ToInt64 ( match.Groups[1].Value, 2 ) );
 
-            this.AddRegex ( "oct-number", CalculatorTokenType.Number, "0o([0-7]+)", "0o", match => (Double) Convert.ToInt64 ( match.Groups[1].Value, 8 ) );
+            this.AddRegex ( "oct-number", CalculatorTokenType.Number, "0o([0-7]+)", "0o", match => ( Double ) Convert.ToInt64 ( match.Groups[1].Value, 8 ) );
 
-            this.AddRegex ( "hex-number", CalculatorTokenType.Number, "0x([a-fA-F0-9]+)", "0x", match => (Double) Convert.ToInt64 ( match.Groups[1].Value, 16 ) );
+            this.AddRegex ( "hex-number", CalculatorTokenType.Number, "0x([a-fA-F0-9]+)", "0x", match => ( Double ) Convert.ToInt64 ( match.Groups[1].Value, 16 ) );
 
-            this.AddRegex ( "dec-number", CalculatorTokenType.Number, @"(?:\d+(?:\.\d+)?|\.\d+)(?:e[+-]?\d+)?", null, match => (Double) Convert.ToDouble ( match.Value ) );
+            this.AddRegex ( "dec-number", CalculatorTokenType.Number, @"(?:\d+(?:\.\d+)?|\.\d+)(?:e[+-]?\d+)?", null, match => ( Double ) Convert.ToDouble ( match.Value ) );
 
             var ops = new HashSet<String> ( language.UnaryOperators.Values.Select ( un => un.Operator ) );
             ops.UnionWith ( language.BinaryOperators.Values.Select ( bi => bi.Operator ) );

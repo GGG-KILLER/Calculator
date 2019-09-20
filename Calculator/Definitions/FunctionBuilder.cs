@@ -20,7 +20,7 @@ namespace Calculator.Definitions
             if ( String.IsNullOrWhiteSpace ( name ) )
                 throw new ArgumentException ( "message", nameof ( name ) );
 
-            this.name = name;
+            this.name      = name;
             this.overloads = ImmutableDictionary.CreateBuilder<Int32, Delegate> ( );
         }
 

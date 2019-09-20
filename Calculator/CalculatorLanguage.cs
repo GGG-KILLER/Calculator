@@ -155,7 +155,7 @@ namespace Calculator
         /// <param name="precedence"></param>
         /// <param name="action"></param>
         /// <returns></returns>
-        public CalculatorLanguage AddBinaryOperator ( OperatorAssociativity associativity, String @operator, Int32 precedence, Func<Double, Double, Double> action ) =>
+        public CalculatorLanguage AddBinaryOperator ( Associativity associativity, String @operator, Int32 precedence, Func<Double, Double, Double> action ) =>
             new CalculatorLanguage (
                 this.Constants,
                 this.UnaryOperators,
@@ -240,7 +240,7 @@ namespace Calculator
         /// <param name="reader"></param>
         /// <param name="diagnosticReporter"></param>
         /// <returns></returns>
-        public ILexer<CalculatorTokenType> GetLexer ( SourceCodeReader reader, IProgress<Diagnostic> diagnosticReporter ) =>
+        public ILexer<CalculatorTokenType> GetLexer ( ICodeReader reader, IProgress<Diagnostic> diagnosticReporter ) =>
             this.LexerBuilder.BuildLexer ( reader, diagnosticReporter );
 
         /// <summary>

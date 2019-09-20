@@ -30,7 +30,7 @@ namespace Calculator.Definitions
         /// <param name="overloads"></param>
         internal Function ( String name, ImmutableDictionary<Int32, Delegate> overloads )
         {
-            this.Name = name.ToLower ( );
+            this.Name      = name.ToLower ( );
             this.Overloads = overloads;
         }
 

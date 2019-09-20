@@ -3,7 +3,7 @@
     /// <summary>
     /// Operator associativity
     /// </summary>
-    public enum OperatorAssociativity
+    public enum Associativity
     {
         /// <summary>
         /// Constitutes an error when used in sequence

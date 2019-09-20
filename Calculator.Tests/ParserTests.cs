@@ -5,8 +5,14 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Calculator.Tests
 {
+    using System.Collections.Generic;
     using System.Linq;
+    using Calculator.Definitions;
+    using Calculator.Lexing;
     using Calculator.Parsing.Visitors;
+    using GParse;
+    using GParse.Lexing;
+    using Microsoft.VisualStudio.TestTools.UnitTesting.Logging;
     using static ASTHelper;
 
     [TestClass]
@@ -16,19 +22,29 @@ namespace Calculator.Tests
 
         public ParserTests ( )
         {
-            // No need to define constants or functions, since they'd only be used during evaluation
+            // No need to define constants or functions, since they'd only be used during evaluation, but
+            // since the whole library assumes you'll be executing the expression tree at some point, you
+            // have to provide operator implementations.
             this.language = new CalculatorLanguageBuilder ( )
-                .SetUnaryOperator ( Definitions.UnaryOperatorFix.Prefix, "-", 1, a => a )
-                .SetUnaryOperator ( Definitions.UnaryOperatorFix.Postfix, "@", 1, a => a )
-                .SetBinaryOperator ( Definitions.OperatorAssociativity.Left, "/", 1, ( a, b ) => a )
-                .SetBinaryOperator ( Definitions.OperatorAssociativity.Right, "-", 2, ( a, b ) => a )
+                .AddBinaryOperator ( Associativity.Left, "+", 1, Math.Max )
+                .AddBinaryOperator ( Associativity.Left, "/", 2, Math.Max )
+                .AddImplicitMultiplication ( 3, ( x, y ) => x * y )
+                .AddBinaryOperator ( Associativity.Right, "^", 5, Math.Pow )
+                .AddUnaryOperator ( UnaryOperatorFix.Prefix, "+", 6, x => x )
+                .AddUnaryOperator ( UnaryOperatorFix.Postfix, "!", 7, x => x )
                 .GetCalculatorLanguage ( );
         }
 
         private CalculatorTreeNode ParseExpression ( String expression )
         {
-            CalculatorTreeNode parsed = this.language.Parse ( expression, out System.Collections.Generic.IEnumerable<GParse.Diagnostic> diagnostics);
-            Assert.AreEqual ( diagnostics.Count ( ), 0 );
+            CalculatorTreeNode parsed = this.language.Parse ( expression, out IEnumerable<Diagnostic> diagnostics );
+            foreach ( Diagnostic diagnostic in diagnostics )
+            {
+                Logger.LogMessage ( @"{0} {1}: {2} {3}
+{4}", diagnostic.Id, diagnostic.Severity, diagnostic.Range, diagnostic.Description, CalculatorDiagnostics.FormatDiagnostic ( expression, diagnostic ) );
+            }
+
+            Assert.AreEqual ( diagnostics.Count ( ), 0, "Expression wasn't parsed without errors, warnings or suggestions." );
             return parsed;
         }
 
@@ -81,168 +97,63 @@ namespace Calculator.Tests
         [TestMethod]
         public void UnaryOperatorsAreParsedProperly ( ) =>
             this.TestList (
-                ("-1", UnaryOperator ( "-", 1, Definitions.UnaryOperatorFix.Prefix )),
-                ("2@", UnaryOperator ( "@", 2, Definitions.UnaryOperatorFix.Postfix )),
-                ("-2@", UnaryOperator ( "@",
-                    UnaryOperator ( "-", 2, Definitions.UnaryOperatorFix.Prefix ), Definitions.UnaryOperatorFix.Postfix )),
-                ("----2", UnaryOperator (
-                    "-",
+                ("+1", UnaryOperator ( "+", 1, UnaryOperatorFix.Prefix )),
+                ("1!", UnaryOperator ( "!", 1, UnaryOperatorFix.Postfix )),
+                ("+1!", UnaryOperator (
+                    "+",
                     UnaryOperator (
-                        "-",
-                        UnaryOperator (
-                            "-",
-                            UnaryOperator (
-                                "-",
-                                2,
-                                Definitions.UnaryOperatorFix.Prefix
-                            ),
-                            Definitions.UnaryOperatorFix.Prefix
-                        ),
-                        Definitions.UnaryOperatorFix.Prefix
-                    ),
-                    Definitions.UnaryOperatorFix.Prefix
-                )),
-                ("2@@@@", UnaryOperator (
-                    "@",
+                        "!",
+                        1,
+                        UnaryOperatorFix.Postfix ),
+                    UnaryOperatorFix.Prefix )),
+                ("++1", UnaryOperator (
+                    "+",
                     UnaryOperator (
-                        "@",
-                        UnaryOperator (
-                            "@",
-                            UnaryOperator (
-                                "@",
-                                2,
-                                Definitions.UnaryOperatorFix.Postfix
-                            ),
-                            Definitions.UnaryOperatorFix.Postfix
-                        ),
-                        Definitions.UnaryOperatorFix.Postfix
-                    ),
-                    Definitions.UnaryOperatorFix.Postfix
-                )),
-                ("----2@@@@", UnaryOperator (
-                    "@",
+                        "+",
+                        1,
+                        UnaryOperatorFix.Prefix ),
+                    UnaryOperatorFix.Prefix )),
+                ("1!!", UnaryOperator (
+                    "!",
                     UnaryOperator (
-                        "@",
-                        UnaryOperator (
-                            "@",
-                            UnaryOperator (
-                                "@",
-                                UnaryOperator (
-                                    "-",
-                                    UnaryOperator (
-                                        "-",
-                                        UnaryOperator (
-                                            "-",
-                                            UnaryOperator (
-                                                "-",
-                                                2,
-                                                Definitions.UnaryOperatorFix.Prefix
-                                            ),
-                                            Definitions.UnaryOperatorFix.Prefix
-                                        ),
-                                        Definitions.UnaryOperatorFix.Prefix
-                                    ),
-                                    Definitions.UnaryOperatorFix.Prefix
-                                ),
-                                Definitions.UnaryOperatorFix.Postfix
-                            ),
-                            Definitions.UnaryOperatorFix.Postfix
-                        ),
-                        Definitions.UnaryOperatorFix.Postfix
-                    ),
-                    Definitions.UnaryOperatorFix.Postfix
-                )),
-                ("-const", UnaryOperator ( "-", "const", Definitions.UnaryOperatorFix.Prefix )),
-                ("const@", UnaryOperator ( "@", "const", Definitions.UnaryOperatorFix.Postfix )),
-                ("-const@", UnaryOperator ( "@",
-                    UnaryOperator ( "-", "const", Definitions.UnaryOperatorFix.Prefix ), Definitions.UnaryOperatorFix.Postfix )),
-                ("----const", UnaryOperator (
-                    "-",
+                        "!",
+                        1,
+                        UnaryOperatorFix.Postfix ),
+                    UnaryOperatorFix.Postfix )),
+                ("++1!!", UnaryOperator (
+                    "+",
                     UnaryOperator (
-                        "-",
+                        "+",
                         UnaryOperator (
-                            "-",
+                            "!",
                             UnaryOperator (
-                                "-",
-                                "const",
-                                Definitions.UnaryOperatorFix.Prefix
-                            ),
-                            Definitions.UnaryOperatorFix.Prefix
-                        ),
-                        Definitions.UnaryOperatorFix.Prefix
-                    ),
-                    Definitions.UnaryOperatorFix.Prefix
-                )),
-                ("const@@@@", UnaryOperator (
-                    "@",
-                    UnaryOperator (
-                        "@",
-                        UnaryOperator (
-                            "@",
-                            UnaryOperator (
-                                "@",
-                                "const",
-                                Definitions.UnaryOperatorFix.Postfix
-                            ),
-                            Definitions.UnaryOperatorFix.Postfix
-                        ),
-                        Definitions.UnaryOperatorFix.Postfix
-                    ),
-                    Definitions.UnaryOperatorFix.Postfix
-                )),
-                ("----const@@@@", UnaryOperator (
-                    "@",
-                    UnaryOperator (
-                        "@",
-                        UnaryOperator (
-                            "@",
-                            UnaryOperator (
-                                "@",
-                                UnaryOperator (
-                                    "-",
-                                    UnaryOperator (
-                                        "-",
-                                        UnaryOperator (
-                                            "-",
-                                            UnaryOperator (
-                                                "-",
-                                                "const",
-                                                Definitions.UnaryOperatorFix.Prefix
-                                            ),
-                                            Definitions.UnaryOperatorFix.Prefix
-                                        ),
-                                        Definitions.UnaryOperatorFix.Prefix
-                                    ),
-                                    Definitions.UnaryOperatorFix.Prefix
-                                ),
-                                Definitions.UnaryOperatorFix.Postfix
-                            ),
-                            Definitions.UnaryOperatorFix.Postfix
-                        ),
-                        Definitions.UnaryOperatorFix.Postfix
-                    ),
-                    Definitions.UnaryOperatorFix.Postfix
-                ))
+                                "!",
+                                1,
+                                UnaryOperatorFix.Postfix ),
+                            UnaryOperatorFix.Postfix ),
+                        UnaryOperatorFix.Prefix ),
+                    UnaryOperatorFix.Prefix )),
+                ("+(+1)!!", UnaryOperator ( "+", UnaryOperator ( "!", UnaryOperator ( "!", Grouped ( UnaryOperator ( "+", 1, UnaryOperatorFix.Prefix ) ), UnaryOperatorFix.Postfix ), UnaryOperatorFix.Postfix ), UnaryOperatorFix.Prefix ))
             );
 
         [TestMethod]
         public void BinaryOperatorsAreParsedProperly ( ) =>
             this.TestList (
-                ("2 / 2", BinaryOperator ( 2, "/", 2 )),
+                ("2 + 2", BinaryOperator ( 2, "+", 2 )),
+                ("2 + 2 + 2", BinaryOperator ( BinaryOperator ( 2, "+", 2 ), "+", 2 )),
+                ("2 + 2 / 2", BinaryOperator ( 2, "+", BinaryOperator ( 2, "/", 2 ) )),
+                ("2 / 2 + 2", BinaryOperator ( BinaryOperator ( 2, "/", 2 ), "+", 2 )),
                 ("2 / 2 / 2", BinaryOperator ( BinaryOperator ( 2, "/", 2 ), "/", 2 )),
-                ("2 / 2 - 2", BinaryOperator ( 2, "/", BinaryOperator ( 2, "-", 2 ) )),
-                ("2 - 2 / 2", BinaryOperator ( BinaryOperator ( 2, "-", 2 ), "/", 2 )),
-                ("2 - 2 - 2", BinaryOperator ( 2, "-", BinaryOperator ( 2, "-", 2 ) )),
-                ("2 - 2 / 2 - 2", BinaryOperator ( BinaryOperator ( 2, "-", 2 ), "/", BinaryOperator ( 2, "-", 2 ) )),
-                ("2 / 2 - 2 / 2", BinaryOperator ( BinaryOperator ( 2, "/", BinaryOperator ( 2, "-", 2 ) ), "/", 2 )),
-                /* 2 / 2 - 2 / 2 - 2 / 2 - 2
-                 * ⤷ ((2 / (2 - 2)) / (2 - 2)) / (2 - 2)
-                 *    ⤷ ((2 / bin(2, - 2)) / bin(2, -, 2)) / bin(2, -, 2)
-                 *      ⤷ (bin(2, /, bin(2, -, 2)) / bin(2, -, 2)) / bin(2, -, 2)
-                 *         ⤷ bin(bin(2, /, bin(2 -, 2)), /, bin(2, -, 2)) / bin(2, -, 2)
-                 *            ⤷ bin(bin(bin(2, /, bin(2 -, 2)), /, bin(2, -, 2)), /, bin(2, -, 2))
+                ("2 / 2 + 2 / 2", BinaryOperator ( BinaryOperator ( 2, "/", 2 ), "+", BinaryOperator ( 2, "/", 2 ) )),
+                ("2 + 2 / 2 + 2", BinaryOperator ( BinaryOperator ( 2, "+", BinaryOperator ( 2, "/", 2 ) ), "+", 2 )),
+                /* 2 + 2 / 2 + 2 / 2 + 2 / 2
+                 * ⤷ ((2 + (2 / 2)) + (2 / 2)) + (2 / 2)
+                 *    ⤷ ((2 + bin(2, / 2)) + bin(2, /, 2)) + bin(2, /, 2)
+                 *      ⤷ (bin(2, +, bin(2, /, 2)) + bin(2, /, 2)) + bin(2, /, 2)
+                 *         ⤷ bin(bin(2, +, bin(2 /, 2)), +, bin(2, /, 2)) + bin(2, /, 2)
+                 *            ⤷ bin(bin(bin(2, +, bin(2 /, 2)), +, bin(2, /, 2)), +, bin(2, /, 2))
                  */
-                ("2 / 2 - 2 / 2 - 2 / 2 - 2", BinaryOperator ( BinaryOperator ( BinaryOperator ( 2, "/", BinaryOperator ( 2, "-", 2 ) ), "/", BinaryOperator ( 2, "-", 2 ) ), "/", BinaryOperator ( 2, "-", 2 ) ))
+                ("2 + 2 / 2 + 2 / 2 + 2 / 2", BinaryOperator ( BinaryOperator ( BinaryOperator ( 2, "+", BinaryOperator ( 2, "/", 2 ) ), "+", BinaryOperator ( 2, "/", 2 ) ), "+", BinaryOperator ( 2, "/", 2 ) ))
             );
 
         [TestMethod]
@@ -258,14 +169,14 @@ namespace Calculator.Tests
         public void FunctionCallsAreParsedProperly ( ) =>
             this.TestList (
                 ("func(a)", FunctionCall ( "func", "a" )),
-                ("func(a, a, 2 - 2 / 2 - 2,   2 / 2 - 2 / 2)", FunctionCall (
+                ("func(a, a, 2 / 2 + 2 / 2,   2 + 2 / 2 + 2)", FunctionCall (
                     "func",
 
                     // args:
                     "a",
                     "a",
-                    BinaryOperator ( BinaryOperator ( 2, "-", 2 ), "/", BinaryOperator ( 2, "-", 2 ) ),
-                    BinaryOperator ( BinaryOperator ( 2, "/", BinaryOperator ( 2, "-", 2 ) ), "/", 2 )
+                    BinaryOperator ( BinaryOperator ( 2, "/", 2 ), "+", BinaryOperator ( 2, "/", 2 ) ),
+                    BinaryOperator ( BinaryOperator ( 2, "+", BinaryOperator ( 2, "/", 2 ) ), "+", 2 )
                 )),
                 ("func(a a)", FunctionCall (
                     "func",
@@ -296,25 +207,25 @@ namespace Calculator.Tests
         [TestMethod]
         public void ComplexExpressionsAreParsedProperly ( )
         {
-            (String expr, CalculatorTreeNode tree) funcaabb = ("func(a, a, 2 - 2 / 2 - 2, 2 / 2 - 2 / 2)", FunctionCall (
+            (String expr, CalculatorTreeNode tree) funcaabb = ("func(a, a, 2 / 2 + 2 / 2, 2 + 2 / 2 + 2)", FunctionCall (
                 "func",
 
                 // args:
                 "a",
                 "a",
-                BinaryOperator ( BinaryOperator ( 2, "-", 2 ), "/", BinaryOperator ( 2, "-", 2 ) ),
-                BinaryOperator ( BinaryOperator ( 2, "/", BinaryOperator ( 2, "-", 2 ) ), "/", 2 )
+                BinaryOperator ( BinaryOperator ( 2, "/", 2 ), "+", BinaryOperator ( 2, "/", 2 ) ),
+                BinaryOperator ( BinaryOperator ( 2, "+", BinaryOperator ( 2, "/", 2 ) ), "+", 2 )
             ));
-            (String expr, CalculatorTreeNode tree) funcaabfuncaabb = ($"func(a, a, 2 - 2 / 2 - 2, {funcaabb.expr}, a b c)", FunctionCall (
+            (String expr, CalculatorTreeNode tree) funcaabfuncaabb = ($"func(a, a, 2 / 2 + 2 / 2, {funcaabb.expr}, a b c)", FunctionCall (
                 "func",
 
                 // args:
                 "a",
                 "a",
-                BinaryOperator ( BinaryOperator ( 2, "-", 2 ), "/", BinaryOperator ( 2, "-", 2 ) ),
+                BinaryOperator ( BinaryOperator ( 2, "/", 2 ), "+", BinaryOperator ( 2, "/", 2 ) ),
                 funcaabb.tree,
-                ImplicitMultiplication(
-                    ImplicitMultiplication(
+                ImplicitMultiplication (
+                    ImplicitMultiplication (
                         "a",
                         "b"
                     ),
@@ -329,27 +240,27 @@ namespace Calculator.Tests
                     Grouped ( funcaabfuncaabb.tree ),
                     Grouped ( funcaabfuncaabb.tree )
                 )),
-                ($"-({funcaabb.expr} / {funcaabfuncaabb.expr} - const@) / {funcaabfuncaabb.expr}", BinaryOperator (
+                ($"+({funcaabb.expr} + {funcaabfuncaabb.expr} / const!) + {funcaabfuncaabb.expr}", BinaryOperator (
                     UnaryOperator (
-                        "-",
+                        "+",
                         Grouped (
                             BinaryOperator (
                                 funcaabb.tree,
-                                "/",
-                                UnaryOperator (
-                                    "@",
-                                    BinaryOperator (
-                                        funcaabfuncaabb.tree,
-                                        "-",
-                                        "const"
-                                    ),
-                                    Definitions.UnaryOperatorFix.Postfix
+                                "+",
+                                BinaryOperator (
+                                    funcaabfuncaabb.tree,
+                                    "/",
+                                    UnaryOperator (
+                                        "!",
+                                        "const",
+                                        UnaryOperatorFix.Postfix
+                                    )
                                 )
                             )
                         ),
-                        Definitions.UnaryOperatorFix.Prefix
+                        UnaryOperatorFix.Prefix
                     ),
-                    "/",
+                    "+",
                     funcaabfuncaabb.tree
                 ))
             );

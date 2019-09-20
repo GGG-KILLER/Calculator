@@ -49,5 +49,10 @@
         /// Whitespace
         /// </summary>
         Whitespace,
+
+        /// <summary>
+        /// Superscript (⁰, ¹, ², ³, ⁴, ⁵, ⁶, ⁷, ⁸, ⁹, ⁺, ⁻)
+        /// </summary>
+        Superscript,
     }
 }

@@ -70,17 +70,17 @@ namespace Calculator.CLI
             // Constants
             using ( timingLogger.BeginScope ( "Adding constants", true ) )
             {
-                lang.SetConstant ( "E", Math.E )
-                    .SetConstant ( "pi", Math.PI )
-                    .SetConstant ( "π", Math.PI );
+                lang.AddConstant ( "E", Math.E )
+                    .AddConstant ( "pi", Math.PI )
+                    .AddConstant ( "π", Math.PI );
             }
 
             // Unary operators
             using ( timingLogger.BeginScope ( "Adding unary operators", true ) )
             {
-                lang.SetUnaryOperator ( UnaryOperatorFix.Prefix, "-", 1, n => -n )
-                    .SetUnaryOperator ( UnaryOperatorFix.Prefix, "~", 1, n => ~( Int64 ) n )
-                    .SetUnaryOperator ( UnaryOperatorFix.Postfix, "!", 1, n =>
+                lang.AddUnaryOperator ( UnaryOperatorFix.Prefix, "-", 1, n => -n )
+                    .AddUnaryOperator ( UnaryOperatorFix.Prefix, "~", 1, n => ~( Int64 ) n )
+                    .AddUnaryOperator ( UnaryOperatorFix.Postfix, "!", 1, n =>
                     {
                         if ( Double.IsInfinity ( n ) )
                             return n;
@@ -94,52 +94,52 @@ namespace Calculator.CLI
             // Binary operators Binary operators - Math operators
             using ( timingLogger.BeginScope ( "Adding math binary operators", true ) )
             {
-                lang.SetBinaryOperator ( OperatorAssociativity.Left, "+", 1, ( lhs, rhs ) => lhs + rhs )
-                    .SetBinaryOperator ( OperatorAssociativity.Left, "-", 1, ( lhs, rhs ) => lhs - rhs )
-                    .SetBinaryOperator ( OperatorAssociativity.Left, "*", 2, ( lhs, rhs ) => lhs * rhs )
-                    .SetBinaryOperator ( OperatorAssociativity.Left, "/", 2, ( lhs, rhs ) => lhs / rhs )
-                    .SetBinaryOperator ( OperatorAssociativity.Left, "%", 2, ( lhs, rhs ) => lhs % rhs )
-                    .SetBinaryOperator ( OperatorAssociativity.Right, "^", 3, ( lhs, rhs ) => Math.Pow ( lhs, rhs ) );
+                lang.AddBinaryOperator ( Associativity.Left, "+", 1, ( lhs, rhs ) => lhs + rhs )
+                    .AddBinaryOperator ( Associativity.Left, "-", 1, ( lhs, rhs ) => lhs - rhs )
+                    .AddBinaryOperator ( Associativity.Left, "*", 2, ( lhs, rhs ) => lhs * rhs )
+                    .AddBinaryOperator ( Associativity.Left, "/", 2, ( lhs, rhs ) => lhs / rhs )
+                    .AddBinaryOperator ( Associativity.Left, "%", 2, ( lhs, rhs ) => lhs % rhs )
+                    .AddBinaryOperator ( Associativity.Right, "^", 3, ( lhs, rhs ) => Math.Pow ( lhs, rhs ) );
             }
 
             // Binary operators - Logical operators
             using ( timingLogger.BeginScope ( "Adding bitwise operators", true ) )
             {
-                lang.SetBinaryOperator ( OperatorAssociativity.Left, "<<", 4, ( lhs, rhs ) => ( Int64 ) lhs << ( Int32 ) rhs )
-                    .SetBinaryOperator ( OperatorAssociativity.Left, ">>", 4, ( lhs, rhs ) => ( Int64 ) lhs >> ( Int32 ) rhs )
-                    .SetBinaryOperator ( OperatorAssociativity.Left, "&", 5, ( lhs, rhs ) => ( Int64 ) lhs & ( Int64 ) rhs )
-                    .SetBinaryOperator ( OperatorAssociativity.Left, "|", 5, ( lhs, rhs ) => ( Int64 ) lhs | ( Int64 ) rhs )
-                    .SetBinaryOperator ( OperatorAssociativity.Left, "xor", 5, ( lhs, rhs ) => ( Int64 ) lhs ^ ( Int64 ) rhs );
+                lang.AddBinaryOperator ( Associativity.Left, "<<", 4, ( lhs, rhs ) => ( Int64 ) lhs << ( Int32 ) rhs )
+                    .AddBinaryOperator ( Associativity.Left, ">>", 4, ( lhs, rhs ) => ( Int64 ) lhs >> ( Int32 ) rhs )
+                    .AddBinaryOperator ( Associativity.Left, "&", 5, ( lhs, rhs ) => ( Int64 ) lhs & ( Int64 ) rhs )
+                    .AddBinaryOperator ( Associativity.Left, "|", 5, ( lhs, rhs ) => ( Int64 ) lhs | ( Int64 ) rhs )
+                    .AddBinaryOperator ( Associativity.Left, "xor", 5, ( lhs, rhs ) => ( Int64 ) lhs ^ ( Int64 ) rhs );
             }
 
             // Functions Functions - Math
             using ( timingLogger.BeginScope ( "Adding math functions", true ) )
             {
-                lang.SetFunction ( "abs", f => f.AddOverload ( Math.Abs ) )
-                    .SetFunction ( "acos", f => f.AddOverload ( Math.Acos ) )
-                    .SetFunction ( "asin", f => f.AddOverload ( Math.Asin ) )
-                    .SetFunction ( "atan", f => f.AddOverload ( Math.Atan ) )
-                    .SetFunction ( "atan2", f => f.AddOverload ( Math.Atan2 ) )
-                    .SetFunction ( "ceil", f => f.AddOverload ( Math.Ceiling ) )
-                    .SetFunction ( "cos", f => f.AddOverload ( Math.Cos ) )
-                    .SetFunction ( "cosh", f => f.AddOverload ( Math.Cosh ) )
-                    .SetFunction ( "exp", f => f.AddOverload ( Math.Exp ) )
-                    .SetFunction ( "floor", f => f.AddOverload ( Math.Floor ) )
-                    .SetFunction ( "ln", f => f.AddOverload ( ( Func<Double, Double> ) Math.Log ) )
-                    .SetFunction ( "log", f => f.AddOverload ( ( Func<Double, Double> ) Math.Log )
+                lang.AddFunction ( "abs", f => f.AddOverload ( Math.Abs ) )
+                    .AddFunction ( "acos", f => f.AddOverload ( Math.Acos ) )
+                    .AddFunction ( "asin", f => f.AddOverload ( Math.Asin ) )
+                    .AddFunction ( "atan", f => f.AddOverload ( Math.Atan ) )
+                    .AddFunction ( "atan2", f => f.AddOverload ( Math.Atan2 ) )
+                    .AddFunction ( "ceil", f => f.AddOverload ( Math.Ceiling ) )
+                    .AddFunction ( "cos", f => f.AddOverload ( Math.Cos ) )
+                    .AddFunction ( "cosh", f => f.AddOverload ( Math.Cosh ) )
+                    .AddFunction ( "exp", f => f.AddOverload ( Math.Exp ) )
+                    .AddFunction ( "floor", f => f.AddOverload ( Math.Floor ) )
+                    .AddFunction ( "ln", f => f.AddOverload ( ( Func<Double, Double> ) Math.Log ) )
+                    .AddFunction ( "log", f => f.AddOverload ( ( Func<Double, Double> ) Math.Log )
                         .AddOverload ( ( Func<Double, Double, Double> ) Math.Log ) )
-                    .SetFunction ( "log10", f => f.AddOverload ( Math.Log10 ) )
-                    .SetFunction ( "log2", f => f.AddOverload ( ( n ) => Math.Log ( n, 2 ) ) )
-                    .SetFunction ( "max", f => f.AddOverload ( Math.Max ) )
-                    .SetFunction ( "min", f => f.AddOverload ( Math.Min ) )
-                    .SetFunction ( "pow", f => f.AddOverload ( Math.Pow ) )
-                    .SetFunction ( "round", f => f.AddOverload ( Math.Round ) )
-                    .SetFunction ( "sin", f => f.AddOverload ( Math.Sin ) )
-                    .SetFunction ( "sinh", f => f.AddOverload ( Math.Sinh ) )
-                    .SetFunction ( "sqrt", f => f.AddOverload ( Math.Sqrt ) )
-                    .SetFunction ( "tan", f => f.AddOverload ( Math.Tan ) )
-                    .SetFunction ( "tanh", f => f.AddOverload ( Math.Tanh ) )
-                    .SetFunction ( "truncate", f => f.AddOverload ( Math.Truncate ) )
+                    .AddFunction ( "log10", f => f.AddOverload ( Math.Log10 ) )
+                    .AddFunction ( "log2", f => f.AddOverload ( ( n ) => Math.Log ( n, 2 ) ) )
+                    .AddFunction ( "max", f => f.AddOverload ( Math.Max ) )
+                    .AddFunction ( "min", f => f.AddOverload ( Math.Min ) )
+                    .AddFunction ( "pow", f => f.AddOverload ( Math.Pow ) )
+                    .AddFunction ( "round", f => f.AddOverload ( Math.Round ) )
+                    .AddFunction ( "sin", f => f.AddOverload ( Math.Sin ) )
+                    .AddFunction ( "sinh", f => f.AddOverload ( Math.Sinh ) )
+                    .AddFunction ( "sqrt", f => f.AddOverload ( Math.Sqrt ) )
+                    .AddFunction ( "tan", f => f.AddOverload ( Math.Tan ) )
+                    .AddFunction ( "tanh", f => f.AddOverload ( Math.Tanh ) )
+                    .AddFunction ( "truncate", f => f.AddOverload ( Math.Truncate ) )
                     /*
                      * a - b
                      * c - d
@@ -148,7 +148,7 @@ namespace Calculator.CLI
                      *
                      * d = (c*b)/a
                      */
-                    .SetFunction ( new[] { "rot", "ruleOfThree" }, f => f.AddOverload ( ( a, b, c ) => ( b * c ) / a ) );
+                    .AddFunctions ( new[] { "rot", "ruleOfThree" }, f => f.AddOverload ( ( a, b, c ) => ( b * c ) / a ) );
             }
 
             return lang.GetCalculatorLanguage ( );
