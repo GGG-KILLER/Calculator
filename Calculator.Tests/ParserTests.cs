@@ -40,7 +40,7 @@ namespace Calculator.Tests
             foreach ( Diagnostic diagnostic in diagnostics )
             {
                 Logger.LogMessage ( @"{0} {1}: {2}
-{3}", diagnostic.Id, diagnostic.Severity, diagnostic.Description, CalculatorDiagnostics.FormatDiagnostic ( expression, diagnostic ) );
+{3}", diagnostic.Id, diagnostic.Severity, diagnostic.Description, CalculatorDiagnostics.HighlightRange ( expression, diagnostic.Range ) );
             }
 
             Assert.AreEqual ( diagnostics.Count ( ), 0, "Expression wasn't parsed without errors, warnings or suggestions." );
