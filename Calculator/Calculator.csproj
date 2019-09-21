@@ -17,10 +17,6 @@
 
   <ItemGroup>
     <PackageReference Include="GParse" Version="3.0.0-alpha5" />
-    <PackageReference Include="Microsoft.Net.Compilers" Version="3.4.0-beta2-19470-02">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="System.Collections.Immutable" Version="1.5.0" />
   </ItemGroup>
 </Project>
