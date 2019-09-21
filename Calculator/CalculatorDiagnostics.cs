@@ -36,7 +36,7 @@ namespace Calculator
         public static class SyntaxError
         {
             /// <summary>
-            /// Creates a <see cref="Diagnostic" /> saying that something was expected.
+            /// Creates a <see cref="Diagnostic"/> saying that something was expected.
             /// </summary>
             /// <param name="range"></param>
             /// <param name="expected"></param>
@@ -45,7 +45,7 @@ namespace Calculator
                 new Diagnostic ( "CALC0001", range, DiagnosticSeverity.Error, $"Syntax error, {expected} expected." );
 
             /// <summary>
-            /// Creates a <see cref="Diagnostic" /> saying something was expected.
+            /// Creates a <see cref="Diagnostic"/> saying something was expected.
             /// </summary>
             /// <param name="location"></param>
             /// <param name="expected"></param>
@@ -54,7 +54,7 @@ namespace Calculator
                 ThingExpected ( location.To ( location ), expected );
 
             /// <summary>
-            /// Creates a <see cref="Diagnostic" /> saying something was expected for something else.
+            /// Creates a <see cref="Diagnostic"/> saying something was expected for something else.
             /// </summary>
             /// <param name="range"></param>
             /// <param name="expected"></param>
@@ -64,7 +64,7 @@ namespace Calculator
                 new Diagnostic ( "CALC0001", range, DiagnosticSeverity.Error, $"Syntax error, {expected} expected for {PunctuateIfNecessary ( @for )}" );
 
             /// <summary>
-            /// Creates a <see cref="Diagnostic" /> saying something was expected for something else.
+            /// Creates a <see cref="Diagnostic"/> saying something was expected for something else.
             /// </summary>
             /// <param name="location"></param>
             /// <param name="expected"></param>
@@ -74,7 +74,7 @@ namespace Calculator
                 ThingExpectedFor ( location.To ( location ), expected, @for );
 
             /// <summary>
-            /// Creates a <see cref="Diagnostic" /> saying something was expected after something else.
+            /// Creates a <see cref="Diagnostic"/> saying something was expected after something else.
             /// </summary>
             /// <param name="range"></param>
             /// <param name="expected"></param>
@@ -84,7 +84,7 @@ namespace Calculator
                 new Diagnostic ( "CALC0001", range, DiagnosticSeverity.Error, $"Syntax error, {expected} expected after {PunctuateIfNecessary ( after )}" );
 
             /// <summary>
-            /// Creates a <see cref="Diagnostic" /> saying something was expected after something else.
+            /// Creates a <see cref="Diagnostic"/> saying something was expected after something else.
             /// </summary>
             /// <param name="location"></param>
             /// <param name="expected"></param>
@@ -94,7 +94,7 @@ namespace Calculator
                 ThingExpectedAfter ( location.To ( location ), expected, after );
 
             /// <summary>
-            /// Produces a <see cref="Diagnostic" /> reporting an invalid superscript.
+            /// Produces a <see cref="Diagnostic"/> reporting an invalid superscript.
             /// </summary>
             /// <param name="range"></param>
             /// <param name="error"></param>
@@ -103,8 +103,7 @@ namespace Calculator
                 new Diagnostic ( "CALC0002", range, DiagnosticSeverity.Error, $"Invalid superscript: {PunctuateIfNecessary ( error )}" );
 
             /// <summary>
-            /// Produces a <see cref="Diagnostic" /> reporting an invalid number of type
-            /// <paramref name="numberType" />.
+            /// Produces a <see cref="Diagnostic"/> reporting an invalid number of type <paramref name="numberType"/>.
             /// </summary>
             /// <param name="range"></param>
             /// <param name="numberType"></param>
@@ -113,8 +112,7 @@ namespace Calculator
                 new Diagnostic ( "CALC0003", range, DiagnosticSeverity.Error, $"Invalid {numberType} number." );
 
             /// <summary>
-            /// Produces a <see cref="Diagnostic" /> reporting an invalid number of type
-            /// <paramref name="numberType" />.
+            /// Produces a <see cref="Diagnostic"/> reporting an invalid number of type <paramref name="numberType"/>.
             /// </summary>
             /// <param name="range"></param>
             /// <param name="numberType"></param>
@@ -125,21 +123,16 @@ namespace Calculator
         }
 
         /// <summary>
-        /// Formats a diagnostic retrieving the line(s) referred to by the diagnostic and inserting ^'s
-        /// under the code section that the diagnostic refers to.
+        /// Highlights a range retrieving the line(s) referred to by the range and inserting ^'s
+        /// under the code section that the range refers to.
         /// </summary>
-        /// <param name="expression">
-        /// The expression that was provided to the object that generated the
-        /// <paramref name="diagnostic" />
-        /// </param>
-        /// <param name="diagnostic">
-        /// The diagnostic generated by the object that had <paramref name="expression" /> provided to it
-        /// </param>
+        /// <param name="expression">The expression to highlight</param>
+        /// <param name="range">The range to highlight</param>
         /// <returns></returns>
-        public static String FormatDiagnostic ( String expression, Diagnostic diagnostic )
+        public static String HighlightRange ( String expression, SourceRange range )
         {
-            SourceLocation start = diagnostic.Range.Start;
-            SourceLocation end   = diagnostic.Range.End;
+            SourceLocation start = range.Start;
+            SourceLocation end   = range.End;
             var len              = Math.Max ( end.Byte - start.Byte, 1 );
             var lines            = expression.Split ( new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries );
 
