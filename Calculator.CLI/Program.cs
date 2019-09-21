@@ -29,7 +29,7 @@ namespace Calculator.CLI
             using ( timingLogger.BeginScope ( "Initialization", true ) )
             {
                 using ( timingLogger.BeginScope ( "Building the language", true ) )
-                    language = BuildLanguage ( );
+                    language = GetCalculatorLanguage ( );
                 using ( timingLogger.BeginScope ( "Initializing the evaluator", true ) )
                     evaluator = new TreeEvaluator ( language );
                 using ( timingLogger.BeginScope ( "Initializing the reconstructor", true ) )
@@ -62,96 +62,108 @@ namespace Calculator.CLI
                 }
             }
         }
-
-        private static CalculatorLanguage BuildLanguage ( )
+        private static CalculatorLanguage GetCalculatorLanguage ( )
         {
-            var lang = new CalculatorLanguageBuilder ( );
+            const Double PI_OVER_180 = Math.PI / 180;
+            const Double PI_UNDER_180 = 180 / Math.PI;
+            var lang = new CalculatorLanguageBuilder ( StringComparer.InvariantCultureIgnoreCase );
 
             // Constants
-            using ( timingLogger.BeginScope ( "Adding constants", true ) )
-            {
-                lang.AddConstant ( "E", Math.E )
-                    .AddConstant ( "pi", Math.PI )
-                    .AddConstant ( "π", Math.PI );
-            }
+            lang.AddConstant ( "E", Math.E )
+                .AddConstants ( new[] { "π", "pi" }, Math.PI );
+
+            // Binary operators - Logical Operators
+            lang.AddBinaryOperators ( Associativity.Left, new[] { "|", "∨" }, 1, ( left, right ) => ( ( Int64 ) left ) | ( ( Int64 ) right ) )
+                .AddBinaryOperators ( Associativity.Left, new[] { "xor", "⊻", "⊕" }, 2, ( left, right ) => ( ( Int64 ) left ) ^ ( ( Int64 ) right ) )
+                .AddBinaryOperators ( Associativity.Left, new[] { "&", "∧" }, 3, ( left, right ) => ( ( Int64 ) left ) & ( ( Int64 ) right ) )
+                .AddBinaryOperator ( Associativity.Left, ">>", 4, ( left, right ) => ( ( Int64 ) left ) >> ( ( Int32 ) right ) )
+                .AddBinaryOperator ( Associativity.Left, "<<", 4, ( left, right ) => ( ( Int64 ) left ) << ( ( Int32 ) right ) );
+
+            // Binary operators - Math Operators
+            lang.AddBinaryOperators ( Associativity.Left, new[] { "+", "➕" }, 5, ( left, right ) => left + right )
+                .AddBinaryOperators ( Associativity.Left, new[] { "-" }, 5, ( left, right ) => left - right )
+                .AddBinaryOperators ( Associativity.Left, new[] { "*", "×", "✕", "❌", "✖", "·" }, 6, ( left, right ) => left * right )
+                .AddBinaryOperators ( Associativity.Left, new[] { "/", "÷" }, 6, ( left, right ) => left / right )
+                .AddBinaryOperator ( Associativity.Left, "%", 6, ( left, right ) => left % right )
+                .AddImplicitMultiplication ( 7, ( left, right ) => left * right );
 
             // Unary operators
-            using ( timingLogger.BeginScope ( "Adding unary operators", true ) )
-            {
-                lang.AddUnaryOperator ( UnaryOperatorFix.Prefix, "-", 1, n => -n )
-                    .AddUnaryOperator ( UnaryOperatorFix.Prefix, "~", 1, n => ~( Int64 ) n )
-                    .AddUnaryOperator ( UnaryOperatorFix.Postfix, "!", 1, n =>
-                    {
-                        if ( Double.IsInfinity ( n ) )
-                            return n;
-                        var r = 1D;
-                        for ( var i = 2; i < n && !Double.IsInfinity ( r ) && !Double.IsInfinity ( i ); i++ )
-                            r *= i;
-                        return r;
-                    } );
-            }
+            lang.AddUnaryOperator ( UnaryOperatorFix.Prefix, "-", 8, n => -n )
+                .AddUnaryOperator ( UnaryOperatorFix.Prefix, "~", 8, n => ~( Int64 ) n )
+                .AddUnaryOperator ( UnaryOperatorFix.Postfix, "!", 8, factorial );
 
-            // Binary operators Binary operators - Math operators
-            using ( timingLogger.BeginScope ( "Adding math binary operators", true ) )
-            {
-                lang.AddBinaryOperator ( Associativity.Left, "+", 1, ( lhs, rhs ) => lhs + rhs )
-                    .AddBinaryOperator ( Associativity.Left, "-", 1, ( lhs, rhs ) => lhs - rhs )
-                    .AddBinaryOperator ( Associativity.Left, "*", 2, ( lhs, rhs ) => lhs * rhs )
-                    .AddBinaryOperator ( Associativity.Left, "/", 2, ( lhs, rhs ) => lhs / rhs )
-                    .AddBinaryOperator ( Associativity.Left, "%", 2, ( lhs, rhs ) => lhs % rhs )
-                    .AddBinaryOperator ( Associativity.Right, "^", 3, ( lhs, rhs ) => Math.Pow ( lhs, rhs ) );
-            }
+            // Exponentiation
+            lang.AddBinaryOperator ( Associativity.Right, "^", 9, Math.Pow )
+                .AddSuperscriptExponentiation ( 9, Math.Pow );
 
-            // Binary operators - Logical operators
-            using ( timingLogger.BeginScope ( "Adding bitwise operators", true ) )
-            {
-                lang.AddBinaryOperator ( Associativity.Left, "<<", 4, ( lhs, rhs ) => ( Int64 ) lhs << ( Int32 ) rhs )
-                    .AddBinaryOperator ( Associativity.Left, ">>", 4, ( lhs, rhs ) => ( Int64 ) lhs >> ( Int32 ) rhs )
-                    .AddBinaryOperator ( Associativity.Left, "&", 5, ( lhs, rhs ) => ( Int64 ) lhs & ( Int64 ) rhs )
-                    .AddBinaryOperator ( Associativity.Left, "|", 5, ( lhs, rhs ) => ( Int64 ) lhs | ( Int64 ) rhs )
-                    .AddBinaryOperator ( Associativity.Left, "xor", 5, ( lhs, rhs ) => ( Int64 ) lhs ^ ( Int64 ) rhs );
-            }
+            // Functions - Math.*
+            lang.AddFunction ( "abs", f => f.AddOverload ( Math.Abs ) )
+                .AddFunction ( "acos", f => f.AddOverload ( Math.Acos ) )
+                .AddFunction ( "asin", f => f.AddOverload ( Math.Asin ) )
+                .AddFunction ( "asinh", f => f.AddOverload ( Math.Asinh ) )
+                .AddFunction ( "atan", f => f.AddOverload ( Math.Atan ) )
+                .AddFunction ( "atan2", f => f.AddOverload ( Math.Atan2 ) )
+                .AddFunction ( "atanh", f => f.AddOverload ( Math.Atanh ) )
+                //.AddFunction ( "bitDecrement", f => f.AddOverload ( Math.BitDecrement ) )
+                //.AddFunction ( "bitIncrement", f => f.AddOverload ( Math.BitIncrement ) )
+                .AddFunction ( "cbrt", f => f.AddOverload ( Math.Cbrt ) )
+                .AddFunction ( "ceil", f => f.AddOverload ( Math.Ceiling ) )
+                .AddFunction ( "clamp", f => f.AddOverload ( Math.Clamp ) )
+                //.AddFunction ( "copySign", f => f.AddOverload ( Math.CopySign ) )
+                .AddFunction ( "cos", f => f.AddOverload ( Math.Cos ) )
+                .AddFunction ( "cosh", f => f.AddOverload ( Math.Cosh ) )
+                .AddFunction ( "exp", f => f.AddOverload ( Math.Exp ) )
+                .AddFunction ( "floor", f => f.AddOverload ( Math.Floor ) )
+                //.AddFunction ( "fusedMultiplyadd", f => f.AddOverload ( Math.FusedMultiplyAdd ) )
+                .AddFunction ( "IEEERemainder", f => f.AddOverload ( Math.IEEERemainder ) )
+                //.AddFunction ( "ilogb", f => f.AddOverload ( x => Math.ILogB ( x ) ) )
+                .AddFunction ( "ln", f => f.AddOverload ( ( Func<Double, Double> ) Math.Log ) )
+                .AddFunction ( "log", f => f.AddOverload ( ( Func<Double, Double> ) Math.Log )
+                                            .AddOverload ( ( Func<Double, Double, Double> ) Math.Log ) )
+                .AddFunction ( "log10", f => f.AddOverload ( Math.Log10 ) )
+                //.AddFunction ( "log2", f => f.AddOverload ( Math.Log2 ) )
+                .AddFunction ( "log2", f => f.AddOverload ( n => Math.Log ( n, 2 ) ) )
+                .AddFunction ( "max", f => f.AddOverload ( Math.Max ) )
+                //.AddFunction ( "maxMagnitude", f => f.AddOverload ( Math.MaxMagnitude ) )
+                .AddFunction ( "min", f => f.AddOverload ( Math.Min ) )
+                //.AddFunction ( "minMagnitude", f => f.AddOverload ( Math.MinMagnitude ) )
+                .AddFunction ( "pow", f => f.AddOverload ( Math.Pow ) )
+                .AddFunction ( "round", f => f.AddOverload ( Math.Round ) )
+                //.AddFunction ( "scaleB", f => f.AddOverload ( ( x, n ) => Math.ScaleB ( x, ( Int32 ) n ) ) )
+                .AddFunction ( "sign", f => f.AddOverload ( n => Math.Sign ( n ) ) )
+                .AddFunction ( "sin", f => f.AddOverload ( Math.Sin ) )
+                .AddFunction ( "sinh", f => f.AddOverload ( Math.Sinh ) )
+                .AddFunction ( "sqrt", f => f.AddOverload ( Math.Sqrt ) )
+                .AddFunction ( "tan", f => f.AddOverload ( Math.Tan ) )
+                .AddFunction ( "tanh", f => f.AddOverload ( Math.Tanh ) )
+                .AddFunction ( "truncate", f => f.AddOverload ( Math.Truncate ) );
 
-            // Functions Functions - Math
-            using ( timingLogger.BeginScope ( "Adding math functions", true ) )
-            {
-                lang.AddFunction ( "abs", f => f.AddOverload ( Math.Abs ) )
-                    .AddFunction ( "acos", f => f.AddOverload ( Math.Acos ) )
-                    .AddFunction ( "asin", f => f.AddOverload ( Math.Asin ) )
-                    .AddFunction ( "atan", f => f.AddOverload ( Math.Atan ) )
-                    .AddFunction ( "atan2", f => f.AddOverload ( Math.Atan2 ) )
-                    .AddFunction ( "ceil", f => f.AddOverload ( Math.Ceiling ) )
-                    .AddFunction ( "cos", f => f.AddOverload ( Math.Cos ) )
-                    .AddFunction ( "cosh", f => f.AddOverload ( Math.Cosh ) )
-                    .AddFunction ( "exp", f => f.AddOverload ( Math.Exp ) )
-                    .AddFunction ( "floor", f => f.AddOverload ( Math.Floor ) )
-                    .AddFunction ( "ln", f => f.AddOverload ( ( Func<Double, Double> ) Math.Log ) )
-                    .AddFunction ( "log", f => f.AddOverload ( ( Func<Double, Double> ) Math.Log )
-                        .AddOverload ( ( Func<Double, Double, Double> ) Math.Log ) )
-                    .AddFunction ( "log10", f => f.AddOverload ( Math.Log10 ) )
-                    .AddFunction ( "log2", f => f.AddOverload ( ( n ) => Math.Log ( n, 2 ) ) )
-                    .AddFunction ( "max", f => f.AddOverload ( Math.Max ) )
-                    .AddFunction ( "min", f => f.AddOverload ( Math.Min ) )
-                    .AddFunction ( "pow", f => f.AddOverload ( Math.Pow ) )
-                    .AddFunction ( "round", f => f.AddOverload ( Math.Round ) )
-                    .AddFunction ( "sin", f => f.AddOverload ( Math.Sin ) )
-                    .AddFunction ( "sinh", f => f.AddOverload ( Math.Sinh ) )
-                    .AddFunction ( "sqrt", f => f.AddOverload ( Math.Sqrt ) )
-                    .AddFunction ( "tan", f => f.AddOverload ( Math.Tan ) )
-                    .AddFunction ( "tanh", f => f.AddOverload ( Math.Tanh ) )
-                    .AddFunction ( "truncate", f => f.AddOverload ( Math.Truncate ) )
-                    /*
-                     * a - b
-                     * c - d
-                     *
-                     * a*d = c*b
-                     *
-                     * d = (c*b)/a
-                     */
-                    .AddFunctions ( new[] { "rot", "ruleOfThree" }, f => f.AddOverload ( ( a, b, c ) => ( b * c ) / a ) );
-            }
+            // Functions - Custom
+            lang.AddFunction ( "rad", f => f.AddOverload ( n => n * PI_OVER_180 ) )
+                .AddFunction ( "deg", f => f.AddOverload ( n => n * PI_UNDER_180 ) )
+                /*
+                 * a - b
+                 * c - d
+                 *
+                 * a*d = c*b
+                 *
+                 * d = (c*b)/a
+                 */
+                .AddFunctions ( new[] { "rot", "ruleOfThree" }, f => f.AddOverload ( ( a, b, c ) => ( b * c ) / a ) );
 
+            // Get immutable calculator language
             return lang.ToCalculatorLanguage ( );
+
+            static Double factorial ( Double arg )
+            {
+                if ( Double.IsInfinity ( arg ) )
+                    return arg;
+
+                var res = 1d;
+                for ( var i = 2; i <= arg && !Double.IsInfinity ( res ) && !Double.IsInfinity ( i ); i++ )
+                    res *= i;
+                return res;
+            }
         }
 
         [Command ( "lex" )]
@@ -182,11 +194,11 @@ namespace Calculator.CLI
         {
             try
             {
-                String name = "ans", expr = expression;
+                String name = "ans";
                 if ( eqs > 0 )
                 {
                     name = expression.Substring ( 0, eqs ).Trim ( );
-                    expr = expression.Substring ( eqs + 1 ).Trim ( );
+                    expression = expression.Substring ( eqs + 1 ).Trim ( );
 
                     if ( name.Equals ( "E", StringComparison.OrdinalIgnoreCase ) || name.Equals ( "pi", StringComparison.OrdinalIgnoreCase )
                         || name.Equals ( "π", StringComparison.OrdinalIgnoreCase ) )
@@ -196,36 +208,38 @@ namespace Calculator.CLI
                     }
                 }
 
-                var res = language.Evaluate ( expr, out IEnumerable<Diagnostic> diagnostics );
+                var res = language.Evaluate ( expression, out IEnumerable<Diagnostic> diagnostics );
                 language = language.SetConstant ( name, res );
                 timingLogger.WriteLine ( $"{name} = {res}" );
                 foreach ( Diagnostic diagnostic in diagnostics )
                 {
-                    var str = CalculatorDiagnostics.FormatDiagnostic ( expr, diagnostic );
+                    var str = $@"{CalculatorDiagnostics.HighlightRange ( expression, diagnostic.Range )}
+{diagnostic.Id} {diagnostic.Severity}: {diagnostic.Description}";
+
                     switch ( diagnostic.Severity )
                     {
                         case DiagnosticSeverity.Error:
-                            timingLogger.LogError ( $"{str}" );
+                            timingLogger.LogError ( str );
                             break;
 
                         case DiagnosticSeverity.Warning:
-                            timingLogger.LogWarning ( $"{str}" );
+                            timingLogger.LogWarning ( str );
                             break;
 
                         case DiagnosticSeverity.Info:
-                            timingLogger.LogInformation ( $"{str}" );
+                            timingLogger.LogInformation ( str );
                             break;
 
                         case DiagnosticSeverity.Hidden:
-                            timingLogger.LogDebug ( $"{str}" );
+                            timingLogger.LogDebug ( str );
                             break;
                     }
                 }
             }
             catch ( FatalParsingException fpex )
             {
-                timingLogger.LogError ( GetExpressionContext ( fpex.Range.Start.Byte, expression ) );
-                timingLogger.LogError ( $"{fpex.Range}: {fpex.Message}" );
+                timingLogger.LogError ( CalculatorDiagnostics.HighlightRange ( expression, fpex.Range ) );
+                timingLogger.LogError ( $"Runtime Error: {fpex.Message}" );
             }
             catch ( Exception ex )
             {
@@ -260,23 +274,24 @@ namespace Calculator.CLI
                     timingLogger.WriteLine ( $"{rec} = {res}" );
                     foreach ( Diagnostic diagnostic in diagnostics )
                     {
-                        var str = CalculatorDiagnostics.FormatDiagnostic ( expression, diagnostic );
+                        var str = $@"{CalculatorDiagnostics.HighlightRange ( expression, diagnostic.Range )}
+{diagnostic.Id} {diagnostic.Severity}: {diagnostic.Description}";
                         switch ( diagnostic.Severity )
                         {
                             case DiagnosticSeverity.Error:
-                                timingLogger.LogError ( $"{str}" );
+                                timingLogger.LogError ( str );
                                 break;
 
                             case DiagnosticSeverity.Warning:
-                                timingLogger.LogWarning ( $"{str}" );
+                                timingLogger.LogWarning ( str );
                                 break;
 
                             case DiagnosticSeverity.Info:
-                                timingLogger.LogInformation ( $"{str}" );
+                                timingLogger.LogInformation ( str );
                                 break;
 
                             case DiagnosticSeverity.Hidden:
-                                timingLogger.LogDebug ( $"{str}" );
+                                timingLogger.LogDebug ( str );
                                 break;
                         }
                     }
