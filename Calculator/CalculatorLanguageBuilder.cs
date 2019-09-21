@@ -7,7 +7,7 @@ using Calculator.Definitions;
 namespace Calculator
 {
     /// <summary>
-    /// A <see cref="CalculatorLanguage" /> builder
+    /// A <see cref="CalculatorLanguage"/> builder
     /// </summary>
     public class CalculatorLanguageBuilder
     {
@@ -31,6 +31,7 @@ namespace Calculator
         private readonly ImmutableDictionary<(UnaryOperatorFix, String), UnaryOperator>.Builder unaryOperatorsBuilder;
         private readonly ImmutableDictionary<String, BinaryOperator>.Builder binaryOperatorsBuilder;
         private readonly ImmutableDictionary<String, Function>.Builder functionsBuilder;
+        private readonly ImmutableDictionary<SpecialBinaryOperatorType, SpecialBinaryOperator>.Builder specialBinaryOperatorsBuilder;
 
         /// <summary>
         /// Initializes a language with a specified identifier comparer
@@ -42,12 +43,13 @@ namespace Calculator
             this.unaryOperatorsBuilder = ImmutableDictionary.CreateBuilder<(UnaryOperatorFix, String), UnaryOperator> ( new UnaryOperatorKeyPairEqualityComparer ( identifierComparer ) );
             this.binaryOperatorsBuilder = ImmutableDictionary.CreateBuilder<String, BinaryOperator> ( identifierComparer );
             this.functionsBuilder = ImmutableDictionary.CreateBuilder<String, Function> ( identifierComparer );
+            this.specialBinaryOperatorsBuilder = ImmutableDictionary.CreateBuilder<SpecialBinaryOperatorType, SpecialBinaryOperator> ( );
         }
 
         /// <summary>
-        /// Initializes a case-insensitve language by using the
-        /// <see cref="CalculatorLanguageBuilder.CalculatorLanguageBuilder(StringComparer)" /> constructor
-        /// with the <see cref="StringComparer.InvariantCultureIgnoreCase" />
+        /// Initializes a case-insensitve language by using the <see
+        /// cref="CalculatorLanguageBuilder.CalculatorLanguageBuilder(StringComparer)"/> constructor
+        /// with the <see cref="StringComparer.InvariantCultureIgnoreCase"/>
         /// </summary>
         public CalculatorLanguageBuilder ( ) : this ( StringComparer.InvariantCultureIgnoreCase )
         {
@@ -239,29 +241,6 @@ namespace Calculator
             return this;
         }
 
-        /// <summary>
-        /// Adds implicit multiplication to the language. It's recommended that the precedence be higher
-        /// than division.
-        /// </summary>
-        /// <param name="precedence"></param>
-        /// <param name="body"></param>
-        /// <returns></returns>
-        public CalculatorLanguageBuilder AddImplicitMultiplication ( Int32 precedence, Func<Double, Double, Double> body )
-        {
-            this.binaryOperatorsBuilder.Add ( " ", new BinaryOperator ( precedence, body ) );
-            return this;
-        }
-
-        /// <summary>
-        /// Removes implicit multiplication from the language.
-        /// </summary>
-        /// <returns></returns>
-        public CalculatorLanguageBuilder RemoveImplicitMultiplication ( )
-        {
-            this.binaryOperatorsBuilder.Remove ( " " );
-            return this;
-        }
-
         #endregion Binary Operator Management
 
         #region Function Management
@@ -324,15 +303,77 @@ namespace Calculator
 
         #endregion Function Management
 
+        #region Special Binary Operator Management
+
+        #region Implicit Multiplication
+
+        /// <summary>
+        /// Adds implicit multiplication to the language. It's recommended that the precedence be
+        /// higher than division.
+        /// </summary>
+        /// <param name="precedence"></param>
+        /// <param name="body"></param>
+        /// <returns></returns>
+        public CalculatorLanguageBuilder AddImplicitMultiplication ( Int32 precedence, Func<Double, Double, Double> body )
+        {
+            this.specialBinaryOperatorsBuilder.Add (
+                SpecialBinaryOperatorType.ImplicitMultiplication,
+                new SpecialBinaryOperator ( SpecialBinaryOperatorType.ImplicitMultiplication, Associativity.Left, precedence, body ) );
+            return this;
+        }
+
+        /// <summary>
+        /// Removes implicit multiplication from the language.
+        /// </summary>
+        /// <returns></returns>
+        public CalculatorLanguageBuilder RemoveImplicitMultiplication ( )
+        {
+            this.specialBinaryOperatorsBuilder.Remove ( SpecialBinaryOperatorType.ImplicitMultiplication );
+            return this;
+        }
+
+        #endregion Implicit Multiplication
+
+        #region Superscript Exponentiation
+
+        /// <summary>
+        /// Adds the definition for superscript exponentiation
+        /// </summary>
+        /// <param name="precedence"></param>
+        /// <param name="body"></param>
+        /// <returns></returns>
+        public CalculatorLanguageBuilder AddSuperscriptExponentiation ( Int32 precedence, Func<Double, Double, Double> body )
+        {
+            this.specialBinaryOperatorsBuilder.Add (
+                SpecialBinaryOperatorType.SuperscriptExponentiation,
+                new SpecialBinaryOperator ( SpecialBinaryOperatorType.SuperscriptExponentiation, Associativity.Right, precedence, body ) );
+            return this;
+        }
+
+        /// <summary>
+        /// Removes the definition for superscript exponentiation
+        /// </summary>
+        /// <returns></returns>
+        public CalculatorLanguageBuilder RemoveSuperscriptExponentiation ( )
+        {
+            this.specialBinaryOperatorsBuilder.Remove ( SpecialBinaryOperatorType.SuperscriptExponentiation );
+            return this;
+        }
+
+        #endregion Superscript Exponentiation
+
+        #endregion Special Binary Operator Management
+
         /// <summary>
         /// Instantiates the immutable calculator language
         /// </summary>
         /// <returns></returns>
-        public CalculatorLanguage GetCalculatorLanguage ( ) =>
+        public CalculatorLanguage ToCalculatorLanguage ( ) =>
             new CalculatorLanguage (
                 this.constantsBuilder.ToImmutable ( ),
                 this.unaryOperatorsBuilder.ToImmutable ( ),
                 this.binaryOperatorsBuilder.ToImmutable ( ),
-                this.functionsBuilder.ToImmutable ( ) );
+                this.functionsBuilder.ToImmutable ( ),
+                this.specialBinaryOperatorsBuilder.ToImmutable ( ) );
     }
 }

@@ -2,6 +2,7 @@
 using Calculator.Definitions;
 using Calculator.Lexing;
 using Calculator.Parsing.Abstractions;
+using GParse;
 using GParse.Lexing;
 
 namespace Calculator.Parsing.AST
@@ -26,6 +27,9 @@ namespace Calculator.Parsing.AST
         /// </summary>
         public CalculatorTreeNode Operand { get; }
 
+        /// <inheritdoc />
+        public override SourceRange Range { get; }
+
         /// <summary>
         /// Initializes this <see cref="UnaryOperatorExpression" />
         /// </summary>
@@ -37,19 +41,11 @@ namespace Calculator.Parsing.AST
             this.OperatorFix = fix;
             this.Operator = @operator;
             this.Operand = operand;
-        }
 
-        /// <summary>
-        /// Initializes this <see cref="UnaryOperatorExpression" />
-        /// </summary>
-        /// <param name="fix"></param>
-        /// <param name="operand"></param>
-        /// <param name="operator"></param>
-        public UnaryOperatorExpression ( UnaryOperatorFix fix, CalculatorTreeNode operand, Token<CalculatorTokenType> @operator )
-        {
-            this.OperatorFix = fix;
-            this.Operator = @operator;
-            this.Operand = operand;
+            if ( fix == UnaryOperatorFix.Postfix )
+                this.Range = operand.Range.Start.To ( @operator.Range.End );
+            else
+                this.Range = @operator.Range.Start.To ( operand.Range.End );
         }
 
         /// <summary>

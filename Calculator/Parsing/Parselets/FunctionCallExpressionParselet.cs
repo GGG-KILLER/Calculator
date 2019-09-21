@@ -64,9 +64,13 @@ namespace Calculator.Parsing.Parselets
                 args.Add ( expr );
 
                 if ( reader.Accept ( CalculatorTokenType.Comma, out Token<CalculatorTokenType> comma ) )
+                {
                     toks.Add ( comma );
+                }
                 else if ( reader.Accept ( CalculatorTokenType.RParen, out rparen ) )
+                {
                     break;
+                }
                 else
                 {
                     diagnosticEmitter.Report ( CalculatorDiagnostics.SyntaxError.ThingExpectedAfter ( reader.Location, "')'", "argument list" ) );

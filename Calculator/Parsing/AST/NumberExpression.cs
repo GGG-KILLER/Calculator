@@ -1,6 +1,7 @@
 ﻿using System;
 using Calculator.Lexing;
 using Calculator.Parsing.Abstractions;
+using GParse;
 using GParse.Lexing;
 
 namespace Calculator.Parsing.AST
@@ -14,6 +15,9 @@ namespace Calculator.Parsing.AST
         /// The value of the expression
         /// </summary>
         public Token<CalculatorTokenType> Value { get; }
+
+        /// <inheritdoc />
+        public override SourceRange Range => this.Value.Range;
 
         /// <summary>
         /// Initializes this <see cref="NumberExpression" />

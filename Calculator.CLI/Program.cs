@@ -19,8 +19,8 @@ namespace Calculator.CLI
     internal class Program
     {
         private static CalculatorLanguage language;
-        private static StatelessTreeEvaluator evaluator;
-        private static StatelessTreeReconstructor reconstructor;
+        private static TreeEvaluator evaluator;
+        private static SimpleTreeReconstructor reconstructor;
         private static ConsoleTimingLogger timingLogger;
 
         private static void Main ( )
@@ -31,9 +31,9 @@ namespace Calculator.CLI
                 using ( timingLogger.BeginScope ( "Building the language", true ) )
                     language = BuildLanguage ( );
                 using ( timingLogger.BeginScope ( "Initializing the evaluator", true ) )
-                    evaluator = new StatelessTreeEvaluator ( language );
+                    evaluator = new TreeEvaluator ( language );
                 using ( timingLogger.BeginScope ( "Initializing the reconstructor", true ) )
-                    reconstructor = new StatelessTreeReconstructor ( );
+                    reconstructor = new SimpleTreeReconstructor ( );
 
                 if ( RuntimeInformation.IsOSPlatform ( OSPlatform.Windows ) )
                     Console.InputEncoding = Console.OutputEncoding = System.Text.Encoding.Unicode;
@@ -151,7 +151,7 @@ namespace Calculator.CLI
                     .AddFunctions ( new[] { "rot", "ruleOfThree" }, f => f.AddOverload ( ( a, b, c ) => ( b * c ) / a ) );
             }
 
-            return lang.GetCalculatorLanguage ( );
+            return lang.ToCalculatorLanguage ( );
         }
 
         [Command ( "lex" )]
@@ -307,11 +307,13 @@ namespace Calculator.CLI
                 {
                     case 0:
                         UnaryOperator unop = unaryOperators[random.Next ( 0, unaryOperators.Length )];
-                        return ASTHelper.UnaryOperator ( unop.Operator, GenerateRandomExpression ( maxDepth - 1 ), unop.Fix );
+                        return unop.Fix == UnaryOperatorFix.Postfix
+                            ? ASTHelper.Postfix ( GenerateRandomExpression ( maxDepth - 1 ), unop.Operator )
+                            : ASTHelper.Prefix ( unop.Operator, GenerateRandomExpression ( maxDepth - 1 ) );
 
                     case 1:
                         BinaryOperator binop = binaryOperators[random.Next ( 0, binaryOperators.Length )];
-                        return ASTHelper.BinaryOperator ( GenerateRandomExpression ( maxDepth - 1 ), binop.Operator, GenerateRandomExpression ( maxDepth - 1 ) );
+                        return ASTHelper.Binary ( GenerateRandomExpression ( maxDepth - 1 ), binop.Operator, GenerateRandomExpression ( maxDepth - 1 ) );
 
                     case 2:
                         Function func = functions[random.Next ( 0, functions.Length )];
@@ -320,7 +322,7 @@ namespace Calculator.CLI
                         var args = new Object[overload.Method.GetParameters ( ).Length];
                         for ( var i = 0; i < args.Length; i++ )
                             args[i] = GenerateRandomExpression ( maxDepth - 1 );
-                        return ASTHelper.FunctionCall ( func.Name, args );
+                        return ASTHelper.Function ( func.Name, args );
 
                     // Will never arrive here anyways.
                     default:

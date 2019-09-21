@@ -13,7 +13,7 @@ namespace Calculator.Parsing
     public static class ASTHelper
     {
         /// <summary>
-        /// Generates a <see cref="Token{TokenTypeT}" />
+        /// Generates a <see cref="Token{TokenTypeT}"/>
         /// </summary>
         /// <param name="id"></param>
         /// <param name="type"></param>
@@ -24,7 +24,34 @@ namespace Calculator.Parsing
             new Token<CalculatorTokenType> ( id, raw ?? id, value ?? id, type, SourceRange.Zero );
 
         /// <summary>
-        /// Generates an <see cref="IdentifierExpression" />
+        /// Returns a token for an operator string
+        /// </summary>
+        /// <param name="operator"></param>
+        /// <returns></returns>
+        public static Token<CalculatorTokenType> OperatorToken ( String @operator )
+        {
+            static Boolean IsIdentifier ( String str )
+            {
+                if ( !Char.IsLetter ( str[0] ) && str[0] != '_' )
+                    return false;
+
+                for ( var i = 1; i < str.Length; i++ )
+                {
+                    if ( !Char.IsLetterOrDigit ( str[i] ) && str[i] != '_' )
+                        return false;
+                }
+
+                return true;
+            }
+
+            if ( IsIdentifier ( @operator ) )
+                return Token ( @operator, CalculatorTokenType.Identifier, @operator, @operator );
+            else
+                return Token ( @operator, CalculatorTokenType.Operator, @operator );
+        }
+
+        /// <summary>
+        /// Generates an <see cref="IdentifierExpression"/>
         /// </summary>
         /// <param name="ident"></param>
         /// <returns></returns>
@@ -32,7 +59,7 @@ namespace Calculator.Parsing
             new IdentifierExpression ( Token ( ident, CalculatorTokenType.Identifier, ident, ident ) );
 
         /// <summary>
-        /// Generates a <see cref="NumberExpression" />
+        /// Generates a <see cref="NumberExpression"/>
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -40,7 +67,7 @@ namespace Calculator.Parsing
             new NumberExpression ( Token ( "number", CalculatorTokenType.Number, value.ToString ( ), value ) );
 
         /// <summary>
-        /// Creates a <see cref="CalculatorTreeNode" /> from an <see cref="Object" />
+        /// Creates a <see cref="CalculatorTreeNode"/> from an <see cref="Object"/>
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
@@ -70,12 +97,12 @@ namespace Calculator.Parsing
         }
 
         /// <summary>
-        /// Generates a <see cref="FunctionCallExpression" />
+        /// Generates a <see cref="FunctionCallExpression"/>
         /// </summary>
         /// <param name="strIdent"></param>
         /// <param name="params"></param>
         /// <returns></returns>
-        public static FunctionCallExpression FunctionCall ( String strIdent, params Object[] @params )
+        public static FunctionCallExpression Function ( String strIdent, params Object[] @params )
         {
             var toks = new Token<CalculatorTokenType>[@params.Length + 2];
             IdentifierExpression ident = Identifier ( strIdent );
@@ -92,27 +119,31 @@ namespace Calculator.Parsing
         }
 
         /// <summary>
-        /// Generates a <see cref="UnaryOperatorExpression" />
+        /// Generates a prefix <see cref="UnaryOperatorExpression"/>
         /// </summary>
         /// <param name="operator"></param>
         /// <param name="operand"></param>
-        /// <param name="operatorFix"></param>
         /// <returns></returns>
-        public static UnaryOperatorExpression UnaryOperator ( String @operator, Object operand, UnaryOperatorFix operatorFix ) =>
-            new UnaryOperatorExpression (
-                operatorFix
-,
-                Token ( @operator, CalculatorTokenType.Operator, @operator ),
-                Node ( operand ) );
+        public static UnaryOperatorExpression Prefix ( String @operator, Object operand ) =>
+            new UnaryOperatorExpression ( UnaryOperatorFix.Prefix, OperatorToken ( @operator ), Node ( operand ) );
 
         /// <summary>
-        /// Generates a <see cref="BinaryOperatorExpression" />
+        /// Generates a postfix <see cref="UnaryOperatorExpression"/>
+        /// </summary>
+        /// <param name="operand"></param>
+        /// <param name="operator"></param>
+        /// <returns></returns>
+        public static UnaryOperatorExpression Postfix ( Object operand, String @operator ) =>
+            new UnaryOperatorExpression ( UnaryOperatorFix.Postfix, OperatorToken ( @operator ), Node ( operand ) );
+
+        /// <summary>
+        /// Generates a <see cref="BinaryOperatorExpression"/>
         /// </summary>
         /// <param name="leftHandSide"></param>
         /// <param name="operator"></param>
         /// <param name="rightHandSide"></param>
         /// <returns></returns>
-        public static BinaryOperatorExpression BinaryOperator ( Object leftHandSide, String @operator, Object rightHandSide ) =>
+        public static BinaryOperatorExpression Binary ( Object leftHandSide, String @operator, Object rightHandSide ) =>
             new BinaryOperatorExpression (
                 Token ( @operator, CalculatorTokenType.Operator, @operator ),
                 Node ( leftHandSide ),
@@ -120,7 +151,7 @@ namespace Calculator.Parsing
             );
 
         /// <summary>
-        /// Generates a <see cref="GroupedExpression" />
+        /// Generates a <see cref="GroupedExpression"/>
         /// </summary>
         /// <param name="expression"></param>
         /// <returns></returns>
@@ -128,12 +159,21 @@ namespace Calculator.Parsing
             new GroupedExpression ( Token ( "(", CalculatorTokenType.LParen, "(" ), Node ( expression ), Token ( ")", CalculatorTokenType.RParen, ")" ) );
 
         /// <summary>
-        /// Generates an <see cref="ImplicitMultiplicationExpression" />
+        /// Generates an <see cref="ImplicitMultiplicationExpression"/>
         /// </summary>
         /// <param name="leftHandSide"></param>
         /// <param name="rightHandSide"></param>
         /// <returns></returns>
-        public static ImplicitMultiplicationExpression ImplicitMultiplication ( Object leftHandSide, Object rightHandSide ) =>
+        public static ImplicitMultiplicationExpression Implicit ( Object leftHandSide, Object rightHandSide ) =>
             new ImplicitMultiplicationExpression ( Node ( leftHandSide ), Node ( rightHandSide ) );
+        
+        /// <summary>
+        /// Generates an <see cref="SuperscriptExponentiationExpression"/>
+        /// </summary>
+        /// <param name="base"></param>
+        /// <param name="exponent"></param>
+        /// <returns></returns>
+        public static SuperscriptExponentiationExpression Superscript ( Object @base, Int32 exponent ) =>
+            new SuperscriptExponentiationExpression ( Node ( @base ), Token ( "number-dec", CalculatorTokenType.Number, SuperscriptChars.TranslateNumber ( exponent ), exponent ) );
     }
 }

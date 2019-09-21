@@ -71,7 +71,7 @@ namespace Calculator.UI
                     * d = (c*b)/a
                     */
                 .AddFunctions ( new[] { "rot", "ruleOfThree" }, f => f.AddOverload ( ( a, b, c ) => ( b * c ) / a ) )
-                .GetCalculatorLanguage ( );
+                .ToCalculatorLanguage ( );
         }
 
         public static CalculatorLanguage Instance { get; }

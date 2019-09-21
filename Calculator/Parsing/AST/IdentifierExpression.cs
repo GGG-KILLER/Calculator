@@ -1,6 +1,7 @@
 ﻿using System;
 using Calculator.Lexing;
 using Calculator.Parsing.Abstractions;
+using GParse;
 using GParse.Lexing;
 
 namespace Calculator.Parsing.AST
@@ -14,6 +15,9 @@ namespace Calculator.Parsing.AST
         /// The identifier itself
         /// </summary>
         public Token<CalculatorTokenType> Identifier { get; }
+
+        /// <inheritdoc />
+        public override SourceRange Range => this.Identifier.Range;
 
         /// <summary>
         /// Initializes this <see cref="IdentifierExpression" />

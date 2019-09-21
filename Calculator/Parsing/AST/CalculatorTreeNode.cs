@@ -1,5 +1,6 @@
 ﻿using System;
 using Calculator.Parsing.Abstractions;
+using GParse;
 
 namespace Calculator.Parsing.AST
 {
@@ -8,6 +9,11 @@ namespace Calculator.Parsing.AST
     /// </summary>
     public abstract class CalculatorTreeNode
     {
+        /// <summary>
+        /// The range that forms the expression this node represents
+        /// </summary>
+        public abstract SourceRange Range { get; }
+
         /// <summary>
         /// Accepts a visitor that returns nothing
         /// </summary>

@@ -9,11 +9,6 @@ namespace Calculator.Definitions
     public readonly struct BinaryOperator : IEquatable<BinaryOperator>
     {
         /// <summary>
-        /// The string used for the implicit multiplication operator
-        /// </summary>
-        public static readonly String ImplicitMultiplicationOperator = "\uFFFA\uFFFB\uFFFC\uFFFD\uFFFE\uFFFF";
-
-        /// <summary>
         /// Operator associativity
         /// </summary>
         public Associativity Associativity { get; }
@@ -51,21 +46,6 @@ namespace Calculator.Definitions
             this.Operator      = @operator.ToLower ( );
             this.Precedence    = precedence;
             this.Body          = body ?? throw new ArgumentNullException ( nameof ( body ) );
-        }
-
-        /// <summary>
-        /// This is the reserved constructor for implicit multiplication. It only accepts a
-        /// <paramref name="precedence" /> parameter and a <paramref name="body" /> that defines its
-        /// behavior.
-        /// </summary>
-        /// <param name="precedence"></param>
-        /// <param name="body"></param>
-        internal BinaryOperator ( Int32 precedence, Func<Double, Double, Double> body )
-        {
-            this.Associativity = Associativity.Left;
-            this.Operator      = ImplicitMultiplicationOperator;
-            this.Precedence    = precedence;
-            this.Body          = body;
         }
 
         #region Generated Code

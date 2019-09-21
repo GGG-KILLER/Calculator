@@ -42,40 +42,48 @@ namespace Calculator
         public ImmutableDictionary<String, Function> Functions { get; }
 
         /// <summary>
-        /// The tree evaluator
+        /// The list of special operators that this language contains
         /// </summary>
-        public StatelessTreeEvaluator TreeEvaluator { get; }
+        public ImmutableDictionary<SpecialBinaryOperatorType, SpecialBinaryOperator> SpecialBinaryOperators { get; }
 
         /// <summary>
-        /// Initializes a new <see cref="CalculatorLanguage" />
+        /// The tree evaluator
+        /// </summary>
+        public TreeEvaluator TreeEvaluator { get; }
+
+        /// <summary>
+        /// Initializes a new <see cref="CalculatorLanguage"/>
         /// </summary>
         /// <param name="constants"></param>
         /// <param name="unaryOperators"></param>
         /// <param name="binaryOperators"></param>
         /// <param name="functions"></param>
+        /// <param name="specialOperators"></param>
         internal CalculatorLanguage (
             ImmutableDictionary<String, Constant> constants,
             ImmutableDictionary<(UnaryOperatorFix, String), UnaryOperator> unaryOperators,
             ImmutableDictionary<String, BinaryOperator> binaryOperators,
-            ImmutableDictionary<String, Function> functions )
+            ImmutableDictionary<String, Function> functions,
+            ImmutableDictionary<SpecialBinaryOperatorType, SpecialBinaryOperator> specialOperators )
         {
             this.Constants = constants;
             this.UnaryOperators = unaryOperators;
             this.BinaryOperators = binaryOperators;
             this.Functions = functions;
+            this.SpecialBinaryOperators = specialOperators;
 
             this.LexerBuilder = null;
             this.ParserBuilder = null;
             this.TreeEvaluator = null;
             this.LexerBuilder = new CalculatorLexerBuilder ( this );
             this.ParserBuilder = new CalculatorParserBuilder ( this );
-            this.TreeEvaluator = new StatelessTreeEvaluator ( this );
+            this.TreeEvaluator = new TreeEvaluator ( this );
         }
 
         #region Constant management
 
         /// <summary>
-        /// Creates a new language with the given <see cref="Constant" /> set
+        /// Creates a new language with the given <see cref="Constant"/> set
         /// </summary>
         /// <param name="ident"></param>
         /// <param name="value"></param>
@@ -84,19 +92,20 @@ namespace Calculator
                 this.Constants.SetItem ( ident.ToLower ( ), new Constant ( ident, value ) ),
                 this.UnaryOperators,
                 this.BinaryOperators,
-                this.Functions
+                this.Functions,
+                this.SpecialBinaryOperators
             );
 
         /// <summary>
-        /// Checks whether this language has a <see cref="Constant" /> that matches the provided
-        /// <paramref name="id" />
+        /// Checks whether this language has a <see cref="Constant"/> that matches the provided
+        /// <paramref name="id"/>
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         public Boolean HasConstant ( String id ) => this.Constants.ContainsKey ( id.ToLower ( ) );
 
         /// <summary>
-        /// Returns the <see cref="Constant" /> matches the provided <paramref name="id" />
+        /// Returns the <see cref="Constant"/> matches the provided <paramref name="id"/>
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -107,7 +116,7 @@ namespace Calculator
         #region Unary operator management
 
         /// <summary>
-        /// Creates a new language with the provided <see cref="UnaryOperator" /> set
+        /// Creates a new language with the provided <see cref="UnaryOperator"/> set
         /// </summary>
         /// <param name="fix"></param>
         /// <param name="operator"></param>
@@ -121,12 +130,13 @@ namespace Calculator
                     new UnaryOperator ( fix, @operator, precedence, action )
                 ),
                 this.BinaryOperators,
-                this.Functions
+                this.Functions,
+                this.SpecialBinaryOperators
             );
 
         /// <summary>
-        /// Checks whether this language contains an <see cref="UnaryOperator" /> that matches the given
-        /// <paramref name="operator" />
+        /// Checks whether this language contains an <see cref="UnaryOperator"/> that matches the
+        /// given <paramref name="operator"/>
         /// </summary>
         /// <param name="operator"></param>
         /// <param name="fix"></param>
@@ -135,7 +145,7 @@ namespace Calculator
             this.UnaryOperators.ContainsKey ( (fix, @operator.ToLower ( )) );
 
         /// <summary>
-        /// Returns the <see cref="UnaryOperator" />
+        /// Returns the <see cref="UnaryOperator"/>
         /// </summary>
         /// <param name="operator"></param>
         /// <param name="fix"></param>
@@ -148,7 +158,7 @@ namespace Calculator
         #region Binary operator management
 
         /// <summary>
-        /// Returns a new language with the provided <see cref="BinaryOperator" /> set
+        /// Returns a new language with the provided <see cref="BinaryOperator"/> set
         /// </summary>
         /// <param name="associativity"></param>
         /// <param name="operator"></param>
@@ -160,19 +170,20 @@ namespace Calculator
                 this.Constants,
                 this.UnaryOperators,
                 this.BinaryOperators.SetItem ( @operator.ToLower ( ), new BinaryOperator ( associativity, @operator, precedence, action ) ),
-                this.Functions
+                this.Functions,
+                this.SpecialBinaryOperators
             );
 
         /// <summary>
-        /// Checks whether this language contains a <see cref="BinaryOperator" /> that matches the
-        /// provided <paramref name="op" />
+        /// Checks whether this language contains a <see cref="BinaryOperator"/> that matches the
+        /// provided <paramref name="op"/>
         /// </summary>
         /// <param name="op"></param>
         /// <returns></returns>
         public Boolean HasBinaryOperator ( String op ) => this.BinaryOperators.ContainsKey ( op.ToLower ( ) );
 
         /// <summary>
-        /// Returns the <see cref="BinaryOperator" /> that matches the provided <paramref name="op" />
+        /// Returns the <see cref="BinaryOperator"/> that matches the provided <paramref name="op"/>
         /// </summary>
         /// <param name="op"></param>
         /// <returns></returns>
@@ -183,7 +194,7 @@ namespace Calculator
         #region Function management
 
         /// <summary>
-        /// Creates a new language with the provided <see cref="Function" /> set
+        /// Creates a new language with the provided <see cref="Function"/> set
         /// </summary>
         /// <param name="name"></param>
         /// <param name="overloadConfigurator"></param>
@@ -200,20 +211,21 @@ namespace Calculator
                 this.Constants,
                 this.UnaryOperators,
                 this.BinaryOperators,
-                this.Functions.SetItem ( name.ToLower ( ), definition )
+                this.Functions.SetItem ( name.ToLower ( ), definition ),
+                this.SpecialBinaryOperators
             );
         }
 
         /// <summary>
-        /// Checks whetehr this language contains a <see cref="Function" /> that matches the provided
-        /// <paramref name="id" />
+        /// Checks whetehr this language contains a <see cref="Function"/> that matches the provided
+        /// <paramref name="id"/>
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         public Boolean HasFunction ( String id ) => this.Functions.ContainsKey ( id.ToLower ( ) );
 
         /// <summary>
-        /// Returns the <see cref="Function" /> that matches the provided <paramref name="id" />
+        /// Returns the <see cref="Function"/> that matches the provided <paramref name="id"/>
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -221,11 +233,82 @@ namespace Calculator
 
         #endregion Function management
 
+        #region Special binary operator management
+
+        #region Implicit multiplication
+
+        /// <summary>
+        /// Sets the implicit multiplication configurations
+        /// </summary>
+        /// <param name="precedence"></param>
+        /// <param name="body"></param>
+        /// <returns></returns>
+        public CalculatorLanguage SetImplicitMultiplication ( Int32 precedence, Func<Double, Double, Double> body ) =>
+            new CalculatorLanguage (
+                this.Constants,
+                this.UnaryOperators,
+                this.BinaryOperators,
+                this.Functions,
+                this.SpecialBinaryOperators.SetItem (
+                    SpecialBinaryOperatorType.ImplicitMultiplication,
+                    new SpecialBinaryOperator ( SpecialBinaryOperatorType.ImplicitMultiplication, Associativity.Left, precedence, body ) ) );
+
+        /// <summary>
+        /// Whether this language has a definition for implicit multiplication
+        /// </summary>
+        /// <returns></returns>
+        public Boolean HasImplicitMultiplication ( ) =>
+            this.SpecialBinaryOperators.ContainsKey ( SpecialBinaryOperatorType.ImplicitMultiplication );
+
+        /// <summary>
+        /// Returns the definition for the implicit multiplication operator
+        /// </summary>
+        /// <returns></returns>
+        public SpecialBinaryOperator GetImplicitMultiplication ( ) =>
+            this.SpecialBinaryOperators[SpecialBinaryOperatorType.ImplicitMultiplication];
+
+        #endregion Implicit multiplication
+
+        #region Superscript exponentiation
+
+        /// <summary>
+        /// Sets the definition for the superscript exponentiation
+        /// </summary>
+        /// <param name="precedence"></param>
+        /// <param name="body"></param>
+        /// <returns></returns>
+        public CalculatorLanguage SetSuperscriptExponentiation ( Int32 precedence, Func<Double, Double, Double> body ) =>
+            new CalculatorLanguage (
+                this.Constants,
+                this.UnaryOperators,
+                this.BinaryOperators,
+                this.Functions,
+                this.SpecialBinaryOperators.SetItem (
+                    SpecialBinaryOperatorType.SuperscriptExponentiation,
+                    new SpecialBinaryOperator ( SpecialBinaryOperatorType.SuperscriptExponentiation, Associativity.Right, precedence, body ) ) );
+
+        /// <summary>
+        /// Returns whether this language has a definition for superscript exponentiation
+        /// </summary>
+        /// <returns></returns>
+        public Boolean HasSuperscriptExponentiation ( ) =>
+            this.SpecialBinaryOperators.ContainsKey ( SpecialBinaryOperatorType.SuperscriptExponentiation );
+
+        /// <summary>
+        /// Returns whether this language's definition of superscript exponentiation
+        /// </summary>
+        /// <returns></returns>
+        public SpecialBinaryOperator GetSuperscriptExponentiation ( ) =>
+            this.SpecialBinaryOperators[SpecialBinaryOperatorType.SuperscriptExponentiation];
+
+        #endregion Superscript exponentiation
+
+        #endregion Special binary operator management
+
         #region Factory Methods
 
         /// <summary>
-        /// Builds a lexer for the provided <paramref name="expression" /> and
-        /// <paramref name="diagnosticReporter" />
+        /// Builds a lexer for the provided <paramref name="expression"/> and <paramref name="diagnosticReporter"/>
         /// </summary>
         /// <param name="expression"></param>
         /// <param name="diagnosticReporter"></param>
@@ -234,8 +317,7 @@ namespace Calculator
             this.LexerBuilder.BuildLexer ( expression, diagnosticReporter );
 
         /// <summary>
-        /// Builds a lexer for the provided <paramref name="reader" /> and
-        /// <paramref name="diagnosticReporter" />
+        /// Builds a lexer for the provided <paramref name="reader"/> and <paramref name="diagnosticReporter"/>
         /// </summary>
         /// <param name="reader"></param>
         /// <param name="diagnosticReporter"></param>
@@ -244,8 +326,7 @@ namespace Calculator
             this.LexerBuilder.BuildLexer ( reader, diagnosticReporter );
 
         /// <summary>
-        /// Builds a parser for the provided <paramref name="expression" /> and
-        /// <paramref name="diagnosticReporter" />
+        /// Builds a parser for the provided <paramref name="expression"/> and <paramref name="diagnosticReporter"/>
         /// </summary>
         /// <param name="expression"></param>
         /// <param name="diagnosticReporter"></param>
@@ -256,8 +337,7 @@ namespace Calculator
                 diagnosticReporter ) as CalculatorParser;
 
         /// <summary>
-        /// Builds a parser for the provided <paramref name="lexer" /> and
-        /// <paramref name="diagnosticReporter" />
+        /// Builds a parser for the provided <paramref name="lexer"/> and <paramref name="diagnosticReporter"/>
         /// </summary>
         /// <param name="lexer"></param>
         /// <param name="diagnosticReporter"></param>
@@ -266,8 +346,7 @@ namespace Calculator
             this.ParserBuilder.CreateParser ( new TokenReader<CalculatorTokenType> ( lexer ), diagnosticReporter ) as CalculatorParser;
 
         /// <summary>
-        /// Builds a parser for the provided <paramref name="tokenReader" /> and
-        /// <paramref name="diagnosticReporter" />
+        /// Builds a parser for the provided <paramref name="tokenReader"/> and <paramref name="diagnosticReporter"/>
         /// </summary>
         /// <param name="tokenReader"></param>
         /// <param name="diagnosticReporter"></param>
@@ -280,8 +359,8 @@ namespace Calculator
         #region Direct Expression Execution Methods
 
         /// <summary>
-        /// Lexes a given string and returns the tokens along with any diagnostics emmited by the lexer
-        /// modules
+        /// Lexes a given string and returns the tokens along with any diagnostics emmited by the
+        /// lexer modules
         /// </summary>
         /// <param name="expression"></param>
         /// <param name="diagnostics"></param>
@@ -298,8 +377,8 @@ namespace Calculator
         }
 
         /// <summary>
-        /// Parses a given string and returns the result node along with any diagnostics emmited by the
-        /// lexer modules and/or parselets
+        /// Parses a given string and returns the result node along with any diagnostics emmited by
+        /// the lexer modules and/or parselets
         /// </summary>
         /// <param name="expression"></param>
         /// <param name="diagnostics"></param>
@@ -315,8 +394,8 @@ namespace Calculator
         }
 
         /// <summary>
-        /// Evaluates an expression and returns the evaluated value along with any diagnostics emmited by
-        /// the lexer modules and/or parselets
+        /// Evaluates an expression and returns the evaluated value along with any diagnostics
+        /// emmited by the lexer modules and/or parselets
         /// </summary>
         /// <param name="expr"></param>
         /// <param name="diagnostics"></param>
@@ -332,21 +411,21 @@ namespace Calculator
         #region Generated Code
 
         /// <summary>
-        /// <inheritdoc />
+        /// <inheritdoc/>
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
         public override Boolean Equals ( Object obj ) => obj is CalculatorLanguage && this.Equals ( ( CalculatorLanguage ) obj );
 
         /// <summary>
-        /// <inheritdoc />
+        /// <inheritdoc/>
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
         public Boolean Equals ( CalculatorLanguage other ) => EqualityComparer<ImmutableDictionary<String, Constant>>.Default.Equals ( this.Constants, other.Constants ) && EqualityComparer<ImmutableDictionary<(UnaryOperatorFix, String), UnaryOperator>>.Default.Equals ( this.UnaryOperators, other.UnaryOperators ) && EqualityComparer<ImmutableDictionary<String, BinaryOperator>>.Default.Equals ( this.BinaryOperators, other.BinaryOperators ) && EqualityComparer<ImmutableDictionary<String, Function>>.Default.Equals ( this.Functions, other.Functions );
 
         /// <summary>
-        /// <inheritdoc />
+        /// <inheritdoc/>
         /// </summary>
         /// <returns></returns>
         public override Int32 GetHashCode ( )
@@ -360,7 +439,7 @@ namespace Calculator
         }
 
         /// <summary>
-        /// <inheritdoc />
+        /// <inheritdoc/>
         /// </summary>
         /// <param name="language1"></param>
         /// <param name="language2"></param>
@@ -368,7 +447,7 @@ namespace Calculator
         public static Boolean operator == ( CalculatorLanguage language1, CalculatorLanguage language2 ) => language1.Equals ( language2 );
 
         /// <summary>
-        /// <inheritdoc />
+        /// <inheritdoc/>
         /// </summary>
         /// <param name="language1"></param>
         /// <param name="language2"></param>

@@ -1,6 +1,7 @@
 ﻿using System;
 using Calculator.Lexing;
 using Calculator.Parsing.Abstractions;
+using GParse;
 using GParse.Lexing;
 
 namespace Calculator.Parsing.AST
@@ -25,6 +26,9 @@ namespace Calculator.Parsing.AST
         /// </summary>
         public Token<CalculatorTokenType> Operator { get; }
 
+        /// <inheritdoc />
+        public override SourceRange Range { get; }
+
         /// <summary>
         /// Initializes this <see cref="BinaryOperatorExpression" />
         /// </summary>
@@ -36,6 +40,7 @@ namespace Calculator.Parsing.AST
             this.Operator = @operator;
             this.LeftHandSide = lhs;
             this.RightHandSide = rhs;
+            this.Range = lhs.Range.Start.To ( rhs.Range.End );
         }
 
         /// <summary>

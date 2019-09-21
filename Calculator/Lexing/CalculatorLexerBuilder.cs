@@ -18,8 +18,11 @@ namespace Calculator.Lexing
                 return false;
 
             for ( var i = 1; i < str.Length; i++ )
+            {
                 if ( !Char.IsLetterOrDigit ( str[i] ) && str[i] != '_' )
                     return false;
+            }
+
             return true;
         }
 
@@ -33,6 +36,10 @@ namespace Calculator.Lexing
 
             // Identifiers
             this.AddModule ( new IdentifierLexerModule ( ) );
+
+            // Superscript
+            if ( language.HasSuperscriptExponentiation ( ) )
+                this.AddModule ( new SuperscriptLexerModule ( ) );
 
             // Trivia
             this.AddRegex ( "ws", CalculatorTokenType.Whitespace, @"\s+", null, null, true );

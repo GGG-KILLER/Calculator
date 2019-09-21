@@ -44,6 +44,12 @@ namespace Calculator.Parsing.Abstractions
         void Visit ( ImplicitMultiplicationExpression implicitMultiplication );
 
         /// <summary>
+        /// The <see cref="SuperscriptExponentiationExpression" /> visitor
+        /// </summary>
+        /// <param name="superscriptExponentiation"></param>
+        void Visit ( SuperscriptExponentiationExpression superscriptExponentiation );
+
+        /// <summary>
         /// The <see cref="GroupedExpression" /> visitor
         /// </summary>
         /// <param name="grouped"></param>
@@ -97,6 +103,12 @@ namespace Calculator.Parsing.Abstractions
         /// <param name="implicitMultiplication"></param>
         /// <returns></returns>
         T Visit ( ImplicitMultiplicationExpression implicitMultiplication );
+
+        /// <summary>
+        /// The <see cref="SuperscriptExponentiationExpression" /> visitor
+        /// </summary>
+        /// <param name="superscriptExponentiation"></param>
+        T Visit ( SuperscriptExponentiationExpression superscriptExponentiation );
 
         /// <summary>
         /// The <see cref="GroupedExpression" /> visitor

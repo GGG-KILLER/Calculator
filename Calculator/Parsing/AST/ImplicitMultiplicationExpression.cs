@@ -1,5 +1,6 @@
 ﻿using System;
 using Calculator.Parsing.Abstractions;
+using GParse;
 
 namespace Calculator.Parsing.AST
 {
@@ -18,6 +19,9 @@ namespace Calculator.Parsing.AST
         /// </summary>
         public CalculatorTreeNode RightHandSide { get; }
 
+        /// <inheritdoc />
+        public override SourceRange Range { get; }
+
         /// <summary>
         /// Initializes this <see cref="ImplicitMultiplicationExpression" />
         /// </summary>
@@ -27,6 +31,7 @@ namespace Calculator.Parsing.AST
         {
             this.LeftHandSide = left;
             this.RightHandSide = right;
+            this.Range = this.LeftHandSide.Range.Start.To ( this.RightHandSide.Range.End );
         }
 
         /// <summary>

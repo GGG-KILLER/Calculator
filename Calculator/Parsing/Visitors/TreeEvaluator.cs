@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Calculator.Definitions;
 using Calculator.Errors;
 using Calculator.Parsing.Abstractions;
 using Calculator.Parsing.AST;
@@ -7,23 +8,23 @@ using Calculator.Parsing.AST;
 namespace Calculator.Parsing.Visitors
 {
     /// <summary>
-    /// A stateless <see cref="CalculatorTreeNode" /> tree evaluator
+    /// A <see cref="CalculatorTreeNode"/> tree evaluator
     /// </summary>
-    public class StatelessTreeEvaluator : ITreeVisitor<Double>
+    public class TreeEvaluator : ITreeVisitor<Double>
     {
         private readonly CalculatorLanguage Language;
 
         /// <summary>
-        /// Initializes this <see cref="StatelessTreeEvaluator" />
+        /// Initializes this <see cref="TreeEvaluator"/>
         /// </summary>
         /// <param name="language"></param>
-        public StatelessTreeEvaluator ( CalculatorLanguage language )
+        public TreeEvaluator ( CalculatorLanguage language )
         {
             this.Language = language;
         }
 
         /// <summary>
-        /// <inheritdoc />
+        /// <inheritdoc/>
         /// </summary>
         /// <param name="binaryOperator"></param>
         /// <returns></returns>
@@ -31,14 +32,14 @@ namespace Calculator.Parsing.Visitors
         {
             var op = binaryOperator.Operator.Raw;
             if ( !this.Language.HasBinaryOperator ( op ) )
-                throw new EvaluationException ( binaryOperator.Operator.Range, $"Unkown operator '{op}'." );
+                throw new EvaluationException ( binaryOperator.Range, $"Unkown operator '{op}'." );
 
             return this.Language.GetBinaryOperator ( op )
                 .Body ( binaryOperator.LeftHandSide.Accept ( this ), binaryOperator.RightHandSide.Accept ( this ) );
         }
 
         /// <summary>
-        /// <inheritdoc />
+        /// <inheritdoc/>
         /// </summary>
         /// <param name="identifier"></param>
         /// <returns></returns>
@@ -46,13 +47,13 @@ namespace Calculator.Parsing.Visitors
         {
             var ident = identifier.Identifier.Raw;
             if ( !this.Language.HasConstant ( ident ) )
-                throw new EvaluationException ( identifier.Identifier.Range, $"Unknown constant {ident}." );
+                throw new EvaluationException ( identifier.Range, $"Unknown constant {ident}." );
 
             return this.Language.GetConstant ( ident ).Value;
         }
 
         /// <summary>
-        /// <inheritdoc />
+        /// <inheritdoc/>
         /// </summary>
         /// <param name="functionCall"></param>
         /// <returns></returns>
@@ -60,57 +61,63 @@ namespace Calculator.Parsing.Visitors
         {
             var ident = functionCall.Identifier.Identifier.Raw;
             if ( !this.Language.HasFunction ( ident ) )
-                throw new EvaluationException (
-                    functionCall.Identifier.Identifier.Range.Start.To ( functionCall.Tokens.Last ( ).Range.End ),
-                    $"Unkown function '{ident}'." );
+            {
+                throw new EvaluationException ( functionCall.Range, $"Unkown function '{ident}'." );
+            }
 
-            Definitions.Function funcDef = this.Language.GetFunction ( ident );
+            Function funcDef = this.Language.GetFunction ( ident );
             var args = functionCall.Arguments.Select( arg => ( Object ) arg.Accept ( this ) ).ToArray ( );
             var idx = args.Length > 4 ? -1 : args.Length;
             if ( funcDef.Overloads.TryGetValue ( idx, out Delegate @delegate ) )
+            {
                 return ( Double ) @delegate.Method.Invoke ( @delegate.Target, args.Length > 4 ? new Object[] { args } : args );
+            }
             else
-                throw new EvaluationException (
-                    functionCall.Identifier.Identifier.Range.Start.To ( functionCall.Tokens.Last ( ).Range.End ),
-                    $"There is no overload of '{ident}' that accepts {args.Length} arguments." );
+            {
+                throw new EvaluationException ( functionCall.Range, $"There is no overload of '{ident}' that accepts {args.Length} arguments." );
+            }
         }
 
-        /// <summary>
-        /// <inheritdoc />
-        /// </summary>
-        /// <param name="number"></param>
-        /// <returns></returns>
+        /// <inheritdoc/>
         public Double Visit ( NumberExpression number ) =>
             ( Double ) number.Value.Value;
 
-        /// <summary>
-        /// <inheritdoc />
-        /// </summary>
-        /// <param name="unaryOperator"></param>
-        /// <returns></returns>
+        /// <inheritdoc/>
         public Double Visit ( UnaryOperatorExpression unaryOperator )
         {
             var op = unaryOperator.Operator.Raw;
             if ( !this.Language.HasUnaryOperator ( op, unaryOperator.OperatorFix ) )
-                throw new EvaluationException ( unaryOperator.Operator.Range, $"Unknown operator." );
+                throw new EvaluationException ( unaryOperator.Range, $"Unknown operator." );
 
             return this.Language.GetUnaryOperator ( op, unaryOperator.OperatorFix ).Body ( unaryOperator.Operand.Accept ( this ) );
         }
 
-        /// <summary>
-        /// <inheritdoc />
-        /// </summary>
-        /// <param name="implicitMultiplication"></param>
-        /// <returns></returns>
-        public Double Visit ( ImplicitMultiplicationExpression implicitMultiplication ) =>
-            implicitMultiplication.LeftHandSide.Accept ( this ) * implicitMultiplication.RightHandSide.Accept ( this );
+        /// <inheritdoc/>
+        public Double Visit ( ImplicitMultiplicationExpression implicitMultiplication )
+        {
+            if ( !this.Language.HasImplicitMultiplication ( ) )
+            {
+                throw new EvaluationException ( implicitMultiplication.Range, "Implicit multiplication hasn't been defined." );
+            }
 
-        /// <summary>
-        /// <inheritdoc />
-        /// </summary>
-        /// <param name="grouped"></param>
-        /// <returns></returns>
+            SpecialBinaryOperator @operator = this.Language.GetImplicitMultiplication ( );
+            return @operator.Body ( implicitMultiplication.LeftHandSide.Accept ( this ), implicitMultiplication.RightHandSide.Accept ( this ) );
+        }
+
+        /// <inheritdoc/>
         public Double Visit ( GroupedExpression grouped ) =>
             grouped.Inner.Accept ( this );
+
+        /// <inheritdoc/>
+        public Double Visit ( SuperscriptExponentiationExpression superscriptExponentiation )
+        {
+            if ( !this.Language.HasSuperscriptExponentiation ( ) )
+            {
+                throw new EvaluationException ( superscriptExponentiation.Range, "A superscript exponentiation operation was found but the SuperscriptExponentiation SpecialOperator is not registered!" );
+            }
+
+            SpecialBinaryOperator @operator = this.Language.GetSuperscriptExponentiation ( );
+            return @operator.Body ( superscriptExponentiation.Base.Accept ( this ), ( Double ) superscriptExponentiation.Exponent.Value );
+        }
     }
 }

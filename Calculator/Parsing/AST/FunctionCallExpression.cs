@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Calculator.Lexing;
 using Calculator.Parsing.Abstractions;
+using GParse;
 using GParse.Lexing;
 
 namespace Calculator.Parsing.AST
@@ -28,6 +29,9 @@ namespace Calculator.Parsing.AST
         /// </summary>
         public IEnumerable<Token<CalculatorTokenType>> Tokens { get; }
 
+        /// <inheritdoc />
+        public override SourceRange Range { get; }
+
         /// <summary>
         /// Initializes this <see cref="FunctionCallExpression"/>
         /// </summary>
@@ -39,6 +43,7 @@ namespace Calculator.Parsing.AST
             this.Identifier = identifier;
             this.Arguments = arguments.ToImmutableArray ( );
             this.Tokens = tokens;
+            this.Range = identifier.Range.Start.To ( tokens.Last ( ).Range.End );
         }
 
         /// <summary>
@@ -63,13 +68,18 @@ namespace Calculator.Parsing.AST
         public override Boolean StructurallyEquals ( CalculatorTreeNode node )
         {
             if ( !( node is FunctionCallExpression functionCall )
-                || !this.Identifier.StructurallyEquals ( functionCall.Identifier )
-                || this.Arguments.Length != functionCall.Arguments.Length )
+                 || !this.Identifier.StructurallyEquals ( functionCall.Identifier )
+                 || this.Arguments.Length != functionCall.Arguments.Length )
+            {
                 return false;
+            }
 
             for ( var i = 0; i < this.Arguments.Length; i++ )
+            {
                 if ( !this.Arguments[i].StructurallyEquals ( functionCall.Arguments[i] ) )
                     return false;
+            }
+
             return true;
         }
     }

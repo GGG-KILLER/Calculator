@@ -1,6 +1,7 @@
 ﻿using System;
 using Calculator.Lexing;
 using Calculator.Parsing.Abstractions;
+using GParse;
 using GParse.Lexing;
 
 namespace Calculator.Parsing.AST
@@ -25,6 +26,9 @@ namespace Calculator.Parsing.AST
         /// </summary>
         public CalculatorTreeNode Inner { get; }
 
+        /// <inheritdoc />
+        public override SourceRange Range { get; }
+
         /// <summary>
         /// Initializes this <see cref="GroupedExpression" />
         /// </summary>
@@ -36,6 +40,7 @@ namespace Calculator.Parsing.AST
             this.LParen = lparen;
             this.Inner = inner;
             this.RParen = rparen;
+            this.Range = lparen.Range.Start.To ( rparen.Range.End );
         }
 
         /// <summary>

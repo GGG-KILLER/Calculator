@@ -8,10 +8,8 @@ namespace Calculator.Tests
     using System.Collections.Generic;
     using System.Linq;
     using Calculator.Definitions;
-    using Calculator.Lexing;
     using Calculator.Parsing.Visitors;
     using GParse;
-    using GParse.Lexing;
     using Microsoft.VisualStudio.TestTools.UnitTesting.Logging;
     using static ASTHelper;
 
@@ -22,17 +20,18 @@ namespace Calculator.Tests
 
         public ParserTests ( )
         {
-            // No need to define constants or functions, since they'd only be used during evaluation, but
-            // since the whole library assumes you'll be executing the expression tree at some point, you
-            // have to provide operator implementations.
+            // No need to define constants or functions, since they'd only be used during evaluation,
+            // but since the whole library assumes you'll be executing the expression tree at some
+            // point, you have to provide operator implementations.
             this.language = new CalculatorLanguageBuilder ( )
                 .AddBinaryOperator ( Associativity.Left, "+", 1, Math.Max )
                 .AddBinaryOperator ( Associativity.Left, "/", 2, Math.Max )
                 .AddImplicitMultiplication ( 3, ( x, y ) => x * y )
                 .AddBinaryOperator ( Associativity.Right, "^", 5, Math.Pow )
+                .AddSuperscriptExponentiation ( 5, Math.Pow )
                 .AddUnaryOperator ( UnaryOperatorFix.Prefix, "+", 6, x => x )
                 .AddUnaryOperator ( UnaryOperatorFix.Postfix, "!", 7, x => x )
-                .GetCalculatorLanguage ( );
+                .ToCalculatorLanguage ( );
         }
 
         private CalculatorTreeNode ParseExpression ( String expression )
@@ -40,15 +39,15 @@ namespace Calculator.Tests
             CalculatorTreeNode parsed = this.language.Parse ( expression, out IEnumerable<Diagnostic> diagnostics );
             foreach ( Diagnostic diagnostic in diagnostics )
             {
-                Logger.LogMessage ( @"{0} {1}: {2} {3}
-{4}", diagnostic.Id, diagnostic.Severity, diagnostic.Range, diagnostic.Description, CalculatorDiagnostics.FormatDiagnostic ( expression, diagnostic ) );
+                Logger.LogMessage ( @"{0} {1}: {2}
+{3}", diagnostic.Id, diagnostic.Severity, diagnostic.Description, CalculatorDiagnostics.FormatDiagnostic ( expression, diagnostic ) );
             }
 
             Assert.AreEqual ( diagnostics.Count ( ), 0, "Expression wasn't parsed without errors, warnings or suggestions." );
             return parsed;
         }
 
-        private readonly StatelessTreeReconstructor reconstructor = new StatelessTreeReconstructor ( );
+        private readonly SimpleTreeReconstructor reconstructor = new SimpleTreeReconstructor ( );
 
         private void TestList ( params (String expr, CalculatorTreeNode expected)[] tests )
         {
@@ -97,55 +96,25 @@ namespace Calculator.Tests
         [TestMethod]
         public void UnaryOperatorsAreParsedProperly ( ) =>
             this.TestList (
-                ("+1", UnaryOperator ( "+", 1, UnaryOperatorFix.Prefix )),
-                ("1!", UnaryOperator ( "!", 1, UnaryOperatorFix.Postfix )),
-                ("+1!", UnaryOperator (
-                    "+",
-                    UnaryOperator (
-                        "!",
-                        1,
-                        UnaryOperatorFix.Postfix ),
-                    UnaryOperatorFix.Prefix )),
-                ("++1", UnaryOperator (
-                    "+",
-                    UnaryOperator (
-                        "+",
-                        1,
-                        UnaryOperatorFix.Prefix ),
-                    UnaryOperatorFix.Prefix )),
-                ("1!!", UnaryOperator (
-                    "!",
-                    UnaryOperator (
-                        "!",
-                        1,
-                        UnaryOperatorFix.Postfix ),
-                    UnaryOperatorFix.Postfix )),
-                ("++1!!", UnaryOperator (
-                    "+",
-                    UnaryOperator (
-                        "+",
-                        UnaryOperator (
-                            "!",
-                            UnaryOperator (
-                                "!",
-                                1,
-                                UnaryOperatorFix.Postfix ),
-                            UnaryOperatorFix.Postfix ),
-                        UnaryOperatorFix.Prefix ),
-                    UnaryOperatorFix.Prefix )),
-                ("+(+1)!!", UnaryOperator ( "+", UnaryOperator ( "!", UnaryOperator ( "!", Grouped ( UnaryOperator ( "+", 1, UnaryOperatorFix.Prefix ) ), UnaryOperatorFix.Postfix ), UnaryOperatorFix.Postfix ), UnaryOperatorFix.Prefix ))
+                ("+1", Prefix ( "+", 1 )),
+                ("1!", Postfix ( 1, "!" )),
+                ("+1!", Prefix ( "+", Postfix ( 1, "!" ) )),
+                ("++1", Prefix ( "+", Prefix ( "+", 1 ) )),
+                ("1!!", Postfix ( Postfix ( 1, "!" ), "!" )),
+                ("++1!!", Prefix ( "+", Prefix ( "+", Postfix ( Postfix ( 1, "!" ), "!" ) ) )),
+                ("+(+1)!!", Prefix ( "+", Postfix ( Postfix ( Grouped ( Prefix ( "+", 1 ) ), "!" ), "!" ) ))
             );
 
         [TestMethod]
         public void BinaryOperatorsAreParsedProperly ( ) =>
             this.TestList (
-                ("2 + 2", BinaryOperator ( 2, "+", 2 )),
-                ("2 + 2 + 2", BinaryOperator ( BinaryOperator ( 2, "+", 2 ), "+", 2 )),
-                ("2 + 2 / 2", BinaryOperator ( 2, "+", BinaryOperator ( 2, "/", 2 ) )),
-                ("2 / 2 + 2", BinaryOperator ( BinaryOperator ( 2, "/", 2 ), "+", 2 )),
-                ("2 / 2 / 2", BinaryOperator ( BinaryOperator ( 2, "/", 2 ), "/", 2 )),
-                ("2 / 2 + 2 / 2", BinaryOperator ( BinaryOperator ( 2, "/", 2 ), "+", BinaryOperator ( 2, "/", 2 ) )),
-                ("2 + 2 / 2 + 2", BinaryOperator ( BinaryOperator ( 2, "+", BinaryOperator ( 2, "/", 2 ) ), "+", 2 )),
+                ("2 + 2", Binary ( 2, "+", 2 )),
+                ("2 + 2 + 2", Binary ( Binary ( 2, "+", 2 ), "+", 2 )),
+                ("2 + 2 / 2", Binary ( 2, "+", Binary ( 2, "/", 2 ) )),
+                ("2 / 2 + 2", Binary ( Binary ( 2, "/", 2 ), "+", 2 )),
+                ("2 / 2 / 2", Binary ( Binary ( 2, "/", 2 ), "/", 2 )),
+                ("2 / 2 + 2 / 2", Binary ( Binary ( 2, "/", 2 ), "+", Binary ( 2, "/", 2 ) )),
+                ("2 + 2 / 2 + 2", Binary ( Binary ( 2, "+", Binary ( 2, "/", 2 ) ), "+", 2 )),
                 /* 2 + 2 / 2 + 2 / 2 + 2 / 2
                  * ⤷ ((2 + (2 / 2)) + (2 / 2)) + (2 / 2)
                  *    ⤷ ((2 + bin(2, / 2)) + bin(2, /, 2)) + bin(2, /, 2)
@@ -153,50 +122,50 @@ namespace Calculator.Tests
                  *         ⤷ bin(bin(2, +, bin(2 /, 2)), +, bin(2, /, 2)) + bin(2, /, 2)
                  *            ⤷ bin(bin(bin(2, +, bin(2 /, 2)), +, bin(2, /, 2)), +, bin(2, /, 2))
                  */
-                ("2 + 2 / 2 + 2 / 2 + 2 / 2", BinaryOperator ( BinaryOperator ( BinaryOperator ( 2, "+", BinaryOperator ( 2, "/", 2 ) ), "+", BinaryOperator ( 2, "/", 2 ) ), "+", BinaryOperator ( 2, "/", 2 ) ))
+                ("2 + 2 / 2 + 2 / 2 + 2 / 2", Binary ( Binary ( Binary ( 2, "+", Binary ( 2, "/", 2 ) ), "+", Binary ( 2, "/", 2 ) ), "+", Binary ( 2, "/", 2 ) ))
             );
 
         [TestMethod]
         public void ImplicitOperationsAreParsedProperly ( ) =>
             this.TestList (
-                ("2 2", ImplicitMultiplication ( 2, 2 )),
-                ("a(b)", FunctionCall ( "a", "b" )),
-                ("a b", ImplicitMultiplication ( "a", "b" )),
-                ("(a)(b)", ImplicitMultiplication ( Grouped ( "a" ), Grouped ( "b" ) ))
+                ("2 2", Implicit ( 2, 2 )),
+                ("a(b)", Function ( "a", "b" )),
+                ("a b", Implicit ( "a", "b" )),
+                ("(a)(b)", Implicit ( Grouped ( "a" ), Grouped ( "b" ) ))
             );
 
         [TestMethod]
         public void FunctionCallsAreParsedProperly ( ) =>
             this.TestList (
-                ("func(a)", FunctionCall ( "func", "a" )),
-                ("func(a, a, 2 / 2 + 2 / 2,   2 + 2 / 2 + 2)", FunctionCall (
+                ("func(a)", Function ( "func", "a" )),
+                ("func(a, a, 2 / 2 + 2 / 2,   2 + 2 / 2 + 2)", Function (
                     "func",
 
                     // args:
                     "a",
                     "a",
-                    BinaryOperator ( BinaryOperator ( 2, "/", 2 ), "+", BinaryOperator ( 2, "/", 2 ) ),
-                    BinaryOperator ( BinaryOperator ( 2, "+", BinaryOperator ( 2, "/", 2 ) ), "+", 2 )
+                    Binary ( Binary ( 2, "/", 2 ), "+", Binary ( 2, "/", 2 ) ),
+                    Binary ( Binary ( 2, "+", Binary ( 2, "/", 2 ) ), "+", 2 )
                 )),
-                ("func(a a)", FunctionCall (
+                ("func(a a)", Function (
                     "func",
-                    ImplicitMultiplication (
+                    Implicit (
                         "a",
                         "a"
                     )
                 )),
-                ("func(a a) a", ImplicitMultiplication (
-                    FunctionCall (
+                ("func(a a) a", Implicit (
+                    Function (
                         "func",
-                        ImplicitMultiplication ( "a", "a" )
+                        Implicit ( "a", "a" )
                     ),
                     "a"
                 )),
-                ("a b(c d)", ImplicitMultiplication (
+                ("a b(c d)", Implicit (
                     "a",
-                    FunctionCall (
+                    Function (
                         "b",
-                        ImplicitMultiplication (
+                        Implicit (
                             "c",
                             "d"
                         )
@@ -205,27 +174,46 @@ namespace Calculator.Tests
             );
 
         [TestMethod]
+        public void SuperscriptExponetiationEpxressionsAreParsedProperly ( )
+        {
+            this.TestList (
+                ("1¹", Superscript ( 1, 1 )),
+                ("a¹", Superscript ( "a", 1 )),
+                ("f(x)¹", Superscript ( Function ( "f", "x" ), 1 )),
+                ("1⁻¹", Superscript ( 1, -1 )),
+                ("a⁻¹", Superscript ( "a", -1 )),
+                ("f(x)⁻¹", Superscript ( Function ( "f", "x" ), -1 )),
+                ( "1¹²³", Superscript ( 1, 123 ) ),
+                ("a¹²³", Superscript ( "a", 123 )),
+                ("f(x)¹²³", Superscript ( Function ( "f", "x" ), 123 )),
+                ("1⁻¹²³", Superscript ( 1, -123 )),
+                ("a⁻¹²³", Superscript ( "a", -123 )),
+                ("f(x)⁻¹²³", Superscript ( Function ( "f", "x" ), -123 ))
+            );
+        }
+
+        [TestMethod]
         public void ComplexExpressionsAreParsedProperly ( )
         {
-            (String expr, CalculatorTreeNode tree) funcaabb = ("func(a, a, 2 / 2 + 2 / 2, 2 + 2 / 2 + 2)", FunctionCall (
+            (String expr, CalculatorTreeNode tree) funcaabb = ("func(a, a, 2 / 2 + 2 / 2, 2 + 2 / 2 + 2)", Function (
                 "func",
 
                 // args:
                 "a",
                 "a",
-                BinaryOperator ( BinaryOperator ( 2, "/", 2 ), "+", BinaryOperator ( 2, "/", 2 ) ),
-                BinaryOperator ( BinaryOperator ( 2, "+", BinaryOperator ( 2, "/", 2 ) ), "+", 2 )
+                Binary ( Binary ( 2, "/", 2 ), "+", Binary ( 2, "/", 2 ) ),
+                Binary ( Binary ( 2, "+", Binary ( 2, "/", 2 ) ), "+", 2 )
             ));
-            (String expr, CalculatorTreeNode tree) funcaabfuncaabb = ($"func(a, a, 2 / 2 + 2 / 2, {funcaabb.expr}, a b c)", FunctionCall (
+            (String expr, CalculatorTreeNode tree) funcaabfuncaabb = ($"func(a, a, 2 / 2 + 2 / 2, {funcaabb.expr}, a b c)", Function (
                 "func",
 
                 // args:
                 "a",
                 "a",
-                BinaryOperator ( BinaryOperator ( 2, "/", 2 ), "+", BinaryOperator ( 2, "/", 2 ) ),
+                Binary ( Binary ( 2, "/", 2 ), "+", Binary ( 2, "/", 2 ) ),
                 funcaabb.tree,
-                ImplicitMultiplication (
-                    ImplicitMultiplication (
+                Implicit (
+                    Implicit (
                         "a",
                         "b"
                     ),
@@ -236,29 +224,27 @@ namespace Calculator.Tests
             this.TestList (
                 (funcaabb.expr, funcaabb.tree),
                 (funcaabfuncaabb.expr, funcaabfuncaabb.tree),
-                ($"({funcaabfuncaabb.expr})({funcaabfuncaabb.expr})", ImplicitMultiplication (
+                ($"({funcaabfuncaabb.expr})({funcaabfuncaabb.expr})", Implicit (
                     Grouped ( funcaabfuncaabb.tree ),
                     Grouped ( funcaabfuncaabb.tree )
                 )),
-                ($"+({funcaabb.expr} + {funcaabfuncaabb.expr} / const!) + {funcaabfuncaabb.expr}", BinaryOperator (
-                    UnaryOperator (
+                ($"+({funcaabb.expr} + {funcaabfuncaabb.expr} / const!) + {funcaabfuncaabb.expr}", Binary (
+                    Prefix (
                         "+",
                         Grouped (
-                            BinaryOperator (
+                            Binary (
                                 funcaabb.tree,
                                 "+",
-                                BinaryOperator (
+                                Binary (
                                     funcaabfuncaabb.tree,
                                     "/",
-                                    UnaryOperator (
-                                        "!",
+                                    Postfix (
                                         "const",
-                                        UnaryOperatorFix.Postfix
+                                        "!"
                                     )
                                 )
                             )
-                        ),
-                        UnaryOperatorFix.Prefix
+                        )
                     ),
                     "+",
                     funcaabfuncaabb.tree
