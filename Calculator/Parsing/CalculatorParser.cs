@@ -36,7 +36,7 @@ namespace Calculator.Parsing
         public CalculatorTreeNode Parse ( )
         {
             if ( !this.TryParseExpression ( out CalculatorTreeNode expr ) )
-                throw new FatalParsingException ( this.TokenReader.Location, "" );
+                throw new FatalParsingException ( this.TokenReader.Location, "Unable to parse this expression." );
 
             if ( !this.TokenReader.Accept ( CalculatorTokenType.EndOfExpression ) )
                 this.diagnosticReporter.Report ( CalculatorDiagnostics.SyntaxError.ThingExpected ( this.TokenReader.Location, "EOF" ) );
