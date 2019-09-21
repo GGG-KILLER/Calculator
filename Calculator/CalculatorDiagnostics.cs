@@ -133,36 +133,36 @@ namespace Calculator
         {
             SourceLocation start = range.Start;
             SourceLocation end   = range.End;
-            var len              = Math.Max ( end.Byte - start.Byte, 1 );
             var lines            = expression.Split ( new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries );
 
             if ( start.Line != end.Line )
             {
-                lines = lines
-                    .Skip ( start.Line - 1 )
-                    .Take ( Math.Max ( end.Line - start.Line, 1 ) )
-                    .ToArray ( );
-                var newLines = new String[lines.Length * 2];
-                for ( var i = 0; i < lines.Length; i++ )
-                    newLines[i * 2] = lines[i];
+                var builder = new System.Text.StringBuilder ( );
+                var startLine = start.Line;
+                var endLine = end.Line - 1;
 
-                newLines[1] = new String ( ' ', start.Column - 1 ) + new String ( '^', newLines[0].Length - start.Column );
-                for ( var i = 3; i < newLines.Length - 2; i += 2 )
+                for ( var i = startLine; i <= endLine; i++ )
                 {
-                    newLines[i] = new String ( '^', newLines[i - 1].Length );
+                    var line = lines[i];
+                    var lineLength = line.Length;
+
+                    builder.AppendLine ( line )
+                           .AppendLine ( i switch
+                           {
+                               _ when i == startLine => new String ( ' ', Math.Max ( start.Column - 1, 0 ) )
+                                                        + new String ( '^', Math.Max ( lineLength - start.Column, 0 ) ),
+                               _ when i == endLine => new String ( '^', end.Column ),
+                               _ => new String ( '^', lineLength )
+                           } );
                 }
-                newLines[newLines.Length - 1] = new String ( '^', end.Column );
-                lines = newLines;
-            }
-            else
-            {
-                var newLines = new String[2];
-                newLines[0] = lines[start.Line - 1];
-                newLines[1] = new String ( ' ', start.Column - 1 ) + new String ( '^', len );
-                lines = newLines;
+
+                return builder.ToString ( );
             }
 
-            return String.Join ( Environment.NewLine, lines );
+            var len              = Math.Max ( end.Byte - start.Byte, 1 );
+            return String.Join ( Environment.NewLine,
+                                lines[start.Line - 1],
+                                new String ( ' ', start.Column - 1 ) + new String ( '^', len ) );
         }
     }
 }
