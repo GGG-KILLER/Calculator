@@ -28,9 +28,9 @@ namespace Calculator.Lexing.Modules
             SourceLocation start = reader.Location;
             var sign = 1d;
             var raw = new StringBuilder ( );
-            if ( reader.Peek ( ) is Char firstChar && ( firstChar == SuperscriptChars.Plus || firstChar == SuperscriptChars.Minus ) )
+            if ( reader.Peek ( ) is Char firstChar && ( firstChar is SuperscriptChars.Plus || firstChar is SuperscriptChars.Minus ) )
             {
-                if ( firstChar == SuperscriptChars.Minus )
+                if ( firstChar is SuperscriptChars.Minus )
                 {
                     sign = -1d;
                 }
@@ -45,10 +45,10 @@ namespace Calculator.Lexing.Modules
             }
             else
             {
-                while ( reader.Read ( ) is Char digitChar && SuperscriptChars.IsSupportedChar ( digitChar ) )
+                while ( reader.Peek ( ) is Char digitChar && SuperscriptChars.IsSupportedChar ( digitChar ) )
                 {
                     var digit = SuperscriptChars.TranslateChar ( digitChar );
-                    raw.Append ( digitChar );
+                    raw.Append ( reader.Read ( ).Value );
                     if ( digit < 0 )
                     {
                         diagnosticEmitter.Report ( CalculatorDiagnostics.SyntaxError.InvalidSuperscript ( start.To ( reader.Location ), "unexpected sign inside number." ) );
