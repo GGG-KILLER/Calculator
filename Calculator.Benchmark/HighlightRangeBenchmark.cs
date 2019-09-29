@@ -13,6 +13,17 @@ namespace Calculator.Benchmark
     [Config(typeof(Config))]
     public class HighlightRangeBenchmark
     {
+        private class Config : ManualConfig
+        {
+            public Config ( )
+            {
+                Job @base = Job.Core.WithEvaluateOverhead ( true );
+                this.Add ( @base.With ( CsProjCoreToolchain.NetCoreApp21 ) );
+                this.Add ( @base.With ( CsProjCoreToolchain.NetCoreApp22 ) );
+                this.Add ( @base.With ( CsProjCoreToolchain.NetCoreApp30 ) );
+            }
+        }
+
         private static SourceRange Range ( Int32 startLine, Int32 startColumn, Int32 startByte, Int32 endLine, Int32 endColumn, Int32 endByte ) =>
             new SourceLocation ( startLine, startColumn, startByte ).To ( new SourceLocation ( endLine, endColumn, endByte ) );
 
@@ -38,17 +49,5 @@ over here", Range(1, 6, 6, 3, 4, 21))
         //[ArgumentsSource ( nameof ( Pairs ) )]
         //public String HighlightRange2 ( (String expression, SourceRange range) pair ) =>
         //    CalculatorDiagnostics.HighlightRange2 ( pair.expression, pair.range );
-
-        private class Config : ManualConfig
-        {
-            public Config ( )
-            {
-                Job @base = Job.Core.WithEvaluateOverhead ( true );
-                this.Add ( @base.With ( CsProjCoreToolchain.NetCoreApp20 ) );
-                this.Add ( @base.With ( CsProjCoreToolchain.NetCoreApp21 ) );
-                this.Add ( @base.With ( CsProjCoreToolchain.NetCoreApp22 ) );
-                this.Add ( @base.With ( CsProjCoreToolchain.NetCoreApp30 ) );
-            }
-        }
     }
 }

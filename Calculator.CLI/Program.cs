@@ -196,7 +196,7 @@ namespace Calculator.CLI
         {
             try
             {
-                String name = "ans";
+                var name = "ans";
                 if ( eqs > 0 )
                 {
                     name = expression.Substring ( 0, eqs ).Trim ( );

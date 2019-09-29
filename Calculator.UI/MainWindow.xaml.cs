@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
+using Calculator.Parsing.Visitors;
 using GParse;
 
 namespace Calculator.UI
@@ -30,7 +31,7 @@ namespace Calculator.UI
         private void EnterCommand_Executed ( Object sender, ExecutedRoutedEventArgs e )
         {
             Parsing.AST.CalculatorTreeNode ast = CalculatorLanguageSingleton.Instance.Parse ( this.txtExpression.Text, out IEnumerable<Diagnostic> diagnostics );
-            this.txtResult.Text = ast.Accept ( CalculatorLanguageSingleton.Instance.TreeEvaluator ).ToString ( );
+            this.txtResult.Text = ast.Accept ( new TreeEvaluator ( CalculatorLanguageSingleton.Instance ) ).ToString ( );
             this.dgDiagnostics.ItemsSource = diagnostics;
         }
     }
