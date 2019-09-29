@@ -11,21 +11,6 @@ namespace Calculator
     /// </summary>
     public class CalculatorLanguageBuilder
     {
-        private class UnaryOperatorKeyPairEqualityComparer : IEqualityComparer<(UnaryOperatorFix fix, String op)>
-        {
-            private readonly StringComparer stringComparer;
-
-            public UnaryOperatorKeyPairEqualityComparer ( StringComparer stringComparer )
-            {
-                this.stringComparer = stringComparer;
-            }
-
-            public Boolean Equals ( (UnaryOperatorFix fix, String op) x, (UnaryOperatorFix fix, String op) y ) =>
-                x.fix == y.fix && this.stringComparer.Equals ( x.op, y.op );
-
-            public Int32 GetHashCode ( (UnaryOperatorFix fix, String op) obj ) =>
-                unchecked(obj.fix.GetHashCode ( ) * 31 + this.stringComparer.GetHashCode ( obj.op ));
-        }
 
         private readonly ImmutableDictionary<String, Constant>.Builder constantsBuilder;
         private readonly ImmutableDictionary<(UnaryOperatorFix, String), UnaryOperator>.Builder unaryOperatorsBuilder;
@@ -34,9 +19,9 @@ namespace Calculator
         private readonly ImmutableDictionary<SpecialBinaryOperatorType, SpecialBinaryOperator>.Builder specialBinaryOperatorsBuilder;
 
         /// <summary>
-        /// Initializes a language with a specified identifier comparer
+        /// Initializes a language with a specified comparer
         /// </summary>
-        /// <param name="identifierComparer"></param>
+        /// <param name="identifierComparer">The comparer used for constants, operators and function names</param>
         public CalculatorLanguageBuilder ( StringComparer identifierComparer )
         {
             this.constantsBuilder = ImmutableDictionary.CreateBuilder<String, Constant> ( identifierComparer );

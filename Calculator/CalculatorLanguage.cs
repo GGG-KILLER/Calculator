@@ -21,35 +21,32 @@ namespace Calculator
 
         private CalculatorParserBuilder ParserBuilder { get; }
 
+        private TreeEvaluator TreeEvaluator { get; }
+
         /// <summary>
         /// The list of the constants that this language has
         /// </summary>
-        public ImmutableDictionary<String, Constant> Constants { get; }
+        public IImmutableDictionary<String, Constant> Constants { get; }
 
         /// <summary>
         /// The list of unary operators that this language has
         /// </summary>
-        public ImmutableDictionary<(UnaryOperatorFix, String), UnaryOperator> UnaryOperators { get; }
+        public IImmutableDictionary<(UnaryOperatorFix, String), UnaryOperator> UnaryOperators { get; }
 
         /// <summary>
         /// The list of binary operators that this language has
         /// </summary>
-        public ImmutableDictionary<String, BinaryOperator> BinaryOperators { get; }
+        public IImmutableDictionary<String, BinaryOperator> BinaryOperators { get; }
 
         /// <summary>
         /// The list of functions that this language has
         /// </summary>
-        public ImmutableDictionary<String, Function> Functions { get; }
+        public IImmutableDictionary<String, Function> Functions { get; }
 
         /// <summary>
         /// The list of special operators that this language contains
         /// </summary>
-        public ImmutableDictionary<SpecialBinaryOperatorType, SpecialBinaryOperator> SpecialBinaryOperators { get; }
-
-        /// <summary>
-        /// The tree evaluator
-        /// </summary>
-        public TreeEvaluator TreeEvaluator { get; }
+        public IImmutableDictionary<SpecialBinaryOperatorType, SpecialBinaryOperator> SpecialBinaryOperators { get; }
 
         /// <summary>
         /// Initializes a new <see cref="CalculatorLanguage"/>
@@ -59,12 +56,11 @@ namespace Calculator
         /// <param name="binaryOperators"></param>
         /// <param name="functions"></param>
         /// <param name="specialOperators"></param>
-        internal CalculatorLanguage (
-            ImmutableDictionary<String, Constant> constants,
-            ImmutableDictionary<(UnaryOperatorFix, String), UnaryOperator> unaryOperators,
-            ImmutableDictionary<String, BinaryOperator> binaryOperators,
-            ImmutableDictionary<String, Function> functions,
-            ImmutableDictionary<SpecialBinaryOperatorType, SpecialBinaryOperator> specialOperators )
+        public CalculatorLanguage ( IImmutableDictionary<String, Constant> constants,
+                                   IImmutableDictionary<(UnaryOperatorFix, String), UnaryOperator> unaryOperators,
+                                   IImmutableDictionary<String, BinaryOperator> binaryOperators,
+                                   IImmutableDictionary<String, Function> functions,
+                                   IImmutableDictionary<SpecialBinaryOperatorType, SpecialBinaryOperator> specialOperators )
         {
             this.Constants = constants;
             this.UnaryOperators = unaryOperators;
@@ -78,6 +74,21 @@ namespace Calculator
             this.LexerBuilder = new CalculatorLexerBuilder ( this );
             this.ParserBuilder = new CalculatorParserBuilder ( this );
             this.TreeEvaluator = new TreeEvaluator ( this );
+        }
+
+        /// <summary>
+        /// Initializes an empty <see cref="CalculatorLanguage"/> with the specified <see cref="IEqualityComparer{T}"/>.
+        /// </summary>
+        /// <param name="stringComparer">
+        /// The comparer used for constants, operators and function names
+        /// </param>
+        public CalculatorLanguage ( IEqualityComparer<String> stringComparer ) : this (
+            ImmutableDictionary.Create<String, Constant> ( stringComparer ),
+            ImmutableDictionary.Create<(UnaryOperatorFix, String), UnaryOperator> ( new UnaryOperatorKeyPairEqualityComparer ( stringComparer ) ),
+            ImmutableDictionary.Create<String, BinaryOperator> ( stringComparer ),
+            ImmutableDictionary.Create<String, Function> ( stringComparer ),
+            ImmutableDictionary.Create<SpecialBinaryOperatorType, SpecialBinaryOperator> ( ) )
+        {
         }
 
         #region Constant management
@@ -410,49 +421,44 @@ namespace Calculator
 
         #region Generated Code
 
-        /// <summary>
         /// <inheritdoc/>
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <returns></returns>
-        public override Boolean Equals ( Object obj ) => obj is CalculatorLanguage && this.Equals ( ( CalculatorLanguage ) obj );
+        public override Boolean Equals ( Object obj ) => obj is CalculatorLanguage language && this.Equals ( language );
 
-        /// <summary>
         /// <inheritdoc/>
-        /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        public Boolean Equals ( CalculatorLanguage other ) => EqualityComparer<ImmutableDictionary<String, Constant>>.Default.Equals ( this.Constants, other.Constants ) && EqualityComparer<ImmutableDictionary<(UnaryOperatorFix, String), UnaryOperator>>.Default.Equals ( this.UnaryOperators, other.UnaryOperators ) && EqualityComparer<ImmutableDictionary<String, BinaryOperator>>.Default.Equals ( this.BinaryOperators, other.BinaryOperators ) && EqualityComparer<ImmutableDictionary<String, Function>>.Default.Equals ( this.Functions, other.Functions );
+        public Boolean Equals ( CalculatorLanguage other ) =>
+            EqualityComparer<IImmutableDictionary<String, Constant>>.Default.Equals ( this.Constants, other.Constants )
+            && EqualityComparer<IImmutableDictionary<(UnaryOperatorFix, String), UnaryOperator>>.Default.Equals ( this.UnaryOperators, other.UnaryOperators )
+            && EqualityComparer<IImmutableDictionary<String, BinaryOperator>>.Default.Equals ( this.BinaryOperators, other.BinaryOperators )
+            && EqualityComparer<IImmutableDictionary<String, Function>>.Default.Equals ( this.Functions, other.Functions )
+            && EqualityComparer<IImmutableDictionary<SpecialBinaryOperatorType, SpecialBinaryOperator>>.Default.Equals ( this.SpecialBinaryOperators, other.SpecialBinaryOperators );
 
-        /// <summary>
         /// <inheritdoc/>
-        /// </summary>
-        /// <returns></returns>
         public override Int32 GetHashCode ( )
         {
-            var hashCode = -780326226;
-            hashCode = hashCode * -1521134295 + EqualityComparer<ImmutableDictionary<String, Constant>>.Default.GetHashCode ( this.Constants );
-            hashCode = hashCode * -1521134295 + EqualityComparer<ImmutableDictionary<(UnaryOperatorFix, String), UnaryOperator>>.Default.GetHashCode ( this.UnaryOperators );
-            hashCode = hashCode * -1521134295 + EqualityComparer<ImmutableDictionary<String, BinaryOperator>>.Default.GetHashCode ( this.BinaryOperators );
-            hashCode = hashCode * -1521134295 + EqualityComparer<ImmutableDictionary<String, Function>>.Default.GetHashCode ( this.Functions );
+            var hashCode = -1744045736;
+            hashCode = hashCode * -1521134295 + EqualityComparer<IImmutableDictionary<String, Constant>>.Default.GetHashCode ( this.Constants );
+            hashCode = hashCode * -1521134295 + EqualityComparer<IImmutableDictionary<(UnaryOperatorFix, String), UnaryOperator>>.Default.GetHashCode ( this.UnaryOperators );
+            hashCode = hashCode * -1521134295 + EqualityComparer<IImmutableDictionary<String, BinaryOperator>>.Default.GetHashCode ( this.BinaryOperators );
+            hashCode = hashCode * -1521134295 + EqualityComparer<IImmutableDictionary<String, Function>>.Default.GetHashCode ( this.Functions );
+            hashCode = hashCode * -1521134295 + EqualityComparer<IImmutableDictionary<SpecialBinaryOperatorType, SpecialBinaryOperator>>.Default.GetHashCode ( this.SpecialBinaryOperators );
             return hashCode;
         }
 
         /// <summary>
-        /// <inheritdoc/>
+        /// Checks whether two instances of <see cref="CalculatorLanguage"/> are equal
         /// </summary>
-        /// <param name="language1"></param>
-        /// <param name="language2"></param>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
         /// <returns></returns>
-        public static Boolean operator == ( CalculatorLanguage language1, CalculatorLanguage language2 ) => language1.Equals ( language2 );
+        public static Boolean operator == ( CalculatorLanguage left, CalculatorLanguage right ) => left.Equals ( right );
 
         /// <summary>
-        /// <inheritdoc/>
+        /// Checks whether two instances of <see cref="CalculatorLanguage"/> are not equal
         /// </summary>
-        /// <param name="language1"></param>
-        /// <param name="language2"></param>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
         /// <returns></returns>
-        public static Boolean operator != ( CalculatorLanguage language1, CalculatorLanguage language2 ) => !( language1 == language2 );
+        public static Boolean operator != ( CalculatorLanguage left, CalculatorLanguage right ) => !( left == right );
 
         #endregion Generated Code
     }
