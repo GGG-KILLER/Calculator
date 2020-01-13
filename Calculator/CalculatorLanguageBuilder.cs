@@ -183,7 +183,7 @@ namespace Calculator
             if ( body == null )
                 throw new ArgumentNullException ( nameof ( body ) );
 
-            this.binaryOperatorsBuilder.Add ( @operator, new BinaryOperator ( assoc, @operator.ToLower ( ), precedence, body ) );
+            this.binaryOperatorsBuilder.Add ( @operator, new BinaryOperator ( assoc, @operator, precedence, body ) );
             return this;
         }
 

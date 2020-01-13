@@ -39,7 +39,7 @@ namespace Calculator.Definitions
         public UnaryOperator ( UnaryOperatorFix fix, String @operator, Int32 precedence, Func<Double, Double> body )
         {
             this.Fix        = fix;
-            this.Operator   = @operator?.ToLower ( ) ?? throw new ArgumentNullException ( nameof ( @operator ) );
+            this.Operator   = @operator ?? throw new ArgumentNullException ( nameof ( @operator ) );
             this.Precedence = precedence;
             this.Body       = body ?? throw new ArgumentNullException ( nameof ( body ) );
         }

@@ -25,7 +25,7 @@ namespace Calculator.Definitions
         /// <param name="value"></param>
         public Constant ( String identifier, Double value )
         {
-            this.Identifier = identifier.ToLower ( );
+            this.Identifier = identifier;
             this.Value      = value;
         }
 

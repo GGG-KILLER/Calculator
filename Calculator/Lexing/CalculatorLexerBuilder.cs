@@ -62,7 +62,7 @@ namespace Calculator.Lexing
             ops.UnionWith ( language.BinaryOperators.Values.Select ( bi => bi.Operator ) );
             ops.RemoveWhere ( s => IsValidIdentifier ( s ) );
             foreach ( var op in ops )
-                this.AddLiteral ( op.ToLowerInvariant ( ), CalculatorTokenType.Operator, op );
+                this.AddLiteral ( op, CalculatorTokenType.Operator, op );
 
 #pragma warning restore CC0067 // Virtual Method Called On Constructor
         }

@@ -43,7 +43,7 @@ namespace Calculator.Definitions
                 throw new ArgumentException ( "message", nameof ( @operator ) );
 
             this.Associativity = associativity;
-            this.Operator      = @operator.ToLower ( );
+            this.Operator      = @operator;
             this.Precedence    = precedence;
             this.Body          = body ?? throw new ArgumentNullException ( nameof ( body ) );
         }

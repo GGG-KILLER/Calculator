@@ -100,7 +100,7 @@ namespace Calculator
         /// <param name="value"></param>
         public CalculatorLanguage SetConstant ( String ident, Double value ) =>
             new CalculatorLanguage (
-                this.Constants.SetItem ( ident.ToLower ( ), new Constant ( ident, value ) ),
+                this.Constants.SetItem ( ident, new Constant ( ident, value ) ),
                 this.UnaryOperators,
                 this.BinaryOperators,
                 this.Functions,
@@ -113,14 +113,14 @@ namespace Calculator
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public Boolean HasConstant ( String id ) => this.Constants.ContainsKey ( id.ToLower ( ) );
+        public Boolean HasConstant ( String id ) => this.Constants.ContainsKey ( id );
 
         /// <summary>
         /// Returns the <see cref="Constant"/> matches the provided <paramref name="id"/>
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public Constant GetConstant ( String id ) => this.Constants[id.ToLower ( )];
+        public Constant GetConstant ( String id ) => this.Constants[id];
 
         #endregion Constant management
 
@@ -137,7 +137,7 @@ namespace Calculator
             new CalculatorLanguage (
                 this.Constants,
                 this.UnaryOperators.SetItem (
-                    (fix, @operator.ToLower ( )),
+                    (fix, @operator),
                     new UnaryOperator ( fix, @operator, precedence, action )
                 ),
                 this.BinaryOperators,
@@ -153,7 +153,7 @@ namespace Calculator
         /// <param name="fix"></param>
         /// <returns></returns>
         public Boolean HasUnaryOperator ( String @operator, UnaryOperatorFix fix ) =>
-            this.UnaryOperators.ContainsKey ( (fix, @operator.ToLower ( )) );
+            this.UnaryOperators.ContainsKey ( (fix, @operator) );
 
         /// <summary>
         /// Returns the <see cref="UnaryOperator"/>
@@ -162,7 +162,7 @@ namespace Calculator
         /// <param name="fix"></param>
         /// <returns></returns>
         public UnaryOperator GetUnaryOperator ( String @operator, UnaryOperatorFix fix ) =>
-            this.UnaryOperators[(fix, @operator.ToLower ( ))];
+            this.UnaryOperators[(fix, @operator)];
 
         #endregion Unary operator management
 
@@ -180,7 +180,7 @@ namespace Calculator
             new CalculatorLanguage (
                 this.Constants,
                 this.UnaryOperators,
-                this.BinaryOperators.SetItem ( @operator.ToLower ( ), new BinaryOperator ( associativity, @operator, precedence, action ) ),
+                this.BinaryOperators.SetItem ( @operator, new BinaryOperator ( associativity, @operator, precedence, action ) ),
                 this.Functions,
                 this.SpecialBinaryOperators
             );
@@ -191,14 +191,14 @@ namespace Calculator
         /// </summary>
         /// <param name="op"></param>
         /// <returns></returns>
-        public Boolean HasBinaryOperator ( String op ) => this.BinaryOperators.ContainsKey ( op.ToLower ( ) );
+        public Boolean HasBinaryOperator ( String op ) => this.BinaryOperators.ContainsKey ( op );
 
         /// <summary>
         /// Returns the <see cref="BinaryOperator"/> that matches the provided <paramref name="op"/>
         /// </summary>
         /// <param name="op"></param>
         /// <returns></returns>
-        public BinaryOperator GetBinaryOperator ( String op ) => this.BinaryOperators[op.ToLower ( )];
+        public BinaryOperator GetBinaryOperator ( String op ) => this.BinaryOperators[op];
 
         #endregion Binary operator management
 
@@ -222,7 +222,7 @@ namespace Calculator
                 this.Constants,
                 this.UnaryOperators,
                 this.BinaryOperators,
-                this.Functions.SetItem ( name.ToLower ( ), definition ),
+                this.Functions.SetItem ( name, definition ),
                 this.SpecialBinaryOperators
             );
         }
@@ -233,14 +233,14 @@ namespace Calculator
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public Boolean HasFunction ( String id ) => this.Functions.ContainsKey ( id.ToLower ( ) );
+        public Boolean HasFunction ( String id ) => this.Functions.ContainsKey ( id );
 
         /// <summary>
         /// Returns the <see cref="Function"/> that matches the provided <paramref name="id"/>
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public Function GetFunction ( String id ) => this.Functions[id.ToLower ( )];
+        public Function GetFunction ( String id ) => this.Functions[id];
 
         #endregion Function management
 
