@@ -11,36 +11,77 @@ namespace Calculator.Parsing.Visitors
     public class SimpleTreeReconstructor : ITreeVisitor<String>
     {
         /// <inheritdoc />
-        public String Visit ( BinaryOperatorExpression binaryOperator ) =>
-            $"({binaryOperator.LeftHandSide.Accept ( this )}) {binaryOperator.Operator.Raw} ({binaryOperator.RightHandSide.Accept ( this )})";
+        public String Visit ( BinaryOperatorExpression binaryOperator )
+        {
+            if ( binaryOperator is null )
+                throw new ArgumentNullException ( nameof ( binaryOperator ) );
+
+            return $"({binaryOperator.LeftHandSide.Accept ( this )}) {binaryOperator.Operator.Raw} ({binaryOperator.RightHandSide.Accept ( this )})";
+        }
 
         /// <inheritdoc />
-        public String Visit ( IdentifierExpression identifier ) =>
-            identifier.Identifier.Raw;
+        public String Visit ( IdentifierExpression identifier )
+        {
+            if ( identifier is null )
+                throw new ArgumentNullException ( nameof ( identifier ) );
+
+            return identifier.Identifier.Raw;
+        }
 
         /// <inheritdoc />
-        public String Visit ( FunctionCallExpression functionCall ) =>
-            $"{functionCall.Identifier.Accept ( this )}({String.Join ( ", ", functionCall.Arguments.Select ( arg => arg.Accept ( this ) ) )})";
+        public String Visit ( FunctionCallExpression functionCall )
+        {
+            if ( functionCall is null )
+                throw new ArgumentNullException ( nameof ( functionCall ) );
+
+            return $"{functionCall.Identifier.Accept ( this )}({String.Join ( ", ", functionCall.Arguments.Select ( arg => arg.Accept ( this ) ) )})";
+        }
 
         /// <inheritdoc />
-        public String Visit ( NumberExpression number ) => number.Value.Value.ToString ( );
+        public String Visit ( NumberExpression number )
+        {
+            if ( number is null )
+                throw new ArgumentNullException ( nameof ( number ) );
+
+            return number.Value.Value.ToString ( );
+        }
 
         /// <inheritdoc />
-        public String Visit ( UnaryOperatorExpression unaryOperator ) =>
-            unaryOperator.OperatorFix == Definitions.UnaryOperatorFix.Prefix
+        public String Visit ( UnaryOperatorExpression unaryOperator )
+        {
+            if ( unaryOperator is null )
+                throw new ArgumentNullException ( nameof ( unaryOperator ) );
+
+            return unaryOperator.OperatorFix == Definitions.UnaryOperatorFix.Prefix
                 ? $"{unaryOperator.Operator.Raw}({unaryOperator.Operand.Accept ( this )})"
                 : $"({unaryOperator.Operand.Accept ( this )}){unaryOperator.Operator.Raw}";
+        }
 
         /// <inheritdoc />
-        public String Visit ( ImplicitMultiplicationExpression implicitMultiplication ) =>
-            $"({implicitMultiplication.LeftHandSide.Accept ( this )})({implicitMultiplication.RightHandSide.Accept ( this )})";
+        public String Visit ( ImplicitMultiplicationExpression implicitMultiplication )
+        {
+            if ( implicitMultiplication is null )
+                throw new ArgumentNullException ( nameof ( implicitMultiplication ) );
+
+            return $"({implicitMultiplication.LeftHandSide.Accept ( this )})({implicitMultiplication.RightHandSide.Accept ( this )})";
+        }
 
         /// <inheritdoc />
-        public String Visit ( GroupedExpression grouped ) =>
-            $"({grouped.Inner.Accept ( this )})";
+        public String Visit ( GroupedExpression grouped )
+        {
+            if ( grouped is null )
+                throw new ArgumentNullException ( nameof ( grouped ) );
+
+            return $"({grouped.Inner.Accept ( this )})";
+        }
 
         /// <inheritdoc />
-        public String Visit ( SuperscriptExponentiationExpression superscriptExponentiation ) =>
-            $"({superscriptExponentiation.Base.Accept ( this )}){superscriptExponentiation.Exponent.Raw}";
+        public String Visit ( SuperscriptExponentiationExpression superscriptExponentiation )
+        {
+            if ( superscriptExponentiation is null )
+                throw new ArgumentNullException ( nameof ( superscriptExponentiation ) );
+
+            return $"({superscriptExponentiation.Base.Accept ( this )}){superscriptExponentiation.Exponent.Raw}";
+        }
     }
 }

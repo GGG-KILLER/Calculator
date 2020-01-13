@@ -38,8 +38,8 @@ namespace Calculator.Parsing.AST
         public BinaryOperatorExpression ( Token<CalculatorTokenType> @operator, CalculatorTreeNode lhs, CalculatorTreeNode rhs )
         {
             this.Operator = @operator;
-            this.LeftHandSide = lhs;
-            this.RightHandSide = rhs;
+            this.LeftHandSide = lhs ?? throw new ArgumentNullException ( nameof ( lhs ) );
+            this.RightHandSide = rhs ?? throw new ArgumentNullException ( nameof ( rhs ) );
             this.Range = lhs.Range.Start.To ( rhs.Range.End );
         }
 
@@ -47,7 +47,13 @@ namespace Calculator.Parsing.AST
         /// <inheritdoc />
         /// </summary>
         /// <param name="visitor"></param>
-        public override void Accept ( ITreeVisitor visitor ) => visitor.Visit ( this );
+        public override void Accept ( ITreeVisitor visitor )
+        {
+            if ( visitor is null )
+                throw new ArgumentNullException ( nameof ( visitor ) );
+
+            visitor.Visit ( this );
+        }
 
         /// <summary>
         /// <inheritdoc />
@@ -55,7 +61,13 @@ namespace Calculator.Parsing.AST
         /// <typeparam name="T"></typeparam>
         /// <param name="visitor"></param>
         /// <returns></returns>
-        public override T Accept<T> ( ITreeVisitor<T> visitor ) => visitor.Visit ( this );
+        public override T Accept<T> ( ITreeVisitor<T> visitor )
+        {
+            if ( visitor is null )
+                throw new ArgumentNullException ( nameof ( visitor ) );
+
+            return visitor.Visit ( this );
+        }
 
         /// <summary>
         /// <inheritdoc />

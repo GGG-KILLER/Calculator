@@ -28,6 +28,15 @@ namespace Calculator.Parsing.Parselets
         /// <inheritdoc />
         public Boolean TryParse ( IPrattParser<CalculatorTokenType, CalculatorTreeNode> parser, CalculatorTreeNode @base, IProgress<Diagnostic> diagnosticEmitter, out CalculatorTreeNode parsedExpression )
         {
+            if ( parser is null )
+                throw new ArgumentNullException ( nameof ( parser ) );
+            
+            if ( @base is null )
+                throw new ArgumentNullException ( nameof ( @base ) );
+            
+            if ( diagnosticEmitter is null )
+                throw new ArgumentNullException ( nameof ( diagnosticEmitter ) );
+
             ITokenReader<CalculatorTokenType> reader = parser.TokenReader;
             if ( !reader.Accept ( CalculatorTokenType.Superscript, out Token<CalculatorTokenType> exponent ) )
             {

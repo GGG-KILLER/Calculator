@@ -3,6 +3,7 @@ using Calculator.Lexing;
 using Calculator.Parsing.AST;
 using GParse;
 using GParse.Lexing;
+using GParse.Parsing;
 using GParse.Parsing.Parselets;
 
 namespace Calculator.Parsing.Parselets
@@ -19,8 +20,14 @@ namespace Calculator.Parsing.Parselets
         /// <param name="diagnosticEmitter"></param>
         /// <param name="node"></param>
         /// <returns></returns>
-        public Boolean TryParse ( GParse.Parsing.IPrattParser<CalculatorTokenType, CalculatorTreeNode> parser, IProgress<Diagnostic> diagnosticEmitter, out CalculatorTreeNode node )
+        public Boolean TryParse ( IPrattParser<CalculatorTokenType, CalculatorTreeNode> parser, IProgress<Diagnostic> diagnosticEmitter, out CalculatorTreeNode node )
         {
+            if ( parser is null )
+                throw new ArgumentNullException ( nameof ( parser ) );
+            
+            if ( diagnosticEmitter is null )
+                throw new ArgumentNullException ( nameof ( diagnosticEmitter ) );
+
             if ( !parser.TokenReader.Accept ( CalculatorTokenType.LParen, out Token<CalculatorTokenType> lparen ) || !parser.TryParseExpression ( out CalculatorTreeNode expr ) )
             {
                 node = null;

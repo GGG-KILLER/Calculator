@@ -20,11 +20,23 @@ namespace Calculator.Lexing.Modules
         public String Prefix => null;
 
         /// <inheritdoc/>
-        public Boolean CanConsumeNext ( IReadOnlyCodeReader reader ) => reader.Peek ( ) is Char ch && SuperscriptChars.IsSupportedChar ( ch );
+        public Boolean CanConsumeNext ( IReadOnlyCodeReader reader )
+        {
+            if ( reader is null )
+                throw new ArgumentNullException ( nameof ( reader ) );
+
+            return reader.Peek ( ) is Char ch && SuperscriptChars.IsSupportedChar ( ch );
+        }
 
         /// <inheritdoc/>
         public Token<CalculatorTokenType> ConsumeNext ( ICodeReader reader, IProgress<Diagnostic> diagnosticEmitter )
         {
+            if ( reader is null )
+                throw new ArgumentNullException ( nameof ( reader ) );
+
+            if ( diagnosticEmitter is null )
+                throw new ArgumentNullException ( nameof ( diagnosticEmitter ) );
+
             SourceLocation start = reader.Location;
             var sign = 1d;
             var raw = new StringBuilder ( );

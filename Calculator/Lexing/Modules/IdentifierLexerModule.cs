@@ -64,12 +64,23 @@ namespace Calculator.Lexing.Modules
             this.IsFirstIdentifierChar ( ch ) || Char.IsDigit ( ch );
 
         /// <inheritdoc />
-        public Boolean CanConsumeNext ( IReadOnlyCodeReader reader ) =>
-            reader.Peek ( ) is Char ch && this.IsFirstIdentifierChar ( ch );
+        public Boolean CanConsumeNext ( IReadOnlyCodeReader reader )
+        {
+            if ( reader is null )
+                throw new ArgumentNullException ( nameof ( reader ) );
+
+            return reader.Peek ( ) is Char ch && this.IsFirstIdentifierChar ( ch );
+        }
 
         /// <inheritdoc />
         public Token<CalculatorTokenType> ConsumeNext ( ICodeReader reader, IProgress<Diagnostic> diagnosticReporter )
         {
+            if ( reader is null )
+                throw new ArgumentNullException ( nameof ( reader ) );
+
+            if ( diagnosticReporter is null )
+                throw new ArgumentNullException ( nameof ( diagnosticReporter ) );
+
             SourceLocation start = reader.Location;
             var ident = reader.ReadStringWhile ( this.IsTrailingIdentifierChar );
             return new Token<CalculatorTokenType> ( ident, ident, ident, CalculatorTokenType.Identifier, start.To ( reader.Location ) );

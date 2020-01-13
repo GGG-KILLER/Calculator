@@ -36,6 +36,15 @@ namespace Calculator.Parsing.Parselets
         /// <returns></returns>
         public Boolean TryParse ( IPrattParser<CalculatorTokenType, CalculatorTreeNode> parser, CalculatorTreeNode expression, IProgress<Diagnostic> diagnosticEmitter, out CalculatorTreeNode parsedExpression )
         {
+            if ( parser is null )
+                throw new ArgumentNullException ( nameof ( parser ) );
+            
+            if ( expression is null )
+                throw new ArgumentNullException ( nameof ( expression ) );
+            
+            if ( diagnosticEmitter is null )
+                throw new ArgumentNullException ( nameof ( diagnosticEmitter ) );
+
             if ( parser.TryParseExpression ( this.Precedence, out CalculatorTreeNode right ) )
             {
                 parsedExpression = new ImplicitMultiplicationExpression ( expression, right );

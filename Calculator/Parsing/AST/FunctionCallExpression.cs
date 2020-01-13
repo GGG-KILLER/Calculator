@@ -40,9 +40,12 @@ namespace Calculator.Parsing.AST
         /// <param name="tokens"></param>
         public FunctionCallExpression ( IdentifierExpression identifier, IEnumerable<CalculatorTreeNode> arguments, IEnumerable<Token<CalculatorTokenType>> tokens )
         {
-            this.Identifier = identifier;
+            if ( arguments is null )
+                throw new ArgumentNullException ( nameof ( arguments ) );
+
+            this.Identifier = identifier ?? throw new ArgumentNullException ( nameof ( identifier ) );
             this.Arguments = arguments.ToImmutableArray ( );
-            this.Tokens = tokens;
+            this.Tokens = tokens ?? throw new ArgumentNullException ( nameof ( tokens ) );
             this.Range = identifier.Range.Start.To ( tokens.Last ( ).Range.End );
         }
 
@@ -50,7 +53,13 @@ namespace Calculator.Parsing.AST
         /// <inheritdoc />
         /// </summary>
         /// <param name="visitor"></param>
-        public override void Accept ( ITreeVisitor visitor ) => visitor.Visit ( this );
+        public override void Accept ( ITreeVisitor visitor )
+        {
+            if ( visitor is null )
+                throw new ArgumentNullException ( nameof ( visitor ) );
+
+            visitor.Visit ( this );
+        }
 
         /// <summary>
         /// <inheritdoc />
@@ -58,7 +67,13 @@ namespace Calculator.Parsing.AST
         /// <typeparam name="T"></typeparam>
         /// <param name="visitor"></param>
         /// <returns></returns>
-        public override T Accept<T> ( ITreeVisitor<T> visitor ) => visitor.Visit ( this );
+        public override T Accept<T> ( ITreeVisitor<T> visitor )
+        {
+            if ( visitor is null )
+                throw new ArgumentNullException ( nameof ( visitor ) );
+
+            return visitor.Visit ( this );
+        }
 
         /// <summary>
         /// <inheritdoc />

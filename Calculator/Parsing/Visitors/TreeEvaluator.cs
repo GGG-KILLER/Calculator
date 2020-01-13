@@ -30,6 +30,9 @@ namespace Calculator.Parsing.Visitors
         /// <returns></returns>
         public Double Visit ( BinaryOperatorExpression binaryOperator )
         {
+            if ( binaryOperator is null )
+                throw new ArgumentNullException ( nameof ( binaryOperator ) );
+
             var op = binaryOperator.Operator.Raw;
             if ( !this.Language.HasBinaryOperator ( op ) )
                 throw new EvaluationException ( binaryOperator.Range, $"Unkown operator '{op}'." );
@@ -45,6 +48,9 @@ namespace Calculator.Parsing.Visitors
         /// <returns></returns>
         public Double Visit ( IdentifierExpression identifier )
         {
+            if ( identifier is null )
+                throw new ArgumentNullException ( nameof ( identifier ) );
+
             var ident = identifier.Identifier.Raw;
             if ( !this.Language.HasConstant ( ident ) )
                 throw new EvaluationException ( identifier.Range, $"Unknown constant {ident}." );
@@ -59,6 +65,9 @@ namespace Calculator.Parsing.Visitors
         /// <returns></returns>
         public Double Visit ( FunctionCallExpression functionCall )
         {
+            if ( functionCall is null )
+                throw new ArgumentNullException ( nameof ( functionCall ) );
+
             var ident = functionCall.Identifier.Identifier.Raw;
             if ( !this.Language.HasFunction ( ident ) )
             {
@@ -79,12 +88,20 @@ namespace Calculator.Parsing.Visitors
         }
 
         /// <inheritdoc/>
-        public Double Visit ( NumberExpression number ) =>
-            ( Double ) number.Value.Value;
+        public Double Visit ( NumberExpression number )
+        {
+            if ( number is null )
+                throw new ArgumentNullException ( nameof ( number ) );
+
+            return ( Double ) number.Value.Value;
+        }
 
         /// <inheritdoc/>
         public Double Visit ( UnaryOperatorExpression unaryOperator )
         {
+            if ( unaryOperator is null )
+                throw new ArgumentNullException ( nameof ( unaryOperator ) );
+
             var op = unaryOperator.Operator.Raw;
             if ( !this.Language.HasUnaryOperator ( op, unaryOperator.OperatorFix ) )
                 throw new EvaluationException ( unaryOperator.Range, $"Unknown operator." );
@@ -95,6 +112,9 @@ namespace Calculator.Parsing.Visitors
         /// <inheritdoc/>
         public Double Visit ( ImplicitMultiplicationExpression implicitMultiplication )
         {
+            if ( implicitMultiplication is null )
+                throw new ArgumentNullException ( nameof ( implicitMultiplication ) );
+
             if ( !this.Language.HasImplicitMultiplication ( ) )
             {
                 throw new EvaluationException ( implicitMultiplication.Range, "Implicit multiplication hasn't been defined." );
@@ -105,12 +125,20 @@ namespace Calculator.Parsing.Visitors
         }
 
         /// <inheritdoc/>
-        public Double Visit ( GroupedExpression grouped ) =>
-            grouped.Inner.Accept ( this );
+        public Double Visit ( GroupedExpression grouped )
+        {
+            if ( grouped is null )
+                throw new ArgumentNullException ( nameof ( grouped ) );
+
+            return grouped.Inner.Accept ( this );
+        }
 
         /// <inheritdoc/>
         public Double Visit ( SuperscriptExponentiationExpression superscriptExponentiation )
         {
+            if ( superscriptExponentiation is null )
+                throw new ArgumentNullException ( nameof ( superscriptExponentiation ) );
+
             if ( !this.Language.HasSuperscriptExponentiation ( ) )
             {
                 throw new EvaluationException ( superscriptExponentiation.Range, "A superscript exponentiation operation was found but the SuperscriptExponentiation SpecialOperator is not registered!" );

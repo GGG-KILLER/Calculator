@@ -19,11 +19,23 @@ namespace Calculator.Lexing.Modules
         public String Prefix => "0b";
 
         /// <inheritdoc />
-        public Boolean CanConsumeNext ( IReadOnlyCodeReader reader ) => reader.IsNext ( "0b" );
+        public Boolean CanConsumeNext ( IReadOnlyCodeReader reader )
+        {
+            if ( reader is null )
+                throw new ArgumentNullException ( nameof ( reader ) );
+
+            return reader.IsNext ( "0b" );
+        }
 
         /// <inheritdoc />
         public Token<CalculatorTokenType> ConsumeNext ( ICodeReader reader, IProgress<Diagnostic> diagnosticEmitter )
         {
+            if ( reader is null )
+                throw new ArgumentNullException ( nameof ( reader ) );
+
+            if ( diagnosticEmitter is null )
+                throw new ArgumentNullException ( nameof ( diagnosticEmitter ) );
+
             SourceLocation start = reader.Location;
             reader.Advance ( 2 );
             var raw = new StringBuilder ( "0b" );

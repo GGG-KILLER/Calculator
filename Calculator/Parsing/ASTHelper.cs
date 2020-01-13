@@ -32,6 +32,9 @@ namespace Calculator.Parsing
         {
             static Boolean IsIdentifier ( String str )
             {
+                if ( String.IsNullOrEmpty ( str ) )
+                    throw new ArgumentException ( "The string cannot be null or empty.", nameof ( str ) );
+
                 if ( !Char.IsLetter ( str[0] ) && str[0] != '_' )
                     return false;
 
@@ -73,6 +76,9 @@ namespace Calculator.Parsing
         /// <returns></returns>
         public static CalculatorTreeNode Node ( Object obj )
         {
+            if ( obj is null )
+                throw new ArgumentNullException ( nameof ( obj ) );
+
             switch ( obj )
             {
                 case CalculatorTreeNode node:

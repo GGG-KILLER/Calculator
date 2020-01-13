@@ -39,6 +39,15 @@ namespace Calculator.Parsing.Parselets
         /// <returns></returns>
         public Boolean TryParse ( IPrattParser<CalculatorTokenType, CalculatorTreeNode> parser, CalculatorTreeNode identifier, IProgress<Diagnostic> diagnosticEmitter, out CalculatorTreeNode node )
         {
+            if ( parser is null )
+                throw new ArgumentNullException ( nameof ( parser ) );
+
+            if ( identifier is null )
+                throw new ArgumentNullException ( nameof ( identifier ) );
+
+            if ( diagnosticEmitter is null )
+                throw new ArgumentNullException ( nameof ( diagnosticEmitter ) );
+
             ITokenReader<CalculatorTokenType> reader = parser.TokenReader;
             if ( !( identifier is IdentifierExpression ) || !reader.Accept ( CalculatorTokenType.LParen, out Token<CalculatorTokenType> lparen ) )
             {

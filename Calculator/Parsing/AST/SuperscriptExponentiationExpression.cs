@@ -31,16 +31,28 @@ namespace Calculator.Parsing.AST
         /// <param name="exponent"></param>
         public SuperscriptExponentiationExpression ( CalculatorTreeNode @base, Token<CalculatorTokenType> exponent )
         {
-            this.Base = @base;
+            this.Base = @base ?? throw new ArgumentNullException ( nameof ( @base ) );
             this.Exponent = exponent;
             this.Range = @base.Range.Start.To ( exponent.Range.End );
         }
 
         /// <inheritdoc />
-        public override void Accept ( ITreeVisitor visitor ) => visitor.Visit ( this );
+        public override void Accept ( ITreeVisitor visitor )
+        {
+            if ( visitor is null )
+                throw new ArgumentNullException ( nameof ( visitor ) );
+
+            visitor.Visit ( this );
+        }
 
         /// <inheritdoc />
-        public override T Accept<T> ( ITreeVisitor<T> visitor ) => visitor.Visit ( this );
+        public override T Accept<T> ( ITreeVisitor<T> visitor )
+        {
+            if ( visitor is null )
+                throw new ArgumentNullException ( nameof ( visitor ) );
+
+            return visitor.Visit ( this );
+        }
 
         /// <inheritdoc />
         public override Boolean StructurallyEquals ( CalculatorTreeNode node ) =>
