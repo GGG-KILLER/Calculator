@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using GParse;
 
 namespace Calculator
@@ -33,6 +32,7 @@ namespace Calculator
         /// <summary>
         /// The class that stores the methods for all generated syntax error diagnostics
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage ( "Design", "CA1034:Nested types should not be visible", Justification = "This is a subset of functionalities of the parent utility class." )]
         public static class SyntaxError
         {
             /// <summary>
@@ -131,6 +131,9 @@ namespace Calculator
         /// <returns></returns>
         public static String HighlightRange ( String expression, SourceRange range )
         {
+            if ( String.IsNullOrEmpty ( expression ) )
+                throw new ArgumentException ( "The expression should not be null or empty.", nameof ( expression ) );
+
             SourceLocation start = range.Start;
             SourceLocation end   = range.End;
             var lines            = expression.Split ( new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries );
@@ -159,7 +162,7 @@ namespace Calculator
                 return builder.ToString ( );
             }
 
-            var len              = Math.Max ( end.Byte - start.Byte, 1 );
+            var len = Math.Max ( end.Byte - start.Byte, 1 );
             return String.Join ( Environment.NewLine,
                                 lines[start.Line - 1],
                                 new String ( ' ', start.Column - 1 ) + new String ( '^', len ) );
