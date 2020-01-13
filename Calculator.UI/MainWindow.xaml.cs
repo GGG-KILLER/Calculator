@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Windows;
-using System.Windows.Input;
 using Calculator.Parsing.Visitors;
 using GParse;
+using GParse.Errors;
 
 namespace Calculator.UI
 {
@@ -12,27 +13,26 @@ namespace Calculator.UI
     /// </summary>
     public partial class MainWindow : Window
     {
-        public RoutedUICommand EnterCommand { get; }
-
         public MainWindow ( )
         {
-            this.EnterCommand = new RoutedUICommand ( "Enter key press", "Enter", typeof ( MainWindow ), new InputGestureCollection
-            {
-                new KeyGesture ( Key.Enter )
-            } );
             this.InitializeComponent ( );
         }
 
-        private void EnterCommand_CanExecute ( Object sender, CanExecuteRoutedEventArgs e )
+        private void txtExpression_TextChanged ( Object sender, System.Windows.Controls.TextChangedEventArgs e )
         {
-            e.CanExecute = this.txtExpression.Text.Length > 0;
-        }
-
-        private void EnterCommand_Executed ( Object sender, ExecutedRoutedEventArgs e )
-        {
-            Parsing.AST.CalculatorTreeNode ast = CalculatorLanguageSingleton.Instance.Parse ( this.txtExpression.Text, out IEnumerable<Diagnostic> diagnostics );
-            this.txtResult.Text = ast.Accept ( new TreeEvaluator ( CalculatorLanguageSingleton.Instance ) ).ToString ( );
-            this.dgDiagnostics.ItemsSource = diagnostics;
+            try
+            {
+                Parsing.AST.CalculatorTreeNode ast = CalculatorLanguageSingleton.Instance.Parse ( this.txtExpression.Text, out IEnumerable<Diagnostic> diagnostics );
+                this.txtResult.Text = ast.Accept ( new TreeEvaluator ( CalculatorLanguageSingleton.Instance ) ).ToString ( CultureInfo.CurrentCulture );
+                this.dgDiagnostics.ItemsSource = diagnostics;
+            }
+            catch ( FatalParsingException fpEx )
+            {
+                this.dgDiagnostics.ItemsSource = new Diagnostic[]
+                {
+                    new Diagnostic ( "FATAL", fpEx.Range, DiagnosticSeverity.Error, fpEx.Message )
+                };
+            }
         }
     }
 }
