@@ -7,6 +7,7 @@ namespace Calculator.Definitions
     /// <summary>
     /// Represents a function definition
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage ( "Naming", "CA1716:Identifiers should not match keywords", Justification = "Renaming would be a breaking change." )]
     public readonly struct Function : IEquatable<Function>
     {
         /// <summary>

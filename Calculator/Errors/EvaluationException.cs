@@ -7,6 +7,7 @@ namespace Calculator.Errors
     /// <summary>
     /// Exception thrown when evaluating an expression
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage ( "Design", "CA1032:Implement standard exception constructors", Justification = "The location is required for this type of exception." )]
     public class EvaluationException : FatalParsingException
     {
         /// <summary>
