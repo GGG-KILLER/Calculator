@@ -193,6 +193,7 @@ namespace Calculator.Tests
         }
 
         [TestMethod]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage ( "Style", "IDE0042:Deconstruct variable declaration", Justification = "Would make code (even more) confusing." )]
         public void ComplexExpressionsAreParsedProperly ( )
         {
             (String expr, CalculatorTreeNode tree) funcaabb = ("func(a, a, 2 / 2 + 2 / 2, 2 + 2 / 2 + 2)", Function (
