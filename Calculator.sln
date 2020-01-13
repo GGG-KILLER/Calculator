@@ -11,6 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Grammar.ebnf = Grammar.ebnf
 		LICENSE = LICENSE
 		README.md = README.md
+		RuleSet.ruleset = RuleSet.ruleset
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Calculator", "Calculator\Calculator.csproj", "{95728EDD-A0D9-4FFA-BC1B-95F79311F303}"
@@ -21,7 +22,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Calculator.Tests", "Calcula
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Calculator.UI", "Calculator.UI\Calculator.UI.csproj", "{E873C818-DE5A-4938-BA9D-0D62A7461F96}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calculator.Benchmark", "Calculator.Benchmark\Calculator.Benchmark.csproj", "{770ADB5B-0AED-4366-A8CB-40658BDF3452}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Calculator.Benchmark", "Calculator.Benchmark\Calculator.Benchmark.csproj", "{770ADB5B-0AED-4366-A8CB-40658BDF3452}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
