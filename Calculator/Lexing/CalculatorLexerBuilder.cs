@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Calculator.Lexing.Modules;
 using GParse.Lexing;
@@ -12,7 +13,7 @@ namespace Calculator.Lexing
     /// </summary>
     public sealed class CalculatorLexerBuilder : ModularLexerBuilder<CalculatorTokenType>
     {
-        private static Boolean IsValidIdentifier ( in String str )
+        private static Boolean IsValidIdentifier ( String str )
         {
             if ( !Char.IsLetter ( str[0] ) && str[0] != '_' )
                 return false;
@@ -54,7 +55,7 @@ namespace Calculator.Lexing
 
             this.AddRegex ( "hex-number", CalculatorTokenType.Number, "0x([a-fA-F0-9]+)", "0x", match => ( Double ) Convert.ToInt64 ( match.Groups[1].Value, 16 ) );
 
-            this.AddRegex ( "dec-number", CalculatorTokenType.Number, @"(?:\d+(?:\.\d+)?|\.\d+)(?:[Ee][+-]?\d+)?", null, match => ( Double ) Convert.ToDouble ( match.Value ) );
+            this.AddRegex ( "dec-number", CalculatorTokenType.Number, @"(?:\d+(?:\.\d+)?|\.\d+)(?:[Ee][+-]?\d+)?", null, match => ( Double ) Convert.ToDouble ( match.Value, CultureInfo.InvariantCulture ) );
 
             var ops = new HashSet<String> ( language.UnaryOperators.Values.Select ( un => un.Operator ) );
             ops.UnionWith ( language.BinaryOperators.Values.Select ( bi => bi.Operator ) );
