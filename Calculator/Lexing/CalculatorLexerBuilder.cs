@@ -10,7 +10,7 @@ namespace Calculator.Lexing
     /// A lexer builder that already pre-adds the identifier lexer module, whitespace definition, lparen
     /// definition, rparen definition, comma definition and definitions of different type of numbers
     /// </summary>
-    public class CalculatorLexerBuilder : ModularLexerBuilder<CalculatorTokenType>
+    public sealed class CalculatorLexerBuilder : ModularLexerBuilder<CalculatorTokenType>
     {
         private static Boolean IsValidIdentifier ( in String str )
         {
@@ -32,8 +32,6 @@ namespace Calculator.Lexing
         /// <param name="language"></param>
         public CalculatorLexerBuilder ( CalculatorLanguage language )
         {
-#pragma warning disable CC0067 // Virtual Method Called On Constructor
-
             // Identifiers
             this.AddModule ( new IdentifierLexerModule ( ) );
 
@@ -42,7 +40,7 @@ namespace Calculator.Lexing
                 this.AddModule ( new SuperscriptLexerModule ( ) );
 
             // Trivia
-            this.AddRegex ( "ws", CalculatorTokenType.Whitespace, @"\s+", null, null, true );
+            this.AddModule ( new WhitespaceLexerModule ( ) );
 
             // Punctuations
             this.AddLiteral ( "(", CalculatorTokenType.LParen, "(" );
@@ -56,15 +54,13 @@ namespace Calculator.Lexing
 
             this.AddRegex ( "hex-number", CalculatorTokenType.Number, "0x([a-fA-F0-9]+)", "0x", match => ( Double ) Convert.ToInt64 ( match.Groups[1].Value, 16 ) );
 
-            this.AddRegex ( "dec-number", CalculatorTokenType.Number, @"(?:\d+(?:\.\d+)?|\.\d+)(?:e[+-]?\d+)?", null, match => ( Double ) Convert.ToDouble ( match.Value ) );
+            this.AddRegex ( "dec-number", CalculatorTokenType.Number, @"(?:\d+(?:\.\d+)?|\.\d+)(?:[Ee][+-]?\d+)?", null, match => ( Double ) Convert.ToDouble ( match.Value ) );
 
             var ops = new HashSet<String> ( language.UnaryOperators.Values.Select ( un => un.Operator ) );
             ops.UnionWith ( language.BinaryOperators.Values.Select ( bi => bi.Operator ) );
             ops.RemoveWhere ( s => IsValidIdentifier ( s ) );
             foreach ( var op in ops )
                 this.AddLiteral ( op, CalculatorTokenType.Operator, op );
-
-#pragma warning restore CC0067 // Virtual Method Called On Constructor
         }
     }
 }
