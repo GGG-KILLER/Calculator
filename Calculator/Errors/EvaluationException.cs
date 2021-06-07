@@ -1,42 +1,26 @@
 ﻿using System;
-using GParse;
-using GParse.Errors;
+using GParse.Math;
 
 namespace Calculator.Errors
 {
     /// <summary>
     /// Exception thrown when evaluating an expression
     /// </summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1032:Implement standard exception constructors", Justification = "The location is required for this type of exception.")]
-    public class EvaluationException : FatalParsingException
+    public class EvaluationException : ApplicationException
     {
         /// <summary>
-        /// Initializes this <see cref="EvaluationException" />
+        /// The range where the exception ocurred.
         /// </summary>
-        /// <param name="location"></param>
-        /// <param name="message"></param>
-        public EvaluationException(SourceLocation location, string message) : base(location, message)
-        {
-        }
+        public Range<int> Range { get; }
 
         /// <summary>
         /// Initializes this <see cref="EvaluationException" />
         /// </summary>
         /// <param name="range"></param>
         /// <param name="message"></param>
-        public EvaluationException(SourceRange range, string message) : base(range, message)
-        {
-        }
-
-        /// <summary>
-        /// Initializes this <see cref="EvaluationException" />
-        /// </summary>
-        /// <param name="location"></param>
-        /// <param name="message"></param>
-        /// <param name="innerException"></param>
-        public EvaluationException(SourceLocation location, string message, Exception innerException) : base(location, message, innerException)
-        {
-        }
+        public EvaluationException(Range<int> range, string message)
+            : base(message) =>
+            Range = range;
 
         /// <summary>
         /// Initializes this <see cref="EvaluationException" />
@@ -44,8 +28,8 @@ namespace Calculator.Errors
         /// <param name="range"></param>
         /// <param name="message"></param>
         /// <param name="innerException"></param>
-        public EvaluationException(SourceRange range, string message, Exception innerException) : base(range, message, innerException)
-        {
-        }
+        public EvaluationException(Range<int> range, string message, Exception innerException)
+            : base(message, innerException) =>
+            Range = range;
     }
 }
