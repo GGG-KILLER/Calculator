@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Calculator.Lexing
 {
@@ -11,71 +11,71 @@ namespace Calculator.Lexing
         /// <summary>
         /// The superscript char zero: ⁰
         /// </summary>
-        public const Char Zero  = '\u2070'; // ⁰
+        public const char Zero = '\u2070'; // ⁰
 
         /// <summary>
         /// The superscript char one: ¹
         /// </summary>
-        public const Char One   = '\u00b9'; // ¹
+        public const char One = '\u00b9'; // ¹
 
         /// <summary>
         /// The superscript char two: ²
         /// </summary>
-        public const Char Two   = '\u00b2'; // ²
+        public const char Two = '\u00b2'; // ²
 
         /// <summary>
         /// The superscript char three: ³
         /// </summary>
-        public const Char Three = '\u00b3'; // ³
+        public const char Three = '\u00b3'; // ³
 
         /// <summary>
         /// The superscript char four: ⁴
         /// </summary>
-        public const Char Four  = '\u2074'; // ⁴
+        public const char Four = '\u2074'; // ⁴
 
         /// <summary>
         /// The superscript char five: ⁵
         /// </summary>
-        public const Char Five  = '\u2075'; // ⁵
+        public const char Five = '\u2075'; // ⁵
 
         /// <summary>
         /// The superscript char six: ⁶
         /// </summary>
-        public const Char Six   = '\u2076'; // ⁶
+        public const char Six = '\u2076'; // ⁶
 
         /// <summary>
         /// The superscript char seven: ⁷
         /// </summary>
-        public const Char Seven = '\u2077'; // ⁷
+        public const char Seven = '\u2077'; // ⁷
 
         /// <summary>
         /// The superscript char eight: ⁸
         /// </summary>
-        public const Char Eight = '\u2078'; // ⁸
+        public const char Eight = '\u2078'; // ⁸
 
         /// <summary>
         /// The superscript char nine: ⁹
         /// </summary>
-        public const Char Nine  = '\u2079'; // ⁹
+        public const char Nine = '\u2079'; // ⁹
 
         /// <summary>
         /// The superscript char plus: ⁺
         /// </summary>
-        public const Char Plus  = '\u207a'; // ⁺
+        public const char Plus = '\u207a'; // ⁺
 
         /// <summary>
         /// The superscript char minus: ⁻
         /// </summary>
-        public const Char Minus = '\u207b'; // ⁻
+        public const char Minus = '\u207b'; // ⁻
 
         /// <summary>
         /// Whether the provided char is one of the supported superscript chars
         /// </summary>
         /// <param name="ch"></param>
         /// <returns></returns>
-        public static Boolean IsSupportedChar ( Char ch )
+        public static bool IsSupportedChar(char ch)
         {
-            switch ( ch )
+            switch (ch)
             {
                 case Zero:
                 case One:
@@ -97,11 +97,11 @@ namespace Calculator.Lexing
         }
 
         /// <summary>
-        /// Translates a superscript character to a <see cref="Double"/>
+        /// Translates a superscript character to a <see cref="double"/>
         /// </summary>
         /// <param name="ch"></param>
         /// <returns></returns>
-        public static Double TranslateChar ( Char ch ) =>
+        public static double TranslateChar(char ch) =>
             ch switch
             {
                 Zero => 0d,
@@ -128,7 +128,7 @@ namespace Calculator.Lexing
 
                 Minus => -1d,
 
-                _ => throw new NotSupportedException ( ),
+                _ => throw new NotSupportedException(),
             };
 
         /// <summary>
@@ -136,7 +136,7 @@ namespace Calculator.Lexing
         /// </summary>
         /// <param name="digit"></param>
         /// <returns></returns>
-        public static Char TranslateDigit ( Byte digit ) =>
+        public static char TranslateDigit(byte digit) =>
             digit switch
             {
                 0 => Zero,
@@ -159,7 +159,7 @@ namespace Calculator.Lexing
 
                 9 => Nine,
 
-                _ => throw new NotSupportedException ( ),
+                _ => throw new NotSupportedException(),
             };
 
         /// <summary>
@@ -167,26 +167,29 @@ namespace Calculator.Lexing
         /// </summary>
         /// <param name="number"></param>
         /// <returns></returns>
-        public static String TranslateNumber ( Int32 number )
+        public static string TranslateNumber(int number)
         {
-            var queue = new Stack<Char>();
+            // Max int length is 11 chars (10 digits + sign)
+            Span<char> buffer = stackalloc char[11];
             var isNeg = false;
-            if ( number < 0 )
+            if (number < 0)
             {
                 isNeg = true;
                 number = -number;
             }
 
-            while ( number > 0 )
+            var idx = 10;
+            while (number > 0)
             {
-                number = Math.DivRem ( number, 10, out var remainder );
-                queue.Push ( TranslateDigit ( ( Byte ) remainder ) );
+                Debug.Assert(idx > 1);
+                number = Math.DivRem(number, 10, out var remainder);
+                buffer[idx--] = TranslateDigit((byte) remainder);
             }
 
-            if ( isNeg )
-                return Minus + new String ( queue.ToArray ( ) );
-            else
-                return new String ( queue.ToArray ( ) );
+            if (isNeg)
+                buffer[idx--] = Minus;
+
+            return buffer.Slice(idx).ToString();
         }
     }
 }
