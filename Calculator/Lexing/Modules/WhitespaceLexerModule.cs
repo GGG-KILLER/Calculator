@@ -10,7 +10,7 @@ namespace Calculator.Lexing.Modules
     /// <summary>
     /// The module that consumes whitespace.
     /// </summary>
-    public class WhitespaceLexerModule : ILexerModule<CalculatorTokenType>
+    public sealed class WhitespaceLexerModule : ILexerModule<CalculatorTokenType>
     {
         /// <inheritdoc/>
         public string Name => "Whitespace Lexer Module";

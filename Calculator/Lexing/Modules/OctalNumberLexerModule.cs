@@ -3,13 +3,14 @@ using GParse.IO;
 using GParse.Lexing;
 using GParse.Lexing.Modular;
 using GParse.Math;
+using GParse.Utilities;
 
 namespace Calculator.Lexing.Modules
 {
     /// <summary>
     /// The octal number lexer module.
     /// </summary>
-    public class OctalNumberLexerModule : ILexerModule<CalculatorTokenType>
+    public sealed class OctalNumberLexerModule : ILexerModule<CalculatorTokenType>
     {
         /// <inheritdoc/>
         public string Name => "Octal Number Lexer Module";

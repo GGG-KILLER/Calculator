@@ -4,13 +4,14 @@ using GParse.IO;
 using GParse.Lexing;
 using GParse.Lexing.Modular;
 using GParse.Math;
+using GParse.Utilities;
 
 namespace Calculator.Lexing.Modules
 {
     /// <summary>
     /// The hexadecimal number parser.
     /// </summary>
-    public class HexadecimalNumberLexerModule : ILexerModule<CalculatorTokenType>
+    public sealed class HexadecimalNumberLexerModule : ILexerModule<CalculatorTokenType>
     {
         /// <inheritdoc/>
         public string Name => "Hexadecimal Number Lexer Module";

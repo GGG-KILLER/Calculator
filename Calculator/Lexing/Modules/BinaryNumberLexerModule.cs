@@ -3,13 +3,14 @@ using GParse.IO;
 using GParse.Lexing;
 using GParse.Lexing.Modular;
 using GParse.Math;
+using GParse.Utilities;
 
 namespace Calculator.Lexing.Modules
 {
     /// <summary>
     /// The binary number lexer module.
     /// </summary>
-    public class BinaryNumberLexerModule : ILexerModule<CalculatorTokenType>
+    public sealed class BinaryNumberLexerModule : ILexerModule<CalculatorTokenType>
     {
         /// <inheritdoc/>
         public string Name => "Binary Number Lexer Module";

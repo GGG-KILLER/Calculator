@@ -11,7 +11,7 @@ namespace Calculator.Lexing.Modules
     /// <summary>
     /// The lexer module responsible for parsing superscript (⁻¹²³) numbers
     /// </summary>
-    public class SuperscriptLexerModule : ILexerModule<CalculatorTokenType>
+    public sealed class SuperscriptLexerModule : ILexerModule<CalculatorTokenType>
     {
         /// <inheritdoc/>
         public string Name => "Superscript Parser";
