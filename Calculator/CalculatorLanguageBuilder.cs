@@ -12,11 +12,11 @@ namespace Calculator
     public class CalculatorLanguageBuilder
     {
 
-        private readonly ImmutableDictionary<string, Constant>.Builder constantsBuilder;
-        private readonly ImmutableDictionary<(UnaryOperatorFix, string), UnaryOperator>.Builder unaryOperatorsBuilder;
-        private readonly ImmutableDictionary<string, BinaryOperator>.Builder binaryOperatorsBuilder;
-        private readonly ImmutableDictionary<string, Function>.Builder functionsBuilder;
-        private readonly ImmutableDictionary<SpecialBinaryOperatorType, SpecialBinaryOperator>.Builder specialBinaryOperatorsBuilder;
+        private readonly ImmutableDictionary<string, Constant>.Builder _constantsBuilder;
+        private readonly ImmutableDictionary<(UnaryOperatorFix, string), UnaryOperator>.Builder _unaryOperatorsBuilder;
+        private readonly ImmutableDictionary<string, BinaryOperator>.Builder _binaryOperatorsBuilder;
+        private readonly ImmutableDictionary<string, Function>.Builder _functionsBuilder;
+        private readonly ImmutableDictionary<SpecialBinaryOperatorType, SpecialBinaryOperator>.Builder _specialBinaryOperatorsBuilder;
 
         /// <summary>
         /// Initializes a language with a specified comparer
@@ -24,16 +24,16 @@ namespace Calculator
         /// <param name="identifierComparer">The comparer used for constants, operators and function names</param>
         public CalculatorLanguageBuilder(StringComparer identifierComparer)
         {
-            constantsBuilder = ImmutableDictionary.CreateBuilder<string, Constant>(identifierComparer);
-            unaryOperatorsBuilder = ImmutableDictionary.CreateBuilder<(UnaryOperatorFix, string), UnaryOperator>(new UnaryOperatorKeyPairEqualityComparer(identifierComparer));
-            binaryOperatorsBuilder = ImmutableDictionary.CreateBuilder<string, BinaryOperator>(identifierComparer);
-            functionsBuilder = ImmutableDictionary.CreateBuilder<string, Function>(identifierComparer);
-            specialBinaryOperatorsBuilder = ImmutableDictionary.CreateBuilder<SpecialBinaryOperatorType, SpecialBinaryOperator>();
+            _constantsBuilder = ImmutableDictionary.CreateBuilder<string, Constant>(identifierComparer);
+            _unaryOperatorsBuilder = ImmutableDictionary.CreateBuilder<(UnaryOperatorFix, string), UnaryOperator>(new UnaryOperatorKeyPairEqualityComparer(identifierComparer));
+            _binaryOperatorsBuilder = ImmutableDictionary.CreateBuilder<string, BinaryOperator>(identifierComparer);
+            _functionsBuilder = ImmutableDictionary.CreateBuilder<string, Function>(identifierComparer);
+            _specialBinaryOperatorsBuilder = ImmutableDictionary.CreateBuilder<SpecialBinaryOperatorType, SpecialBinaryOperator>();
         }
 
         /// <summary>
         /// Initializes a case-insensitve language by using the <see
-        /// cref="CalculatorLanguageBuilder.CalculatorLanguageBuilder(StringComparer)"/> constructor
+        /// cref="CalculatorLanguageBuilder(StringComparer)"/> constructor
         /// with the <see cref="StringComparer.InvariantCultureIgnoreCase"/>
         /// </summary>
         public CalculatorLanguageBuilder() : this(StringComparer.InvariantCultureIgnoreCase)
@@ -53,7 +53,7 @@ namespace Calculator
             if (string.IsNullOrWhiteSpace(identifier))
                 throw new ArgumentException("The identifier must not be null, empty or contain whitespaces", nameof(identifier));
 
-            constantsBuilder.Add(identifier, new Constant(identifier, value));
+            _constantsBuilder.Add(identifier, new Constant(identifier, value));
             return this;
         }
 
@@ -79,7 +79,7 @@ namespace Calculator
         /// <returns></returns>
         public CalculatorLanguageBuilder RemoveConstant(string name)
         {
-            constantsBuilder.Remove(name);
+            _constantsBuilder.Remove(name);
             return this;
         }
 
@@ -90,7 +90,7 @@ namespace Calculator
         /// <returns></returns>
         public CalculatorLanguageBuilder RemoveConstants(params string[] names)
         {
-            constantsBuilder.RemoveRange(names);
+            _constantsBuilder.RemoveRange(names);
             return this;
         }
 
@@ -108,7 +108,7 @@ namespace Calculator
         /// <returns></returns>
         public CalculatorLanguageBuilder AddUnaryOperator(UnaryOperatorFix fix, string @operator, int precedence, Func<double, double> body)
         {
-            if (fix < UnaryOperatorFix.Prefix || fix > UnaryOperatorFix.Postfix)
+            if (fix is < UnaryOperatorFix.Prefix or > UnaryOperatorFix.Postfix)
                 throw new ArgumentOutOfRangeException(nameof(fix));
             if (string.IsNullOrWhiteSpace(@operator))
                 throw new ArgumentException("message", nameof(@operator));
@@ -117,7 +117,7 @@ namespace Calculator
             if (body == null)
                 throw new ArgumentNullException(nameof(body));
 
-            unaryOperatorsBuilder.Add((fix, @operator), new UnaryOperator(fix, @operator, precedence, body));
+            _unaryOperatorsBuilder.Add((fix, @operator), new UnaryOperator(fix, @operator, precedence, body));
             return this;
         }
 
@@ -146,7 +146,7 @@ namespace Calculator
         /// <returns></returns>
         public CalculatorLanguageBuilder RemoveUnaryOperator(UnaryOperatorFix fix, string @operator)
         {
-            unaryOperatorsBuilder.Remove((fix, @operator));
+            _unaryOperatorsBuilder.Remove((fix, @operator));
             return this;
         }
 
@@ -158,7 +158,7 @@ namespace Calculator
         /// <returns></returns>
         public CalculatorLanguageBuilder RemoveUnaryOperators(UnaryOperatorFix fix, params string[] operators)
         {
-            unaryOperatorsBuilder.RemoveRange(operators.Select(alias => (fix, alias)));
+            _unaryOperatorsBuilder.RemoveRange(operators.Select(alias => (fix, alias)));
             return this;
         }
 
@@ -176,14 +176,14 @@ namespace Calculator
         /// <returns></returns>
         public CalculatorLanguageBuilder AddBinaryOperator(Associativity assoc, string @operator, int precedence, Func<double, double, double> body)
         {
-            if (assoc < Associativity.None || Associativity.Right < assoc)
+            if (assoc is < Associativity.None or > Associativity.Right)
                 throw new ArgumentOutOfRangeException(nameof(assoc));
             if (string.IsNullOrWhiteSpace(@operator))
                 throw new ArgumentException("message", nameof(@operator));
             if (body == null)
                 throw new ArgumentNullException(nameof(body));
 
-            binaryOperatorsBuilder.Add(@operator, new BinaryOperator(assoc, @operator, precedence, body));
+            _binaryOperatorsBuilder.Add(@operator, new BinaryOperator(assoc, @operator, precedence, body));
             return this;
         }
 
@@ -211,7 +211,7 @@ namespace Calculator
         /// <returns></returns>
         public CalculatorLanguageBuilder RemoveBinaryOperator(string @operator)
         {
-            binaryOperatorsBuilder.Remove(@operator);
+            _binaryOperatorsBuilder.Remove(@operator);
             return this;
         }
 
@@ -222,7 +222,7 @@ namespace Calculator
         /// <returns></returns>
         public CalculatorLanguageBuilder RemoveBinaryOperators(params string[] operators)
         {
-            binaryOperatorsBuilder.RemoveRange(operators);
+            _binaryOperatorsBuilder.RemoveRange(operators);
             return this;
         }
 
@@ -245,7 +245,7 @@ namespace Calculator
 
             var b = new FunctionBuilder(name);
             builder(b);
-            functionsBuilder.Add(name, b.GetFunctionDefinition());
+            _functionsBuilder.Add(name, b.GetFunctionDefinition());
             return this;
         }
 
@@ -271,7 +271,7 @@ namespace Calculator
         /// <returns></returns>
         public CalculatorLanguageBuilder RemoveFunction(string name)
         {
-            functionsBuilder.Remove(name);
+            _functionsBuilder.Remove(name);
             return this;
         }
 
@@ -282,7 +282,7 @@ namespace Calculator
         /// <returns></returns>
         public CalculatorLanguageBuilder RemoveFunctions(params string[] names)
         {
-            functionsBuilder.RemoveRange(names);
+            _functionsBuilder.RemoveRange(names);
             return this;
         }
 
@@ -301,7 +301,7 @@ namespace Calculator
         /// <returns></returns>
         public CalculatorLanguageBuilder AddImplicitMultiplication(int precedence, Func<double, double, double> body)
         {
-            specialBinaryOperatorsBuilder.Add(
+            _specialBinaryOperatorsBuilder.Add(
                 SpecialBinaryOperatorType.ImplicitMultiplication,
                 new SpecialBinaryOperator(SpecialBinaryOperatorType.ImplicitMultiplication, Associativity.Left, precedence, body));
             return this;
@@ -313,7 +313,7 @@ namespace Calculator
         /// <returns></returns>
         public CalculatorLanguageBuilder RemoveImplicitMultiplication()
         {
-            specialBinaryOperatorsBuilder.Remove(SpecialBinaryOperatorType.ImplicitMultiplication);
+            _specialBinaryOperatorsBuilder.Remove(SpecialBinaryOperatorType.ImplicitMultiplication);
             return this;
         }
 
@@ -329,7 +329,7 @@ namespace Calculator
         /// <returns></returns>
         public CalculatorLanguageBuilder AddSuperscriptExponentiation(int precedence, Func<double, double, double> body)
         {
-            specialBinaryOperatorsBuilder.Add(
+            _specialBinaryOperatorsBuilder.Add(
                 SpecialBinaryOperatorType.SuperscriptExponentiation,
                 new SpecialBinaryOperator(SpecialBinaryOperatorType.SuperscriptExponentiation, Associativity.Right, precedence, body));
             return this;
@@ -341,7 +341,7 @@ namespace Calculator
         /// <returns></returns>
         public CalculatorLanguageBuilder RemoveSuperscriptExponentiation()
         {
-            specialBinaryOperatorsBuilder.Remove(SpecialBinaryOperatorType.SuperscriptExponentiation);
+            _specialBinaryOperatorsBuilder.Remove(SpecialBinaryOperatorType.SuperscriptExponentiation);
             return this;
         }
 
@@ -355,10 +355,10 @@ namespace Calculator
         /// <returns></returns>
         public CalculatorLanguage ToCalculatorLanguage() =>
             new CalculatorLanguage(
-                constantsBuilder.ToImmutable(),
-                unaryOperatorsBuilder.ToImmutable(),
-                binaryOperatorsBuilder.ToImmutable(),
-                functionsBuilder.ToImmutable(),
-                specialBinaryOperatorsBuilder.ToImmutable());
+                _constantsBuilder.ToImmutable(),
+                _unaryOperatorsBuilder.ToImmutable(),
+                _binaryOperatorsBuilder.ToImmutable(),
+                _functionsBuilder.ToImmutable(),
+                _specialBinaryOperatorsBuilder.ToImmutable());
     }
 }

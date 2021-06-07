@@ -97,7 +97,7 @@ namespace Calculator.Benchmark
             // Get immutable calculator language
             return lang.ToCalculatorLanguage();
 
-            double factorial(double arg)
+            static double factorial(double arg)
             {
                 if (double.IsInfinity(arg))
                     return arg;
