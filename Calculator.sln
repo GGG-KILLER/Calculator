@@ -6,10 +6,12 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BC67B278-DA35-44ED-BC8F-26A4BCA09AEA}"
 	ProjectSection(SolutionItems) = preProject
 		..\..\.editorconfig = ..\..\.editorconfig
+		.editorconfig = .editorconfig
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
 		Grammar.ebnf = Grammar.ebnf
 		LICENSE = LICENSE
+		nuget.config = nuget.config
 		README.md = README.md
 		RuleSet.ruleset = RuleSet.ruleset
 	EndProjectSection
