@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Text;
-using GParse;
 using GParse.IO;
 using GParse.Lexing;
-using GParse.Lexing.Modules;
+using GParse.Lexing.Modular;
+using GParse.Math;
 
 namespace Calculator.Lexing.Modules
 {
@@ -14,64 +14,55 @@ namespace Calculator.Lexing.Modules
     public class SuperscriptLexerModule : ILexerModule<CalculatorTokenType>
     {
         /// <inheritdoc/>
-        public String Name => "Superscript Parser";
+        public string Name => "Superscript Parser";
 
         /// <inheritdoc/>
-        public String Prefix => null;
+        public string Prefix => null;
 
         /// <inheritdoc/>
-        public Boolean CanConsumeNext ( IReadOnlyCodeReader reader )
+        public bool TryConsume(ICodeReader reader, GParse.DiagnosticList diagnostics, out Token<CalculatorTokenType> token)
         {
-            if ( reader is null )
-                throw new ArgumentNullException ( nameof ( reader ) );
+            if (reader is null) throw new ArgumentNullException(nameof(reader));
+            if (diagnostics is null) throw new ArgumentNullException(nameof(diagnostics));
 
-            return reader.Peek ( ) is Char ch && SuperscriptChars.IsSupportedChar ( ch );
-        }
-
-        /// <inheritdoc/>
-        public Token<CalculatorTokenType> ConsumeNext ( ICodeReader reader, IProgress<Diagnostic> diagnosticEmitter )
-        {
-            if ( reader is null )
-                throw new ArgumentNullException ( nameof ( reader ) );
-
-            if ( diagnosticEmitter is null )
-                throw new ArgumentNullException ( nameof ( diagnosticEmitter ) );
-
-            SourceLocation start = reader.Location;
-            var sign = 1d;
-            var raw = new StringBuilder ( );
-            if ( reader.Peek ( ) is Char firstChar && ( firstChar is SuperscriptChars.Plus || firstChar is SuperscriptChars.Minus ) )
+            if (reader.Peek() is not char firstChar || !SuperscriptChars.IsSupportedChar(firstChar))
             {
-                if ( firstChar is SuperscriptChars.Minus )
-                {
-                    sign = -1d;
-                }
+                token = default;
+                return false;
+            }
 
-                raw.Append ( reader.Read ( ).Value );
+            var start = reader.Position;
+            var sign = 1d;
+            if (firstChar is SuperscriptChars.Plus or SuperscriptChars.Minus)
+            {
+                if (firstChar is SuperscriptChars.Minus)
+                    sign = -1d;
+
+                if (reader.Peek() is char secondChar && !SuperscriptChars.IsSupportedChar(secondChar))
+                {
+                    var errorRange = reader.GetLocation(new Range<int>(start, reader.Position));
+                    diagnostics.Report(CalculatorDiagnostics.SyntaxError.InvalidSuperscript(errorRange, "Expected a number after the sign"));
+                }
             }
 
             var number = 0d;
-            if ( reader.Peek ( ) is Char secondChar && !SuperscriptChars.IsSupportedChar ( secondChar ) )
+            while (reader.Peek() is char digitChar && SuperscriptChars.IsSupportedChar(digitChar))
             {
-                diagnosticEmitter.Report ( CalculatorDiagnostics.SyntaxError.InvalidSuperscript ( start.To ( reader.Location ), "Expected a number after the sign" ) );
-            }
-            else
-            {
-                while ( reader.Peek ( ) is Char digitChar && SuperscriptChars.IsSupportedChar ( digitChar ) )
+                var digit = SuperscriptChars.TranslateChar(digitChar);
+                if (digit < 0)
                 {
-                    var digit = SuperscriptChars.TranslateChar ( digitChar );
-                    raw.Append ( reader.Read ( ).Value );
-                    if ( digit < 0 )
-                    {
-                        diagnosticEmitter.Report ( CalculatorDiagnostics.SyntaxError.InvalidSuperscript ( start.To ( reader.Location ), "unexpected sign inside number." ) );
-                        continue;
-                    }
-
-                    number = number * 10 + digit;
+                    var errorRange = reader.GetLocation(new Range<int>(start, reader.Position));
+                    diagnostics.Report(CalculatorDiagnostics.SyntaxError.InvalidSuperscript(errorRange, "unexpected sign inside number."));
+                    continue;
                 }
-            }
 
-            return new Token<CalculatorTokenType> ( "superscript", raw.ToString ( ), number * sign, CalculatorTokenType.Superscript, start.To ( reader.Location ) );
+                number = number * 10 + digit;
+            }
+            var end = reader.Position;
+            var range = new Range<int>(start, end);
+
+            token = new Token<CalculatorTokenType>("superscript", CalculatorTokenType.Superscript, range, number * sign);
+            return true;
         }
     }
 }
