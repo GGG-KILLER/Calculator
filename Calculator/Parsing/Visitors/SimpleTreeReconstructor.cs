@@ -16,7 +16,7 @@ namespace Calculator.Parsing.Visitors
             if (binaryOperator is null)
                 throw new ArgumentNullException(nameof(binaryOperator));
 
-            return $"({binaryOperator.LeftHandSide.Accept(this)}) {binaryOperator.Operator.Raw} ({binaryOperator.RightHandSide.Accept(this)})";
+            return $"({binaryOperator.LeftHandSide.Accept(this)}) {binaryOperator.Operator.Text} ({binaryOperator.RightHandSide.Accept(this)})";
         }
 
         /// <inheritdoc />
@@ -25,7 +25,7 @@ namespace Calculator.Parsing.Visitors
             if (identifier is null)
                 throw new ArgumentNullException(nameof(identifier));
 
-            return identifier.Identifier.Raw;
+            return identifier.Identifier.Text;
         }
 
         /// <inheritdoc />
@@ -53,8 +53,8 @@ namespace Calculator.Parsing.Visitors
                 throw new ArgumentNullException(nameof(unaryOperator));
 
             return unaryOperator.OperatorFix == Definitions.UnaryOperatorFix.Prefix
-                ? $"{unaryOperator.Operator.Raw}({unaryOperator.Operand.Accept(this)})"
-                : $"({unaryOperator.Operand.Accept(this)}){unaryOperator.Operator.Raw}";
+                ? $"{unaryOperator.Operator.Text}({unaryOperator.Operand.Accept(this)})"
+                : $"({unaryOperator.Operand.Accept(this)}){unaryOperator.Operator.Text}";
         }
 
         /// <inheritdoc />
@@ -81,7 +81,7 @@ namespace Calculator.Parsing.Visitors
             if (superscriptExponentiation is null)
                 throw new ArgumentNullException(nameof(superscriptExponentiation));
 
-            return $"({superscriptExponentiation.Base.Accept(this)}){superscriptExponentiation.Exponent.Raw}";
+            return $"({superscriptExponentiation.Base.Accept(this)}){superscriptExponentiation.Exponent.Text}";
         }
     }
 }
