@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 using GParse;
 using GParse.IO;
 using GParse.Lexing;
@@ -8,77 +7,50 @@ using GParse.Lexing.Modules;
 namespace Calculator.Lexing.Modules
 {
     /// <summary>
-    /// The lexer module for binary numbers
+    /// The binary number lexer module.
     /// </summary>
     public class BinaryNumberLexerModule : ILexerModule<CalculatorTokenType>
     {
-        /// <inheritdoc />
+        /// <inheritdoc/>
         public String Name => "Binary Number Lexer Module";
 
-        /// <inheritdoc />
+        /// <inheritdoc/>
         public String Prefix => "0b";
 
-        /// <inheritdoc />
-        public Boolean CanConsumeNext ( IReadOnlyCodeReader reader )
-        {
-            if ( reader is null )
-                throw new ArgumentNullException ( nameof ( reader ) );
+        /// <inheritdoc/>
+        public Boolean CanConsumeNext ( IReadOnlyCodeReader reader ) => true;
 
-            return reader.IsNext ( "0b" );
-        }
-
-        /// <inheritdoc />
+        /// <inheritdoc/>
         public Token<CalculatorTokenType> ConsumeNext ( ICodeReader reader, IProgress<Diagnostic> diagnosticEmitter )
         {
             if ( reader is null )
                 throw new ArgumentNullException ( nameof ( reader ) );
-
             if ( diagnosticEmitter is null )
                 throw new ArgumentNullException ( nameof ( diagnosticEmitter ) );
 
             SourceLocation start = reader.Location;
             reader.Advance ( 2 );
-            var raw = new StringBuilder ( "0b" );
-            UInt16 digs = 0;
-            UInt64 num  = 0;
-            if ( !( reader.Peek ( ) is Char ) )
+
+            var number = 0;
+            var digits = 0;
+            while ( reader.Peek ( ) is Char ch && ( CharUtils.IsInRange ( '0', ch, '1' ) || ch == '_' ) )
             {
-                diagnosticEmitter.Report ( CalculatorDiagnostics.SyntaxError.InvalidNumber ( start.To ( reader.Location ), "binary", "unfinished number." ) );
+                reader.Advance ( 1 );
+                if ( ch == '_' )
+                    continue;
+                number = ( number << 1 ) | ( ch - '0' );
+                digits++;
             }
-            else
-            {
-                while ( reader.Peek ( ) is Char ch && ( ch == '0' || ch == '1' || ch == '_' ) )
-                {
-                    raw.Append ( ch );
-                    if ( ch == '_' )
-                    {
-                        continue;
-                    }
+            SourceLocation end = reader.Location;
 
-                    /*
-                     * Since we're in a discrete set of chars,
-                     * we can just use the last byte as that
-                     * is the only difference between the
-                     * char '0' and '1':
-                     * 
-                     * '0' → 0b110000
-                     * '1' → 0b110001
-                     */
-                    digs++;
-                    num = ( num << 1 ) & 1 & ch;
-                }
+            if ( digits < 1 || digits > 64 )
+                diagnosticEmitter.Report ( CalculatorDiagnostics.SyntaxError.InvalidNumber ( start.To ( end ), "binary" ) );
 
-                if ( digs == 0 )
-                {
-                    diagnosticEmitter.Report ( CalculatorDiagnostics.SyntaxError.InvalidNumber ( start.To ( reader.Location ), "binary", "unfinished number." ) );
-                }
-                else if ( digs > 53 )
-                {
-                    diagnosticEmitter.Report ( CalculatorDiagnostics.SyntaxError.InvalidNumber ( start.To ( reader.Location ), "binary", "the number is too large." ) );
-                }
-            }
+            reader.Restore ( start );
+            var raw = reader.PeekString ( end.Byte - start.Byte );
+            reader.Restore ( end );
 
-            return new Token<CalculatorTokenType> ( "bin-number", raw.ToString ( ), ( Double ) num, CalculatorTokenType.Number, start.To ( reader.Location ) );
+            return new Token<CalculatorTokenType> ( "bin-number", raw, ( Double ) number, CalculatorTokenType.Number, start.To ( end ) );
         }
     }
 }
