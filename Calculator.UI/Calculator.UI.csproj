@@ -3,7 +3,6 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <CodeAnalysisRuleSet>../RuleSet.ruleset</CodeAnalysisRuleSet>
     <LangVersion>latest</LangVersion>
     <UseWPF>true</UseWPF>
   </PropertyGroup>
