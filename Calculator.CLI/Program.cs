@@ -44,7 +44,7 @@ namespace Calculator.CLI
                 {
                     _timingLogger.Write('>');
                     var line = _timingLogger.ReadLine().Trim();
-                    if (line == "q" || line == "e" || line == "quit" || line == "exit")
+                    if (line is "q" or "e" or "quit" or "exit")
                         break;
 
                     var eqs = line.IndexOf('=');
@@ -218,7 +218,7 @@ namespace Calculator.CLI
                 if (eqs > 0)
                 {
                     name = expression.Substring(0, eqs).Trim();
-                    expression = expression.Substring(eqs + 1).Trim();
+                    expression = expression[(eqs + 1)..].Trim();
 
                     if (name.Equals("E", StringComparison.OrdinalIgnoreCase) || name.Equals("pi", StringComparison.OrdinalIgnoreCase)
                         || name.Equals("π", StringComparison.OrdinalIgnoreCase))

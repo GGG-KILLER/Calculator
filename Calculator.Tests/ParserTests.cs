@@ -14,14 +14,14 @@ namespace Calculator.Tests
     [TestClass]
     public class ParserTests
     {
-        private readonly CalculatorLanguage language;
+        private readonly CalculatorLanguage _language;
 
         public ParserTests()
         {
             // No need to define constants or functions, since they'd only be used during evaluation,
             // but since the whole library assumes you'll be executing the expression tree at some
             // point, you have to provide operator implementations.
-            language = new CalculatorLanguageBuilder()
+            _language = new CalculatorLanguageBuilder()
                 .AddBinaryOperator(Associativity.Left, "+", 1, Math.Max)
                 .AddBinaryOperator(Associativity.Left, "/", 2, Math.Max)
                 .AddImplicitMultiplication(3, (x, y) => x * y)
@@ -34,7 +34,7 @@ namespace Calculator.Tests
 
         private CalculatorTreeNode ParseExpression(string expression)
         {
-            var parsed = language.Parse(expression, out var diagnostics);
+            var parsed = _language.Parse(expression, out var diagnostics);
             foreach (var diagnostic in diagnostics)
             {
                 Logger.LogMessage(@"{0} {1}: {2}
@@ -45,14 +45,14 @@ namespace Calculator.Tests
             return parsed;
         }
 
-        private readonly SimpleTreeReconstructor reconstructor = new SimpleTreeReconstructor();
+        private readonly SimpleTreeReconstructor _reconstructor = new SimpleTreeReconstructor();
 
         private void TestList(params (string expr, CalculatorTreeNode expected)[] tests)
         {
             foreach ((var expr, var expected) in tests)
             {
                 var gotten = ParseExpression(expr);
-                Assert.IsTrue(expected.StructurallyEquals(gotten), $"{expected.Accept(reconstructor)} ≡ {gotten.Accept(reconstructor)}");
+                Assert.IsTrue(expected.StructurallyEquals(gotten), $"{expected.Accept(_reconstructor)} ≡ {gotten.Accept(_reconstructor)}");
             }
         }
 
