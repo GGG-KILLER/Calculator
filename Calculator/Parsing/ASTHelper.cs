@@ -2,8 +2,8 @@
 using Calculator.Definitions;
 using Calculator.Lexing;
 using Calculator.Parsing.AST;
-using GParse;
 using GParse.Lexing;
+using GParse.Math;
 
 namespace Calculator.Parsing
 {
@@ -21,7 +21,7 @@ namespace Calculator.Parsing
         /// <param name="value"></param>
         /// <returns></returns>
         public static Token<CalculatorTokenType> Token(string id, CalculatorTokenType type, string raw = null, object value = null) =>
-            new Token<CalculatorTokenType>(id, raw ?? id, value ?? id, type, SourceRange.Zero);
+            new Token<CalculatorTokenType>(id, type, new Range<int>(), value ?? id, raw ?? id);
 
         /// <summary>
         /// Returns a token for an operator string
@@ -79,27 +79,13 @@ namespace Calculator.Parsing
             if (obj is null)
                 throw new ArgumentNullException(nameof(obj));
 
-            switch (obj)
+            return obj switch
             {
-                case CalculatorTreeNode node:
-                    return node;
-
-                case sbyte _:
-                case byte _:
-                case int _:
-                case uint _:
-                case long _:
-                case ulong _:
-                case float _:
-                case double _:
-                    return Number(Convert.ToDouble(obj));
-
-                case string str:
-                    return Identifier(str);
-
-                default:
-                    throw new ArgumentException($"Invalid argument type {obj.GetType()}", nameof(obj));
-            }
+                CalculatorTreeNode node => node,
+                sbyte or byte or int or uint or long or ulong or float or double => Number(Convert.ToDouble(obj)),
+                string str => Identifier(str),
+                _ => throw new ArgumentException($"Invalid argument type {obj.GetType()}", nameof(obj)),
+            };
         }
 
         /// <summary>
