@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Globalization;
-using System.Net;
 using GParse;
 using GParse.IO;
 using GParse.Lexing;
-using GParse.Lexing.Modules;
+using GParse.Lexing.Modular;
+using GParse.Math;
 
 namespace Calculator.Lexing.Modules
 {
@@ -14,19 +13,19 @@ namespace Calculator.Lexing.Modules
     public class IdentifierLexerModule : ILexerModule<CalculatorTokenType>
     {
         /// <inheritdoc />
-        public String Name => "Identifier Lexer Module";
+        public string Name => "Identifier Lexer Module";
 
         /// <inheritdoc />
-        public String Prefix => null;
+        public string Prefix => null;
 
         /// <summary>
         /// Checks whether the provided character is a valid character to start an identifier
         /// </summary>
         /// <param name="ch"></param>
         /// <returns></returns>
-        protected virtual Boolean IsFirstIdentifierChar ( Char ch )
+        protected virtual bool IsFirstIdentifierChar(char ch)
         {
-            switch ( ch )
+            switch (ch)
             {
                 case '\u2200': // ∀: FOR ALL (U+2200)
                 case '\u2201': // ∁: COMPLEMENT (U+2201)
@@ -47,7 +46,7 @@ namespace Calculator.Lexing.Modules
                 case '\u2231': // ∱: CLOCKWISE INTEGRAL (U+2231)
                 case '\u2232': // ∲: CLOCKWISE CONTOUR INTEGRAL (U+2232)
                 case '\u2233': // ∳: ANTICLOCKWISE CONTOUR INTEGRAL (U+2233)
-                case Char l when Char.IsLetter ( l ):
+                case char l when char.IsLetter(l):
                     return true;
 
                 default:
@@ -60,30 +59,25 @@ namespace Calculator.Lexing.Modules
         /// </summary>
         /// <param name="ch"></param>
         /// <returns></returns>
-        protected virtual Boolean IsTrailingIdentifierChar ( Char ch ) =>
-            this.IsFirstIdentifierChar ( ch ) || Char.IsDigit ( ch );
+        protected virtual bool IsTrailingIdentifierChar(char ch) =>
+            IsFirstIdentifierChar(ch) || char.IsDigit(ch);
 
-        /// <inheritdoc />
-        public Boolean CanConsumeNext ( IReadOnlyCodeReader reader )
+        /// <inheritdoc/>
+        public bool TryConsume(ICodeReader reader, GParse.DiagnosticList diagnostics, out Token<CalculatorTokenType> token)
         {
-            if ( reader is null )
-                throw new ArgumentNullException ( nameof ( reader ) );
+            if (reader is null) throw new ArgumentNullException(nameof(reader));
+            if (diagnostics is null) throw new ArgumentNullException(nameof(diagnostics));
 
-            return reader.Peek ( ) is Char ch && this.IsFirstIdentifierChar ( ch );
-        }
+            if (reader.Peek() is not char ch || !IsFirstIdentifierChar(ch))
+            {
+                token = default;
+                return false;
+            }
 
-        /// <inheritdoc />
-        public Token<CalculatorTokenType> ConsumeNext ( ICodeReader reader, IProgress<Diagnostic> diagnosticReporter )
-        {
-            if ( reader is null )
-                throw new ArgumentNullException ( nameof ( reader ) );
-
-            if ( diagnosticReporter is null )
-                throw new ArgumentNullException ( nameof ( diagnosticReporter ) );
-
-            SourceLocation start = reader.Location;
-            var ident = reader.ReadStringWhile ( this.IsTrailingIdentifierChar );
-            return new Token<CalculatorTokenType> ( ident, ident, ident, CalculatorTokenType.Identifier, start.To ( reader.Location ) );
+            var start = reader.Position;
+            var ident = reader.ReadStringWhile(IsTrailingIdentifierChar);
+            token = new Token<CalculatorTokenType>(ident, CalculatorTokenType.Identifier, new Range<int>(start, reader.Position), ident, ident);
+            return true;
         }
     }
 }
