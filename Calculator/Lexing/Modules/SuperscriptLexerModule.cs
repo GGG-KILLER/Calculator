@@ -31,11 +31,12 @@ namespace Calculator.Lexing.Modules
             }
 
             var start = reader.Position;
-            var sign = 1d;
+            var sign = 1;
             if (firstChar is SuperscriptChars.Plus or SuperscriptChars.Minus)
             {
+                reader.Advance(1);
                 if (firstChar is SuperscriptChars.Minus)
-                    sign = -1d;
+                    sign = -1;
 
                 if (reader.Peek() is char secondChar && !SuperscriptChars.IsSupportedChar(secondChar))
                 {
@@ -44,13 +45,14 @@ namespace Calculator.Lexing.Modules
                 }
             }
 
-            var number = 0d;
+            var number = 0;
             while (reader.Peek() is char digitChar && SuperscriptChars.IsSupportedChar(digitChar))
             {
+                reader.Advance(1);
                 var digit = SuperscriptChars.TranslateChar(digitChar);
                 if (digit < 0)
                 {
-                    var errorRange = reader.GetLocation(new Range<int>(start, reader.Position));
+                    var errorRange = reader.GetLocation(new Range<int>(reader.Position - 1, reader.Position));
                     diagnostics.Report(CalculatorDiagnostics.SyntaxError.InvalidSuperscript(errorRange, "unexpected sign inside number."));
                     continue;
                 }

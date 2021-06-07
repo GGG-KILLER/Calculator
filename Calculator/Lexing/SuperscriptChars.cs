@@ -87,21 +87,21 @@ namespace Calculator.Lexing
         /// </summary>
         /// <param name="ch"></param>
         /// <returns></returns>
-        public static double TranslateChar(char ch) =>
+        public static int TranslateChar(char ch) =>
             ch switch
             {
-                Zero => 0d,
-                One => 1d,
-                Two => 2d,
-                Three => 3d,
-                Four => 4d,
-                Five => 5d,
-                Six => 6d,
-                Seven => 7d,
-                Eight => 8d,
-                Nine => 9d,
-                Plus => -1d,
-                Minus => -1d,
+                Zero => 0,
+                One => 1,
+                Two => 2,
+                Three => 3,
+                Four => 4,
+                Five => 5,
+                Six => 6,
+                Seven => 7,
+                Eight => 8,
+                Nine => 9,
+                Plus => -1,
+                Minus => -1,
                 _ => throw new NotSupportedException(),
             };
 
@@ -142,16 +142,16 @@ namespace Calculator.Lexing
                 number = -number;
             }
 
-            var idx = 10;
+            var idx = 11;
             while (number > 0)
             {
                 Debug.Assert(idx > 1);
                 number = Math.DivRem(number, 10, out var remainder);
-                buffer[idx--] = TranslateDigit((byte) remainder);
+                buffer[--idx] = TranslateDigit((byte) remainder);
             }
 
             if (isNeg)
-                buffer[idx--] = Minus;
+                buffer[--idx] = Minus;
 
             return buffer.Slice(idx).ToString();
         }
