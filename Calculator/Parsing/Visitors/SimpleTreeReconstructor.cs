@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Calculator.Lexing;
 using Calculator.Parsing.Abstractions;
 using Calculator.Parsing.AST;
 
@@ -81,7 +82,7 @@ namespace Calculator.Parsing.Visitors
             if (superscriptExponentiation is null)
                 throw new ArgumentNullException(nameof(superscriptExponentiation));
 
-            return $"({superscriptExponentiation.Base.Accept(this)}){superscriptExponentiation.Exponent.Text}";
+            return $"({superscriptExponentiation.Base.Accept(this)}){SuperscriptChars.TranslateNumber((int) superscriptExponentiation.Exponent.Value)}";
         }
     }
 }
