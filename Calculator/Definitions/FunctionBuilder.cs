@@ -8,8 +8,8 @@ namespace Calculator.Definitions
     /// </summary>
     public class FunctionBuilder
     {
-        private readonly string name;
-        private readonly ImmutableDictionary<int, Delegate>.Builder overloads;
+        private readonly string _name;
+        private readonly ImmutableDictionary<int, Delegate>.Builder _overloads;
 
         /// <summary>
         /// Initializes this <see cref="FunctionBuilder" />
@@ -20,8 +20,8 @@ namespace Calculator.Definitions
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("message", nameof(name));
 
-            this.name = name;
-            overloads = ImmutableDictionary.CreateBuilder<int, Delegate>();
+            this._name = name;
+            _overloads = ImmutableDictionary.CreateBuilder<int, Delegate>();
         }
 
         #region AddOverload
@@ -33,7 +33,7 @@ namespace Calculator.Definitions
         /// <returns></returns>
         public FunctionBuilder AddOverload(Func<double> overload)
         {
-            overloads[0] = overload ?? throw new ArgumentNullException(nameof(overload));
+            _overloads[0] = overload ?? throw new ArgumentNullException(nameof(overload));
             return this;
         }
 
@@ -44,7 +44,7 @@ namespace Calculator.Definitions
         /// <returns></returns>
         public FunctionBuilder AddOverload(Func<double, double> overload)
         {
-            overloads[1] = overload ?? throw new ArgumentNullException(nameof(overload));
+            _overloads[1] = overload ?? throw new ArgumentNullException(nameof(overload));
             return this;
         }
 
@@ -55,7 +55,7 @@ namespace Calculator.Definitions
         /// <returns></returns>
         public FunctionBuilder AddOverload(Func<double, double, double> overload)
         {
-            overloads[2] = overload ?? throw new ArgumentNullException(nameof(overload));
+            _overloads[2] = overload ?? throw new ArgumentNullException(nameof(overload));
             return this;
         }
 
@@ -66,7 +66,7 @@ namespace Calculator.Definitions
         /// <returns></returns>
         public FunctionBuilder AddOverload(Func<double, double, double, double> overload)
         {
-            overloads[3] = overload ?? throw new ArgumentNullException(nameof(overload));
+            _overloads[3] = overload ?? throw new ArgumentNullException(nameof(overload));
             return this;
         }
 
@@ -77,7 +77,7 @@ namespace Calculator.Definitions
         /// <returns></returns>
         public FunctionBuilder AddOverload(Func<double, double, double, double, double> overload)
         {
-            overloads[4] = overload ?? throw new ArgumentNullException(nameof(overload));
+            _overloads[4] = overload ?? throw new ArgumentNullException(nameof(overload));
             return this;
         }
 
@@ -88,7 +88,7 @@ namespace Calculator.Definitions
         /// <returns></returns>
         public FunctionBuilder AddOverload(Func<double[], double> overload)
         {
-            overloads[-1] = overload ?? throw new ArgumentNullException(nameof(overload));
+            _overloads[-1] = overload ?? throw new ArgumentNullException(nameof(overload));
             return this;
         }
 
@@ -99,6 +99,6 @@ namespace Calculator.Definitions
         /// </summary>
         /// <returns></returns>
         public Function GetFunctionDefinition() =>
-            new Function(name, overloads.ToImmutable());
+            new Function(_name, _overloads.ToImmutable());
     }
 }

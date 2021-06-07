@@ -50,15 +50,8 @@ namespace Calculator.Definitions
         public override bool Equals(object obj) => obj is SpecialBinaryOperator @operator && Equals(@operator);
 
         /// <inheritdoc/>
-        public override int GetHashCode()
-        {
-            var hashCode = 634421626;
-            hashCode = hashCode * -1521134295 + Type.GetHashCode();
-            hashCode = hashCode * -1521134295 + Precedence.GetHashCode();
-            hashCode = hashCode * -1521134295 + Associativity.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<Func<double, double, double>>.Default.GetHashCode(Body);
-            return hashCode;
-        }
+        public override int GetHashCode() =>
+            HashCode.Combine(Type, Precedence, Associativity, Body);
 
         #endregion Object
 

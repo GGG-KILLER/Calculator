@@ -44,7 +44,8 @@ namespace Calculator.Definitions
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public override bool Equals(object obj) => obj is Constant && Equals((Constant) obj);
+        public override bool Equals(object obj) =>
+            obj is Constant constant && Equals(constant);
 
         /// <summary>
         /// <inheritdoc />
@@ -52,7 +53,7 @@ namespace Calculator.Definitions
         /// <param name="other"></param>
         /// <returns></returns>
         public bool Equals(Constant other) =>
-            Identifier == other.Identifier
+            StringComparer.OrdinalIgnoreCase.Equals(Identifier, other.Identifier)
             && Value == other.Value;
 
         /// <summary>
@@ -62,7 +63,7 @@ namespace Calculator.Definitions
         public override int GetHashCode()
         {
             var hashCode = -1766374309;
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Identifier);
+            hashCode = hashCode * -1521134295 + StringComparer.OrdinalIgnoreCase.GetHashCode(Identifier);
             hashCode = hashCode * -1521134295 + Value.GetHashCode();
             return hashCode;
         }

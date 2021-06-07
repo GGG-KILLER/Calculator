@@ -98,14 +98,17 @@ namespace Calculator.Definitions
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public override bool Equals(object obj) => obj is Function && Equals((Function) obj);
+        public override bool Equals(object obj) =>
+            obj is Function function && Equals(function);
 
         /// <summary>
         /// <inheritdoc />
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
-        public bool Equals(Function other) => Name == other.Name && EqualityComparer<ImmutableDictionary<int, Delegate>>.Default.Equals(Overloads, other.Overloads);
+        public bool Equals(Function other) =>
+            StringComparer.OrdinalIgnoreCase.Equals(Name, other.Name)
+            && EqualityComparer<ImmutableDictionary<int, Delegate>>.Default.Equals(Overloads, other.Overloads);
 
         /// <summary>
         /// <inheritdoc />
@@ -114,7 +117,7 @@ namespace Calculator.Definitions
         public override int GetHashCode()
         {
             var hashCode = -687234156;
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Name);
+            hashCode = hashCode * -1521134295 + StringComparer.OrdinalIgnoreCase.GetHashCode(Name);
             hashCode = hashCode * -1521134295 + EqualityComparer<ImmutableDictionary<int, Delegate>>.Default.GetHashCode(Overloads);
             return hashCode;
         }

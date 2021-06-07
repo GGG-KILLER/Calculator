@@ -51,14 +51,19 @@ namespace Calculator.Definitions
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public override bool Equals(object obj) => obj is UnaryOperator && Equals((UnaryOperator) obj);
+        public override bool Equals(object obj) =>
+            obj is UnaryOperator op && Equals(op);
 
         /// <summary>
         /// <inheritdoc />
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
-        public bool Equals(UnaryOperator other) => Fix == other.Fix && Operator == other.Operator && Precedence == other.Precedence && EqualityComparer<Func<double, double>>.Default.Equals(Body, other.Body);
+        public bool Equals(UnaryOperator other) =>
+            Fix == other.Fix
+            && StringComparer.OrdinalIgnoreCase.Equals(Operator, other.Operator)
+            && Precedence == other.Precedence
+            && EqualityComparer<Func<double, double>>.Default.Equals(Body, other.Body);
 
         /// <summary>
         /// <inheritdoc />
@@ -68,7 +73,7 @@ namespace Calculator.Definitions
         {
             var hashCode = 2002979436;
             hashCode = hashCode * -1521134295 + Fix.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Operator);
+            hashCode = hashCode * -1521134295 + StringComparer.OrdinalIgnoreCase.GetHashCode(Operator);
             hashCode = hashCode * -1521134295 + Precedence.GetHashCode();
             hashCode = hashCode * -1521134295 + EqualityComparer<Func<double, double>>.Default.GetHashCode(Body);
             return hashCode;
