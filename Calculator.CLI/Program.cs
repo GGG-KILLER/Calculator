@@ -193,7 +193,7 @@ namespace Calculator.CLI
             {
                 IEnumerable<Token<CalculatorTokenType>> toks = language.Lex(expression, out IEnumerable<Diagnostic> diagnostics);
                 foreach (Token<CalculatorTokenType> tok in toks)
-                    timingLogger.WriteLine($"{tok.Type}<{tok.Id}>({tok.Raw}, {tok.Value})");
+                    timingLogger.WriteLine($"{tok.Type}<{tok.Id}>({tok.Text}, {tok.Value})");
 
                 foreach (Diagnostic diag in diagnostics.OrderBy(d => d.Severity))
                 {
