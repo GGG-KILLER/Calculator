@@ -5,7 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Calculator.UI"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow"
+        Height="450"
+        Width="800">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -17,24 +19,62 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <!-- Header -->
-        <Label Grid.Row="0" Grid.Column="0" Target="{Binding ElementName=txtExpression}">Expression:</Label>
-        <TextBox Grid.Row="0" Grid.Column="1" Margin="5,0,5,0" AcceptsReturn="True" x:Name="txtExpression" TextChanged="txtExpression_TextChanged" />
+        <Label Grid.Row="0"
+               Grid.Column="0"
+               Target="{Binding ElementName=txtExpression}">Expression:</Label>
+        <TextBox Grid.Row="0"
+                 Grid.Column="1"
+                 Margin="5,0,5,0"
+                 AcceptsReturn="True"
+                 x:Name="txtExpression"
+                 TextChanged="txtExpression_TextChanged" />
         <!-- Result -->
-        <Label Grid.Row="1" Grid.Column="0" Target="{Binding ElementName=txtResult}">Result:</Label>
-        <TextBox Grid.Row="1" Grid.Column="1" Margin="5,0,5,0" x:Name="txtResult" IsReadOnly="True" />
+        <Label Grid.Row="1"
+               Grid.Column="0"
+               Target="{Binding ElementName=txtResult}">Result:</Label>
+        <TextBox Grid.Row="1"
+                 Grid.Column="1"
+                 Margin="5,0,5,0"
+                 x:Name="txtResult"
+                 IsReadOnly="True" />
         <!-- Error List -->
-        <DataGrid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" AutoGenerateColumns="False" IsReadOnly="True" x:Name="dgDiagnostics">
+        <DataGrid Grid.Row="2"
+                  Grid.Column="0"
+                  Grid.ColumnSpan="2"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  x:Name="dgDiagnostics">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Severity" Width="Auto" CanUserResize="True" CanUserSort="True" CanUserReorder="False"
+                <DataGridTextColumn Header="Severity"
+                                    Width="Auto"
+                                    CanUserResize="True"
+                                    CanUserSort="True"
+                                    CanUserReorder="False"
                                     Binding="{Binding Severity}" />
-                <DataGridTextColumn Header="Code" Width="Auto" CanUserReorder="False" CanUserSort="True" CanUserResize="True"
+                <DataGridTextColumn Header="Code"
+                                    Width="Auto"
+                                    CanUserReorder="False"
+                                    CanUserSort="True"
+                                    CanUserResize="True"
                                     Binding="{Binding Id}" />
-                <DataGridTextColumn Header="Description" Width="Auto" CanUserResize="True" CanUserSort="True" CanUserReorder="False"
+                <DataGridTextColumn Header="Description"
+                                    Width="Auto"
+                                    CanUserResize="True"
+                                    CanUserSort="True"
+                                    CanUserReorder="False"
                                     Binding="{Binding Description}" />
-                <DataGridTextColumn Header="Line" Width="Auto" CanUserResize="True" CanUserSort="True" CanUserReorder="False"
-                                    Binding="{Binding Range.Start.Line}" />
-                <DataGridTextColumn Header="Column" Width="Auto" CanUserResize="True" CanUserSort="True" CanUserReorder="False"
-                                    Binding="{Binding Range.Start.Column}" />
+                <DataGridTextColumn Header="Line"
+                                    Width="Auto"
+                                    CanUserResize="True"
+                                    CanUserSort="True"
+                                    CanUserReorder="False"
+                                    Binding="{Binding StartLine}" />
+                <DataGridTextColumn Header="Column"
+                                    Width="Auto"
+                                    CanUserResize="True"
+                                    CanUserSort="True"
+                                    CanUserReorder="False"
+                                    Binding="{Binding StartColumn}" />
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Windows;
 using Calculator.Parsing.Visitors;
@@ -13,24 +12,27 @@ namespace Calculator.UI
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow ( )
-        {
-            this.InitializeComponent ( );
-        }
+        public MainWindow() => InitializeComponent();
 
-        private void txtExpression_TextChanged ( Object sender, System.Windows.Controls.TextChangedEventArgs e )
+        private void txtExpression_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
             try
             {
-                Parsing.AST.CalculatorTreeNode ast = CalculatorLanguageSingleton.Instance.Parse ( this.txtExpression.Text, out IEnumerable<Diagnostic> diagnostics );
-                this.txtResult.Text = ast.Accept ( new TreeEvaluator ( CalculatorLanguageSingleton.Instance ) ).ToString ( CultureInfo.CurrentCulture );
-                this.dgDiagnostics.ItemsSource = diagnostics;
-            }
-            catch ( FatalParsingException fpEx )
-            {
-                this.dgDiagnostics.ItemsSource = new Diagnostic[]
+                var ast = CalculatorLanguageSingleton.Instance.Parse(txtExpression.Text, out var diagnostics);
+                txtResult.Text = ast.Accept(new TreeEvaluator(CalculatorLanguageSingleton.Instance)).ToString(CultureInfo.CurrentCulture);
+
+                var diagsVw = new List<DiagnosticViewModel>();
+                foreach (var diagnostic in diagnostics)
                 {
-                    new Diagnostic ( "FATAL", fpEx.Range, DiagnosticSeverity.Error, fpEx.Message )
+                    diagsVw.Add(new DiagnosticViewModel(diagnostic));
+                }
+                dgDiagnostics.ItemsSource = diagsVw;
+            }
+            catch (FatalParsingException fpEx)
+            {
+                dgDiagnostics.ItemsSource = new DiagnosticViewModel[]
+                {
+                    new DiagnosticViewModel(new Diagnostic(DiagnosticSeverity.Error, "FATAL", fpEx.Message, fpEx.Range))
                 };
             }
         }
