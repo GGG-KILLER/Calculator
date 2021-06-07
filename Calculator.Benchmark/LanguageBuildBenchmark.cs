@@ -1,6 +1,7 @@
 ﻿using System;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Environments;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Toolchains.CsProj;
 using Calculator.Definitions;
@@ -14,10 +15,10 @@ namespace Calculator.Benchmark
         {
             public Config ( )
             {
-                Job @base = Job.DryCore.WithEvaluateOverhead ( true );
-                this.Add ( @base.With ( CsProjCoreToolchain.NetCoreApp21 ) );
-                this.Add ( @base.With ( CsProjCoreToolchain.NetCoreApp22 ) );
-                this.Add ( @base.With ( CsProjCoreToolchain.NetCoreApp30 ) );
+                Job @base = Job.Dry.WithEvaluateOverhead ( true );
+                AddJob(@base.WithRuntime(CoreRuntime.Core31));
+                AddJob(@base.WithRuntime(CoreRuntime.Core50));
+                AddJob(@base.WithRuntime(CoreRuntime.Core60));
             }
         }
 

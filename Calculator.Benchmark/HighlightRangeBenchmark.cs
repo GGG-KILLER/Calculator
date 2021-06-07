@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Environments;
 using BenchmarkDotNet.Jobs;
-using BenchmarkDotNet.Toolchains.CoreRun;
-using BenchmarkDotNet.Toolchains.CsProj;
-using Calculator.Definitions;
 using GParse;
 
 namespace Calculator.Benchmark
@@ -15,17 +13,17 @@ namespace Calculator.Benchmark
     {
         private class Config : ManualConfig
         {
-            public Config ( )
+            public Config()
             {
-                Job @base = Job.Core.WithEvaluateOverhead ( true );
-                this.Add ( @base.With ( CsProjCoreToolchain.NetCoreApp21 ) );
-                this.Add ( @base.With ( CsProjCoreToolchain.NetCoreApp22 ) );
-                this.Add ( @base.With ( CsProjCoreToolchain.NetCoreApp30 ) );
+                Job @base = Job.Default.WithEvaluateOverhead(true);
+                AddJob(@base.WithRuntime(CoreRuntime.Core31));
+                AddJob(@base.WithRuntime(CoreRuntime.Core50));
+                AddJob(@base.WithRuntime(CoreRuntime.Core60));
             }
         }
 
-        private static SourceRange Range ( Int32 startLine, Int32 startColumn, Int32 startByte, Int32 endLine, Int32 endColumn, Int32 endByte ) =>
-            new SourceLocation ( startLine, startColumn, startByte ).To ( new SourceLocation ( endLine, endColumn, endByte ) );
+        private static SourceRange Range(Int32 startLine, Int32 startColumn, Int32 startByte, Int32 endLine, Int32 endColumn, Int32 endByte) =>
+            new SourceLocation(startLine, startColumn, startByte).To(new SourceLocation(endLine, endColumn, endByte));
 
         public IEnumerable<(String, SourceRange)> Pairs => new[]
         {
@@ -40,10 +38,10 @@ line code
 over here", Range(1, 6, 6, 3, 4, 21))
         };
 
-        [Benchmark ( Baseline = true )]
-        [ArgumentsSource ( nameof ( Pairs ) )]
-        public String HighlightRange ( (String expression, SourceRange range) pair ) =>
-            CalculatorDiagnostics.HighlightRange ( pair.expression, pair.range );
+        [Benchmark(Baseline = true)]
+        [ArgumentsSource(nameof(Pairs))]
+        public String HighlightRange((String expression, SourceRange range) pair) =>
+            CalculatorDiagnostics.HighlightRange(pair.expression, pair.range);
 
         //[Benchmark ( )]
         //[ArgumentsSource ( nameof ( Pairs ) )]
