@@ -2,7 +2,8 @@
 using GParse;
 using GParse.IO;
 using GParse.Lexing;
-using GParse.Lexing.Modules;
+using GParse.Lexing.Modular;
+using GParse.Math;
 
 namespace Calculator.Lexing.Modules
 {
@@ -12,29 +13,30 @@ namespace Calculator.Lexing.Modules
     public class WhitespaceLexerModule : ILexerModule<CalculatorTokenType>
     {
         /// <inheritdoc/>
-        public String Name => "Whitespace Lexer Module";
+        public string Name => "Whitespace Lexer Module";
 
         /// <inheritdoc/>
-        public String Prefix => null;
+        public string Prefix => null;
 
         /// <inheritdoc/>
-        public Boolean CanConsumeNext ( IReadOnlyCodeReader reader )
+        public bool TryConsume(ICodeReader reader, DiagnosticList diagnostics, out Token<CalculatorTokenType> token)
         {
-            if ( reader is null )
-                throw new ArgumentNullException ( nameof ( reader ) );
+            if (reader is null) throw new ArgumentNullException(nameof(reader));
+            if (diagnostics is null) throw new ArgumentNullException(nameof(diagnostics));
 
-            return reader.Peek ( ) is Char ch && Char.IsWhiteSpace ( ch );
-        }
+            if (reader.Peek() is char ch && char.IsWhiteSpace(ch))
+            {
+                var start = reader.Position;
+                var whitespaces = reader.FindOffset(static c => !char.IsWhiteSpace(c));
+                reader.Advance(whitespaces);
+                var end = reader.Position;
+                var range = new Range<int>(start, end);
+                token = new Token<CalculatorTokenType>("ws", CalculatorTokenType.Whitespace, range, true);
+                return true;
+            }
 
-        /// <inheritdoc/>
-        public Token<CalculatorTokenType> ConsumeNext ( ICodeReader reader, IProgress<Diagnostic> diagnosticEmitter )
-        {
-            if ( reader is null )
-                throw new ArgumentNullException ( nameof ( reader ) );
-
-            SourceLocation start = reader.Location;
-            var ws = reader.ReadStringWhile ( ch => Char.IsWhiteSpace ( ch ) );
-            return new Token<CalculatorTokenType> ( "ws", ws, ws, CalculatorTokenType.Whitespace, start.To ( reader.Location ), true );
+            token = default;
+            return false;
         }
     }
 }
