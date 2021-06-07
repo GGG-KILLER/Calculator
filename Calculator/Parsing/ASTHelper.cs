@@ -166,6 +166,6 @@ namespace Calculator.Parsing
         /// <param name="exponent"></param>
         /// <returns></returns>
         public static SuperscriptExponentiationExpression Superscript(object @base, int exponent) =>
-            new SuperscriptExponentiationExpression(Node(@base), Token("number-dec", CalculatorTokenType.Number, SuperscriptChars.TranslateNumber(exponent), exponent));
+            new SuperscriptExponentiationExpression(Node(@base), Token("superscript", CalculatorTokenType.Superscript, SuperscriptChars.TranslateNumber(exponent), exponent));
     }
 }
