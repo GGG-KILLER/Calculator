@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using Calculator.Lexing.Modules;
-using GParse.Lexing;
+using GParse.Lexing.Modular;
 
 namespace Calculator.Lexing
 {
@@ -13,14 +12,14 @@ namespace Calculator.Lexing
     /// </summary>
     public sealed class CalculatorLexerBuilder : ModularLexerBuilder<CalculatorTokenType>
     {
-        private static Boolean IsValidIdentifier ( String str )
+        private static bool IsValidIdentifier(string str)
         {
-            if ( !Char.IsLetter ( str[0] ) && str[0] != '_' )
+            if (!char.IsLetter(str[0]) && str[0] != '_')
                 return false;
 
-            for ( var i = 1; i < str.Length; i++ )
+            for (var i = 1; i < str.Length; i++)
             {
-                if ( !Char.IsLetterOrDigit ( str[i] ) && str[i] != '_' )
+                if (!char.IsLetterOrDigit(str[i]) && str[i] != '_')
                     return false;
             }
 
@@ -31,37 +30,37 @@ namespace Calculator.Lexing
         /// Initializes a new <see cref="CalculatorLexerBuilder" />
         /// </summary>
         /// <param name="language"></param>
-        public CalculatorLexerBuilder ( CalculatorLanguage language )
+        public CalculatorLexerBuilder(CalculatorLanguage language)
+            : base(CalculatorTokenType.EndOfExpression)
         {
             // Identifiers
-            this.AddModule ( new IdentifierLexerModule ( ) );
+            AddModule(new IdentifierLexerModule());
 
             // Superscript
-            if ( language.HasSuperscriptExponentiation ( ) )
-                this.AddModule ( new SuperscriptLexerModule ( ) );
+            if (language.HasSuperscriptExponentiation())
+                AddModule(new SuperscriptLexerModule());
 
             // Trivia
-            this.AddModule ( new WhitespaceLexerModule ( ) );
+            AddModule(new WhitespaceLexerModule());
 
             // Punctuations
-            this.AddLiteral ( "(", CalculatorTokenType.LParen, "(" );
-            this.AddLiteral ( ")", CalculatorTokenType.RParen, ")" );
-            this.AddLiteral ( ",", CalculatorTokenType.Comma, "," );
+            AddLiteral("(", CalculatorTokenType.LParen, "(");
+            AddLiteral(")", CalculatorTokenType.RParen, ")");
+            AddLiteral(",", CalculatorTokenType.Comma, ",");
 
             // Numbers
-            this.AddRegex ( "bin-number", CalculatorTokenType.Number, "0b([01]+)", "0b", match => ( Double ) Convert.ToInt64 ( match.Groups[1].Value, 2 ) );
+            AddModule(new BinaryNumberLexerModule());
+            AddModule(new OctalNumberLexerModule());
+            AddModule(new HexadecimalNumberLexerModule());
+            AddModule(new DecimalNumberLexerModule());
 
-            this.AddRegex ( "oct-number", CalculatorTokenType.Number, "0o([0-7]+)", "0o", match => ( Double ) Convert.ToInt64 ( match.Groups[1].Value, 8 ) );
+            var ops = new HashSet<string>(language.UnaryOperators.Values.Select(un => un.Operator), StringComparer.InvariantCulture);
+            ops.UnionWith(language.BinaryOperators.Values.Select(bi => bi.Operator));
+            ops.RemoveWhere(s => IsValidIdentifier(s));
+            foreach (var op in ops)
+                AddLiteral(op, CalculatorTokenType.Operator, op);
 
-            this.AddRegex ( "hex-number", CalculatorTokenType.Number, "0x([a-fA-F0-9]+)", "0x", match => ( Double ) Convert.ToInt64 ( match.Groups[1].Value, 16 ) );
-
-            this.AddRegex ( "dec-number", CalculatorTokenType.Number, @"(?:\d+(?:\.\d+)?|\.\d+)(?:[Ee][+-]?\d+)?", null, match => ( Double ) Convert.ToDouble ( match.Value, CultureInfo.InvariantCulture ) );
-
-            var ops = new HashSet<String> ( language.UnaryOperators.Values.Select ( un => un.Operator ) );
-            ops.UnionWith ( language.BinaryOperators.Values.Select ( bi => bi.Operator ) );
-            ops.RemoveWhere ( s => IsValidIdentifier ( s ) );
-            foreach ( var op in ops )
-                this.AddLiteral ( op, CalculatorTokenType.Operator, op );
+            Fallback = new UnknownCharacterLexerModule();
         }
     }
 }
