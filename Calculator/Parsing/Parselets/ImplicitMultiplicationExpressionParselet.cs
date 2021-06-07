@@ -15,39 +15,40 @@ namespace Calculator.Parsing.Parselets
         /// <summary>
         /// <inheritdoc />
         /// </summary>
-        public Int32 Precedence { get; }
+        public int Precedence { get; }
 
         /// <summary>
         /// Initializes this <see cref="ImplicitMultiplicationExpressionParselet" />
         /// </summary>
         /// <param name="precedence"></param>
-        public ImplicitMultiplicationExpressionParselet ( Int32 precedence )
-        {
-            this.Precedence = precedence;
-        }
+        public ImplicitMultiplicationExpressionParselet(int precedence) => Precedence = precedence;
 
         /// <summary>
         /// <inheritdoc />
         /// </summary>
         /// <param name="parser"></param>
         /// <param name="expression"></param>
-        /// <param name="diagnosticEmitter"></param>
+        /// <param name="diagnostics"></param>
         /// <param name="parsedExpression"></param>
         /// <returns></returns>
-        public Boolean TryParse ( IPrattParser<CalculatorTokenType, CalculatorTreeNode> parser, CalculatorTreeNode expression, IProgress<Diagnostic> diagnosticEmitter, out CalculatorTreeNode parsedExpression )
+        public bool TryParse(
+            IPrattParser<CalculatorTokenType, CalculatorTreeNode> parser,
+            CalculatorTreeNode expression,
+            DiagnosticList diagnostics,
+            out CalculatorTreeNode parsedExpression)
         {
-            if ( parser is null )
-                throw new ArgumentNullException ( nameof ( parser ) );
-            
-            if ( expression is null )
-                throw new ArgumentNullException ( nameof ( expression ) );
-            
-            if ( diagnosticEmitter is null )
-                throw new ArgumentNullException ( nameof ( diagnosticEmitter ) );
+            if (parser is null)
+                throw new ArgumentNullException(nameof(parser));
 
-            if ( parser.TryParseExpression ( this.Precedence, out CalculatorTreeNode right ) )
+            if (expression is null)
+                throw new ArgumentNullException(nameof(expression));
+
+            if (diagnostics is null)
+                throw new ArgumentNullException(nameof(diagnostics));
+
+            if (parser.TryParseExpression(Precedence, out var right))
             {
-                parsedExpression = new ImplicitMultiplicationExpression ( expression, right );
+                parsedExpression = new ImplicitMultiplicationExpression(expression, right);
                 return true;
             }
 

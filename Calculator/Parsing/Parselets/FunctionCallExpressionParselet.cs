@@ -17,39 +17,40 @@ namespace Calculator.Parsing.Parselets
         /// <summary>
         /// <inheritdoc />
         /// </summary>
-        public Int32 Precedence { get; }
+        public int Precedence { get; }
 
         /// <summary>
         /// Initializes this <see cref="FunctionCallExpressionParselet" /> with the provided
         /// <paramref name="precedence" />
         /// </summary>
         /// <param name="precedence"></param>
-        public FunctionCallExpressionParselet ( Int32 precedence )
-        {
-            this.Precedence = precedence;
-        }
+        public FunctionCallExpressionParselet(int precedence) => Precedence = precedence;
 
         /// <summary>
         /// Attempts to parse a <see cref="FunctionCallExpression" />
         /// </summary>
         /// <param name="parser"></param>
         /// <param name="identifier"></param>
-        /// <param name="diagnosticEmitter"></param>
+        /// <param name="diagnostics"></param>
         /// <param name="node"></param>
         /// <returns></returns>
-        public Boolean TryParse ( IPrattParser<CalculatorTokenType, CalculatorTreeNode> parser, CalculatorTreeNode identifier, IProgress<Diagnostic> diagnosticEmitter, out CalculatorTreeNode node )
+        public bool TryParse(
+            IPrattParser<CalculatorTokenType, CalculatorTreeNode> parser,
+            CalculatorTreeNode identifier,
+            DiagnosticList diagnostics,
+            out CalculatorTreeNode node)
         {
-            if ( parser is null )
-                throw new ArgumentNullException ( nameof ( parser ) );
+            if (parser is null)
+                throw new ArgumentNullException(nameof(parser));
 
-            if ( identifier is null )
-                throw new ArgumentNullException ( nameof ( identifier ) );
+            if (identifier is null)
+                throw new ArgumentNullException(nameof(identifier));
 
-            if ( diagnosticEmitter is null )
-                throw new ArgumentNullException ( nameof ( diagnosticEmitter ) );
+            if (diagnostics is null)
+                throw new ArgumentNullException(nameof(diagnostics));
 
-            ITokenReader<CalculatorTokenType> reader = parser.TokenReader;
-            if ( !( identifier is IdentifierExpression ) || !reader.Accept ( CalculatorTokenType.LParen, out Token<CalculatorTokenType> lparen ) )
+            var reader = parser.TokenReader;
+            if (!(identifier is IdentifierExpression) || !reader.Accept(CalculatorTokenType.LParen, out var lparen))
             {
                 node = null;
                 return false;
@@ -60,36 +61,38 @@ namespace Calculator.Parsing.Parselets
                 lparen
             };
             Token<CalculatorTokenType> rparen;
-            var args = new List<CalculatorTreeNode> ( );
-            while ( !reader.Accept ( CalculatorTokenType.RParen, out rparen ) )
+            var args = new List<CalculatorTreeNode>();
+            while (!reader.Accept(CalculatorTokenType.RParen, out rparen))
             {
-                if ( !parser.TryParseExpression ( out CalculatorTreeNode expr ) )
+                if (!parser.TryParseExpression(out var expr))
                 {
-                    diagnosticEmitter.Report ( CalculatorDiagnostics.SyntaxError.ThingExpected ( reader.Location, "argument" ) );
-                    rparen = ASTHelper.Token ( ")", CalculatorTokenType.RParen, ")" );
+                    var errorRange = ((CalculatorParser) parser).PositionContainer.GetLocation(reader.Lookahead().Range);
+                    diagnostics.Report(CalculatorDiagnostics.SyntaxError.ThingExpected(errorRange, "argument"));
+                    rparen = ASTHelper.Token(")", CalculatorTokenType.RParen, ")");
                     break;
                 }
 
-                args.Add ( expr );
+                args.Add(expr);
 
-                if ( reader.Accept ( CalculatorTokenType.Comma, out Token<CalculatorTokenType> comma ) )
+                if (reader.Accept(CalculatorTokenType.Comma, out var comma))
                 {
-                    toks.Add ( comma );
+                    toks.Add(comma);
                 }
-                else if ( reader.Accept ( CalculatorTokenType.RParen, out rparen ) )
+                else if (reader.Accept(CalculatorTokenType.RParen, out rparen))
                 {
                     break;
                 }
                 else
                 {
-                    diagnosticEmitter.Report ( CalculatorDiagnostics.SyntaxError.ThingExpectedAfter ( reader.Location, "')'", "argument list" ) );
-                    rparen = ASTHelper.Token ( ")", CalculatorTokenType.RParen, ")" );
+                    var errorRange = ((CalculatorParser) parser).PositionContainer.GetLocation(reader.Lookahead().Range);
+                    diagnostics.Report(CalculatorDiagnostics.SyntaxError.ThingExpectedAfter(errorRange, "')'", "argument list"));
+                    rparen = ASTHelper.Token(")", CalculatorTokenType.RParen, ")");
                     break;
                 }
             }
-            toks.Add ( rparen );
+            toks.Add(rparen);
 
-            node = new FunctionCallExpression ( identifier as IdentifierExpression, args, toks );
+            node = new FunctionCallExpression(identifier as IdentifierExpression, args, toks);
             return true;
         }
     }

@@ -17,34 +17,35 @@ namespace Calculator.Parsing.Parselets
         /// Initializes this <see cref="SuperscriptExponentiationExpressionParselet"/>
         /// </summary>
         /// <param name="precedence"></param>
-        public SuperscriptExponentiationExpressionParselet ( Int32 precedence )
-        {
-            this.Precedence = precedence;
-        }
+        public SuperscriptExponentiationExpressionParselet(int precedence) => Precedence = precedence;
 
         /// <inheritdoc />
-        public Int32 Precedence { get; }
+        public int Precedence { get; }
 
         /// <inheritdoc />
-        public Boolean TryParse ( IPrattParser<CalculatorTokenType, CalculatorTreeNode> parser, CalculatorTreeNode @base, IProgress<Diagnostic> diagnosticEmitter, out CalculatorTreeNode parsedExpression )
+        public bool TryParse(
+            IPrattParser<CalculatorTokenType, CalculatorTreeNode> parser,
+            CalculatorTreeNode @base,
+            DiagnosticList diagnostics,
+            out CalculatorTreeNode parsedExpression)
         {
-            if ( parser is null )
-                throw new ArgumentNullException ( nameof ( parser ) );
-            
-            if ( @base is null )
-                throw new ArgumentNullException ( nameof ( @base ) );
-            
-            if ( diagnosticEmitter is null )
-                throw new ArgumentNullException ( nameof ( diagnosticEmitter ) );
+            if (parser is null)
+                throw new ArgumentNullException(nameof(parser));
 
-            ITokenReader<CalculatorTokenType> reader = parser.TokenReader;
-            if ( !reader.Accept ( CalculatorTokenType.Superscript, out Token<CalculatorTokenType> exponent ) )
+            if (@base is null)
+                throw new ArgumentNullException(nameof(@base));
+
+            if (diagnostics is null)
+                throw new ArgumentNullException(nameof(diagnostics));
+
+            var reader = parser.TokenReader;
+            if (!reader.Accept(CalculatorTokenType.Superscript, out var exponent))
             {
                 parsedExpression = null;
                 return false;
             }
 
-            parsedExpression = new SuperscriptExponentiationExpression ( @base, exponent );
+            parsedExpression = new SuperscriptExponentiationExpression(@base, exponent);
             return true;
         }
     }

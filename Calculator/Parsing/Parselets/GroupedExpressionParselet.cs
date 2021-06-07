@@ -17,30 +17,34 @@ namespace Calculator.Parsing.Parselets
         /// Attempts to parse a <see cref="GroupedExpression" />
         /// </summary>
         /// <param name="parser"></param>
-        /// <param name="diagnosticEmitter"></param>
+        /// <param name="diagnostics"></param>
         /// <param name="node"></param>
         /// <returns></returns>
-        public Boolean TryParse ( IPrattParser<CalculatorTokenType, CalculatorTreeNode> parser, IProgress<Diagnostic> diagnosticEmitter, out CalculatorTreeNode node )
+        public bool TryParse(
+            IPrattParser<CalculatorTokenType, CalculatorTreeNode> parser,
+            DiagnosticList diagnostics,
+            out CalculatorTreeNode node)
         {
-            if ( parser is null )
-                throw new ArgumentNullException ( nameof ( parser ) );
-            
-            if ( diagnosticEmitter is null )
-                throw new ArgumentNullException ( nameof ( diagnosticEmitter ) );
+            if (parser is null)
+                throw new ArgumentNullException(nameof(parser));
 
-            if ( !parser.TokenReader.Accept ( CalculatorTokenType.LParen, out Token<CalculatorTokenType> lparen ) || !parser.TryParseExpression ( out CalculatorTreeNode expr ) )
+            if (diagnostics is null)
+                throw new ArgumentNullException(nameof(diagnostics));
+
+            if (!parser.TokenReader.Accept(CalculatorTokenType.LParen, out var lparen) || !parser.TryParseExpression(out var expr))
             {
                 node = null;
                 return false;
             }
 
-            if ( !parser.TokenReader.Accept ( CalculatorTokenType.RParen, out Token<CalculatorTokenType> rparen ) )
+            if (!parser.TokenReader.Accept(CalculatorTokenType.RParen, out var rparen))
             {
-                diagnosticEmitter.Report ( CalculatorDiagnostics.SyntaxError.ThingExpectedFor ( parser.TokenReader.Lookahead ( ).Range, "closing parenthesis", $"opening parenthesis at {lparen.Range.Start}" ) );
-                rparen = ASTHelper.Token ( ")", CalculatorTokenType.RParen, ")" );
+                var errorRange = ((CalculatorParser) parser).PositionContainer.GetLocation(parser.TokenReader.Lookahead().Range);
+                diagnostics.Report(CalculatorDiagnostics.SyntaxError.ThingExpectedFor(errorRange, "closing parenthesis", $"opening parenthesis at {lparen.Range.Start}"));
+                rparen = ASTHelper.Token(")", CalculatorTokenType.RParen, ")");
             }
 
-            node = new GroupedExpression ( lparen, expr, rparen );
+            node = new GroupedExpression(lparen, expr, rparen);
             return true;
         }
     }
