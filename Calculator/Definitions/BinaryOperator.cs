@@ -16,17 +16,17 @@ namespace Calculator.Definitions
         /// <summary>
         /// The operator itself
         /// </summary>
-        public String Operator { get; }
+        public string Operator { get; }
 
         /// <summary>
         /// Operator precedence (higher = executed first)
         /// </summary>
-        public Int32 Precedence { get; }
+        public int Precedence { get; }
 
         /// <summary>
         /// The action performed by the operator
         /// </summary>
-        public Func<Double, Double, Double> Body { get; }
+        public Func<double, double, double> Body { get; }
 
         /// <summary>
         /// Initializes a new binary operator
@@ -35,17 +35,17 @@ namespace Calculator.Definitions
         /// <param name="operator"></param>
         /// <param name="precedence"></param>
         /// <param name="body"></param>
-        public BinaryOperator ( Associativity associativity, String @operator, Int32 precedence, Func<Double, Double, Double> body )
+        public BinaryOperator(Associativity associativity, string @operator, int precedence, Func<double, double, double> body)
         {
-            if ( associativity < Associativity.None || Associativity.Right < associativity )
-                throw new ArgumentOutOfRangeException ( nameof ( associativity ) );
-            if ( String.IsNullOrWhiteSpace ( @operator ) )
-                throw new ArgumentException ( "message", nameof ( @operator ) );
+            if (associativity < Associativity.None || Associativity.Right < associativity)
+                throw new ArgumentOutOfRangeException(nameof(associativity));
+            if (string.IsNullOrWhiteSpace(@operator))
+                throw new ArgumentException("message", nameof(@operator));
 
-            this.Associativity = associativity;
-            this.Operator      = @operator;
-            this.Precedence    = precedence;
-            this.Body          = body ?? throw new ArgumentNullException ( nameof ( body ) );
+            Associativity = associativity;
+            Operator = @operator;
+            Precedence = precedence;
+            Body = body ?? throw new ArgumentNullException(nameof(body));
         }
 
         #region Generated Code
@@ -55,26 +55,26 @@ namespace Calculator.Definitions
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public override Boolean Equals ( Object obj ) => obj is BinaryOperator && this.Equals ( ( BinaryOperator ) obj );
+        public override bool Equals(object obj) => obj is BinaryOperator && Equals((BinaryOperator) obj);
 
         /// <summary>
         /// <inheritdoc />
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
-        public Boolean Equals ( BinaryOperator other ) => this.Associativity == other.Associativity && this.Operator == other.Operator && this.Precedence == other.Precedence && EqualityComparer<Func<Double, Double, Double>>.Default.Equals ( this.Body, other.Body );
+        public bool Equals(BinaryOperator other) => Associativity == other.Associativity && Operator == other.Operator && Precedence == other.Precedence && EqualityComparer<Func<double, double, double>>.Default.Equals(Body, other.Body);
 
         /// <summary>
         /// <inheritdoc />
         /// </summary>
         /// <returns></returns>
-        public override Int32 GetHashCode ( )
+        public override int GetHashCode()
         {
             var hashCode = 767561535;
-            hashCode = hashCode * -1521134295 + this.Associativity.GetHashCode ( );
-            hashCode = hashCode * -1521134295 + EqualityComparer<String>.Default.GetHashCode ( this.Operator );
-            hashCode = hashCode * -1521134295 + this.Precedence.GetHashCode ( );
-            hashCode = hashCode * -1521134295 + EqualityComparer<Func<Double, Double, Double>>.Default.GetHashCode ( this.Body );
+            hashCode = hashCode * -1521134295 + Associativity.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Operator);
+            hashCode = hashCode * -1521134295 + Precedence.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<Func<double, double, double>>.Default.GetHashCode(Body);
             return hashCode;
         }
 
@@ -84,7 +84,7 @@ namespace Calculator.Definitions
         /// <param name="operator1"></param>
         /// <param name="operator2"></param>
         /// <returns></returns>
-        public static Boolean operator == ( BinaryOperator operator1, BinaryOperator operator2 ) => operator1.Equals ( operator2 );
+        public static bool operator ==(BinaryOperator operator1, BinaryOperator operator2) => operator1.Equals(operator2);
 
         /// <summary>
         /// <inheritdoc />
@@ -92,7 +92,7 @@ namespace Calculator.Definitions
         /// <param name="operator1"></param>
         /// <param name="operator2"></param>
         /// <returns></returns>
-        public static Boolean operator != ( BinaryOperator operator1, BinaryOperator operator2 ) => !( operator1 == operator2 );
+        public static bool operator !=(BinaryOperator operator1, BinaryOperator operator2) => !(operator1 == operator2);
 
         #endregion Generated Code
     }

@@ -8,37 +8,34 @@ namespace Calculator.UI
         private readonly Diagnostic _diagnostic;
 
         /// <inheritdoc cref="Diagnostic.Id"/>
-        public String Id => this._diagnostic.Id;
+        public string Id => _diagnostic.Id;
 
         /// <inheritdoc cref="Diagnostic.Severity"/>
-        public DiagnosticSeverity Severity => this._diagnostic.Severity;
+        public DiagnosticSeverity Severity => _diagnostic.Severity;
 
         /// <inheritdoc cref="Diagnostic.Description"/>
-        public String Description => this._diagnostic.Description;
+        public string Description => _diagnostic.Description;
 
         /// <summary>
         /// The line where the code this diagnostic refers to starts at.
         /// </summary>
-        public Int32 StartLine => this._diagnostic.Range.Start.Line;
+        public int StartLine => _diagnostic.Range.Start.Line;
 
         /// <summary>
         /// The column where the code this diagnostic refers to starts at.
         /// </summary>
-        public Int32 StartColumn => this._diagnostic.Range.Start.Column;
+        public int StartColumn => _diagnostic.Range.Start.Column;
 
         /// <summary>
         /// The line where the code this diagnostic refers to ends at.
         /// </summary>
-        public Int32 EndLine => this._diagnostic.Range.End.Line;
+        public int EndLine => _diagnostic.Range.End.Line;
 
         /// <summary>
         /// The column where the code this diagnostic refers to ends at.
         /// </summary>
-        public Int32 EndColumn => this._diagnostic.Range.End.Column;
+        public int EndColumn => _diagnostic.Range.End.Column;
 
-        public DiagnosticViewModel ( Diagnostic diagnostic )
-        {
-            this._diagnostic = diagnostic ?? throw new ArgumentNullException ( nameof ( diagnostic ) );
-        }
+        public DiagnosticViewModel(Diagnostic diagnostic) => _diagnostic = diagnostic ?? throw new ArgumentNullException(nameof(diagnostic));
     }
 }

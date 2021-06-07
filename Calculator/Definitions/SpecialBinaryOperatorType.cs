@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Calculator.Definitions
+﻿namespace Calculator.Definitions
 {
     /// <summary>
     /// The set of possible <see cref="SpecialBinaryOperator"/> types

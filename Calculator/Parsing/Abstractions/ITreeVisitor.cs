@@ -11,49 +11,49 @@ namespace Calculator.Parsing.Abstractions
         /// The <see cref="BinaryOperatorExpression" /> visitor
         /// </summary>
         /// <param name="binaryOperator"></param>
-        void Visit ( BinaryOperatorExpression binaryOperator );
+        void Visit(BinaryOperatorExpression binaryOperator);
 
         /// <summary>
         /// The <see cref="IdentifierExpression" /> visitor
         /// </summary>
         /// <param name="identifier"></param>
-        void Visit ( IdentifierExpression identifier );
+        void Visit(IdentifierExpression identifier);
 
         /// <summary>
         /// The <see cref="FunctionCallExpression" /> visitor
         /// </summary>
         /// <param name="functionCall"></param>
-        void Visit ( FunctionCallExpression functionCall );
+        void Visit(FunctionCallExpression functionCall);
 
         /// <summary>
         /// The <see cref="NumberExpression" /> visitor
         /// </summary>
         /// <param name="number"></param>
-        void Visit ( NumberExpression number );
+        void Visit(NumberExpression number);
 
         /// <summary>
         /// The <see cref="UnaryOperatorExpression" /> visitor
         /// </summary>
         /// <param name="unaryOperator"></param>
-        void Visit ( UnaryOperatorExpression unaryOperator );
+        void Visit(UnaryOperatorExpression unaryOperator);
 
         /// <summary>
         /// The <see cref="ImplicitMultiplicationExpression" /> visitor
         /// </summary>
         /// <param name="implicitMultiplication"></param>
-        void Visit ( ImplicitMultiplicationExpression implicitMultiplication );
+        void Visit(ImplicitMultiplicationExpression implicitMultiplication);
 
         /// <summary>
         /// The <see cref="SuperscriptExponentiationExpression" /> visitor
         /// </summary>
         /// <param name="superscriptExponentiation"></param>
-        void Visit ( SuperscriptExponentiationExpression superscriptExponentiation );
+        void Visit(SuperscriptExponentiationExpression superscriptExponentiation);
 
         /// <summary>
         /// The <see cref="GroupedExpression" /> visitor
         /// </summary>
         /// <param name="grouped"></param>
-        void Visit ( GroupedExpression grouped );
+        void Visit(GroupedExpression grouped);
     }
 
     /// <summary>
@@ -67,54 +67,54 @@ namespace Calculator.Parsing.Abstractions
         /// </summary>
         /// <param name="binaryOperator"></param>
         /// <returns></returns>
-        T Visit ( BinaryOperatorExpression binaryOperator );
+        T Visit(BinaryOperatorExpression binaryOperator);
 
         /// <summary>
         /// The <see cref="IdentifierExpression" /> visitor
         /// </summary>
         /// <param name="identifier"></param>
         /// <returns></returns>
-        T Visit ( IdentifierExpression identifier );
+        T Visit(IdentifierExpression identifier);
 
         /// <summary>
         /// The <see cref="FunctionCallExpression" /> visitor
         /// </summary>
         /// <param name="functionCall"></param>
         /// <returns></returns>
-        T Visit ( FunctionCallExpression functionCall );
+        T Visit(FunctionCallExpression functionCall);
 
         /// <summary>
         /// The <see cref="NumberExpression" /> visitor
         /// </summary>
         /// <param name="number"></param>
         /// <returns></returns>
-        T Visit ( NumberExpression number );
+        T Visit(NumberExpression number);
 
         /// <summary>
         /// The <see cref="UnaryOperatorExpression" /> visitor
         /// </summary>
         /// <param name="unaryOperator"></param>
         /// <returns></returns>
-        T Visit ( UnaryOperatorExpression unaryOperator );
+        T Visit(UnaryOperatorExpression unaryOperator);
 
         /// <summary>
         /// The <see cref="ImplicitMultiplicationExpression" /> visitor
         /// </summary>
         /// <param name="implicitMultiplication"></param>
         /// <returns></returns>
-        T Visit ( ImplicitMultiplicationExpression implicitMultiplication );
+        T Visit(ImplicitMultiplicationExpression implicitMultiplication);
 
         /// <summary>
         /// The <see cref="SuperscriptExponentiationExpression" /> visitor
         /// </summary>
         /// <param name="superscriptExponentiation"></param>
-        T Visit ( SuperscriptExponentiationExpression superscriptExponentiation );
+        T Visit(SuperscriptExponentiationExpression superscriptExponentiation);
 
         /// <summary>
         /// The <see cref="GroupedExpression" /> visitor
         /// </summary>
         /// <param name="grouped"></param>
         /// <returns></returns>
-        T Visit ( GroupedExpression grouped );
+        T Visit(GroupedExpression grouped);
     }
 }

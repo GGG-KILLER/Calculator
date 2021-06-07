@@ -11,22 +11,22 @@ namespace Calculator.Definitions
         /// <summary>
         /// The constant identifier (such as PI or E)
         /// </summary>
-        public String Identifier { get; }
+        public string Identifier { get; }
 
         /// <summary>
         /// The constant value
         /// </summary>
-        public Double Value { get; }
+        public double Value { get; }
 
         /// <summary>
         /// Initializes a constant
         /// </summary>
         /// <param name="identifier"></param>
         /// <param name="value"></param>
-        public Constant ( String identifier, Double value )
+        public Constant(string identifier, double value)
         {
-            this.Identifier = identifier;
-            this.Value      = value;
+            Identifier = identifier;
+            Value = value;
         }
 
         /// <summary>
@@ -34,8 +34,8 @@ namespace Calculator.Definitions
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public Constant WithNewValue ( Double value ) =>
-            new Constant ( this.Identifier, value );
+        public Constant WithNewValue(double value) =>
+            new Constant(Identifier, value);
 
         #region Generated Code
 
@@ -44,26 +44,26 @@ namespace Calculator.Definitions
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public override Boolean Equals ( Object obj ) => obj is Constant && this.Equals ( ( Constant ) obj );
+        public override bool Equals(object obj) => obj is Constant && Equals((Constant) obj);
 
         /// <summary>
         /// <inheritdoc />
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
-        public Boolean Equals ( Constant other ) =>
-            this.Identifier == other.Identifier
-            && this.Value == other.Value;
+        public bool Equals(Constant other) =>
+            Identifier == other.Identifier
+            && Value == other.Value;
 
         /// <summary>
         /// <inheritdoc />
         /// </summary>
         /// <returns></returns>
-        public override Int32 GetHashCode ( )
+        public override int GetHashCode()
         {
             var hashCode = -1766374309;
-            hashCode = hashCode * -1521134295 + EqualityComparer<String>.Default.GetHashCode ( this.Identifier );
-            hashCode = hashCode * -1521134295 + this.Value.GetHashCode ( );
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Identifier);
+            hashCode = hashCode * -1521134295 + Value.GetHashCode();
             return hashCode;
         }
 
@@ -73,7 +73,7 @@ namespace Calculator.Definitions
         /// <param name="constant1"></param>
         /// <param name="constant2"></param>
         /// <returns></returns>
-        public static Boolean operator == ( Constant constant1, Constant constant2 ) => constant1.Equals ( constant2 );
+        public static bool operator ==(Constant constant1, Constant constant2) => constant1.Equals(constant2);
 
         /// <summary>
         /// <inheritdoc />
@@ -81,7 +81,7 @@ namespace Calculator.Definitions
         /// <param name="constant1"></param>
         /// <param name="constant2"></param>
         /// <returns></returns>
-        public static Boolean operator != ( Constant constant1, Constant constant2 ) => !( constant1 == constant2 );
+        public static bool operator !=(Constant constant1, Constant constant2) => !(constant1 == constant2);
 
         #endregion Generated Code
     }

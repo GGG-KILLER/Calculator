@@ -376,7 +376,7 @@ namespace Calculator
             var toks = new List<Token<CalculatorTokenType>>();
             var diags = new DiagnosticList();
             diagnostics = diags;
-            ILexer<CalculatorTokenType> lexer = GetLexer(expression, diags);
+            var lexer = GetLexer(expression, diags);
             while (!lexer.EndOfFile)
                 toks.Add(lexer.Consume());
             return toks;

@@ -1,11 +1,10 @@
-﻿using System;
-using BenchmarkDotNet.Running;
+﻿using BenchmarkDotNet.Running;
 
 namespace Calculator.Benchmark
 {
-    class Program
+    internal class Program
     {
-        static void Main ( String[] args ) =>
-            BenchmarkSwitcher.FromAssembly ( typeof ( Program ).Assembly ).Run ( args );
+        private static void Main(string[] args) =>
+            BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
     }
 }

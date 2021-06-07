@@ -2,7 +2,6 @@
 using Calculator.Lexing;
 using Calculator.Parsing.AST;
 using GParse;
-using GParse.Lexing;
 using GParse.Parsing;
 using GParse.Parsing.Parselets;
 

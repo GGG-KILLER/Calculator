@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Text;
 using GParse;
 using GParse.Composable;
 using GParse.IO;
@@ -9,7 +7,6 @@ using GParse.Lexing;
 using GParse.Lexing.Composable;
 using GParse.Lexing.Modular;
 using GParse.Math;
-using GParse.Utilities;
 
 namespace Calculator.Lexing.Modules
 {

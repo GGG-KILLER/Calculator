@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 using GParse.IO;
 using GParse.Lexing;
 using GParse.Lexing.Modular;

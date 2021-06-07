@@ -7,7 +7,7 @@ namespace Calculator.Errors
     /// <summary>
     /// Exception thrown when evaluating an expression
     /// </summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage ( "Design", "CA1032:Implement standard exception constructors", Justification = "The location is required for this type of exception." )]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1032:Implement standard exception constructors", Justification = "The location is required for this type of exception.")]
     public class EvaluationException : FatalParsingException
     {
         /// <summary>
@@ -15,7 +15,7 @@ namespace Calculator.Errors
         /// </summary>
         /// <param name="location"></param>
         /// <param name="message"></param>
-        public EvaluationException ( SourceLocation location, String message ) : base ( location, message )
+        public EvaluationException(SourceLocation location, string message) : base(location, message)
         {
         }
 
@@ -24,7 +24,7 @@ namespace Calculator.Errors
         /// </summary>
         /// <param name="range"></param>
         /// <param name="message"></param>
-        public EvaluationException ( SourceRange range, String message ) : base ( range, message )
+        public EvaluationException(SourceRange range, string message) : base(range, message)
         {
         }
 
@@ -34,7 +34,7 @@ namespace Calculator.Errors
         /// <param name="location"></param>
         /// <param name="message"></param>
         /// <param name="innerException"></param>
-        public EvaluationException ( SourceLocation location, String message, Exception innerException ) : base ( location, message, innerException )
+        public EvaluationException(SourceLocation location, string message, Exception innerException) : base(location, message, innerException)
         {
         }
 
@@ -44,7 +44,7 @@ namespace Calculator.Errors
         /// <param name="range"></param>
         /// <param name="message"></param>
         /// <param name="innerException"></param>
-        public EvaluationException ( SourceRange range, String message, Exception innerException ) : base ( range, message, innerException )
+        public EvaluationException(SourceRange range, string message, Exception innerException) : base(range, message, innerException)
         {
         }
     }

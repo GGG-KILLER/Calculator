@@ -1,5 +1,4 @@
-﻿using System;
-using Calculator.Parsing.Abstractions;
+﻿using Calculator.Parsing.Abstractions;
 using GParse.Math;
 
 namespace Calculator.Parsing.AST

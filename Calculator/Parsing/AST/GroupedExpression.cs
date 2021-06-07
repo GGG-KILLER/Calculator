@@ -1,7 +1,6 @@
 ﻿using System;
 using Calculator.Lexing;
 using Calculator.Parsing.Abstractions;
-using GParse;
 using GParse.Lexing;
 using GParse.Math;
 

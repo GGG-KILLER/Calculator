@@ -16,18 +16,18 @@ namespace Calculator.Definitions
         /// <summary>
         /// The operator itself
         /// </summary>
-        public String Operator { get; }
+        public string Operator { get; }
 
         /// <summary>
         /// Works the same as in binary operators but is mainly used to decide disambiguation between
         /// prefix and suffix unary operators
         /// </summary>
-        public Int32 Precedence { get; }
+        public int Precedence { get; }
 
         /// <summary>
         /// The action performed by the operator
         /// </summary>
-        public Func<Double, Double> Body { get; }
+        public Func<double, double> Body { get; }
 
         /// <summary>
         /// Initializes a new unary operator
@@ -36,12 +36,12 @@ namespace Calculator.Definitions
         /// <param name="operator"></param>
         /// <param name="precedence"></param>
         /// <param name="body"></param>
-        public UnaryOperator ( UnaryOperatorFix fix, String @operator, Int32 precedence, Func<Double, Double> body )
+        public UnaryOperator(UnaryOperatorFix fix, string @operator, int precedence, Func<double, double> body)
         {
-            this.Fix        = fix;
-            this.Operator   = @operator ?? throw new ArgumentNullException ( nameof ( @operator ) );
-            this.Precedence = precedence;
-            this.Body       = body ?? throw new ArgumentNullException ( nameof ( body ) );
+            Fix = fix;
+            Operator = @operator ?? throw new ArgumentNullException(nameof(@operator));
+            Precedence = precedence;
+            Body = body ?? throw new ArgumentNullException(nameof(body));
         }
 
         #region Generated Code
@@ -51,26 +51,26 @@ namespace Calculator.Definitions
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public override Boolean Equals ( Object obj ) => obj is UnaryOperator && this.Equals ( ( UnaryOperator ) obj );
+        public override bool Equals(object obj) => obj is UnaryOperator && Equals((UnaryOperator) obj);
 
         /// <summary>
         /// <inheritdoc />
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
-        public Boolean Equals ( UnaryOperator other ) => this.Fix == other.Fix && this.Operator == other.Operator && this.Precedence == other.Precedence && EqualityComparer<Func<Double, Double>>.Default.Equals ( this.Body, other.Body );
+        public bool Equals(UnaryOperator other) => Fix == other.Fix && Operator == other.Operator && Precedence == other.Precedence && EqualityComparer<Func<double, double>>.Default.Equals(Body, other.Body);
 
         /// <summary>
         /// <inheritdoc />
         /// </summary>
         /// <returns></returns>
-        public override Int32 GetHashCode ( )
+        public override int GetHashCode()
         {
             var hashCode = 2002979436;
-            hashCode = hashCode * -1521134295 + this.Fix.GetHashCode ( );
-            hashCode = hashCode * -1521134295 + EqualityComparer<String>.Default.GetHashCode ( this.Operator );
-            hashCode = hashCode * -1521134295 + this.Precedence.GetHashCode ( );
-            hashCode = hashCode * -1521134295 + EqualityComparer<Func<Double, Double>>.Default.GetHashCode ( this.Body );
+            hashCode = hashCode * -1521134295 + Fix.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Operator);
+            hashCode = hashCode * -1521134295 + Precedence.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<Func<double, double>>.Default.GetHashCode(Body);
             return hashCode;
         }
 
@@ -80,7 +80,7 @@ namespace Calculator.Definitions
         /// <param name="operator1"></param>
         /// <param name="operator2"></param>
         /// <returns></returns>
-        public static Boolean operator == ( UnaryOperator operator1, UnaryOperator operator2 ) => operator1.Equals ( operator2 );
+        public static bool operator ==(UnaryOperator operator1, UnaryOperator operator2) => operator1.Equals(operator2);
 
         /// <summary>
         /// <inheritdoc />
@@ -88,7 +88,7 @@ namespace Calculator.Definitions
         /// <param name="operator1"></param>
         /// <param name="operator2"></param>
         /// <returns></returns>
-        public static Boolean operator != ( UnaryOperator operator1, UnaryOperator operator2 ) => !( operator1 == operator2 );
+        public static bool operator !=(UnaryOperator operator1, UnaryOperator operator2) => !(operator1 == operator2);
 
         #endregion Generated Code
     }

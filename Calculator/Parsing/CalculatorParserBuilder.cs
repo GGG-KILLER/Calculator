@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Calculator.Definitions;
 using Calculator.Lexing;
 using Calculator.Parsing.AST;
@@ -44,7 +43,7 @@ namespace Calculator.Parsing
 
                 if (unaryOp.Fix == UnaryOperatorFix.Postfix)
                 {
-                    this.RegisterSingleTokenPostfixOperator(
+                    RegisterSingleTokenPostfixOperator(
                         IsValidIdentifier(unaryOp.Operator) ? CalculatorTokenType.Identifier : CalculatorTokenType.Operator,
                         unaryOp.Operator,
                         unaryOp.Precedence,
@@ -56,7 +55,7 @@ namespace Calculator.Parsing
                 }
                 else
                 {
-                    this.RegisterSingleTokenPrefixOperator(
+                    RegisterSingleTokenPrefixOperator(
                         IsValidIdentifier(unaryOp.Operator) ? CalculatorTokenType.Identifier : CalculatorTokenType.Operator,
                         unaryOp.Operator,
                         unaryOp.Precedence,
