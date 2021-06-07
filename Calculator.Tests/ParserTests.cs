@@ -57,28 +57,28 @@ namespace Calculator.Tests
         }
 
         [DataTestMethod]
-        [DataRow("0x20", 0x20)]
-        [DataRow("0o17", 15)]
-        [DataRow("0b10", 2)]
-        [DataRow("10", 10)]
-        [DataRow("10.20", 10.20)]
-        [DataRow("10e12", 10e12)]
-        [DataRow("10e-12", 10e-12)]
-        [DataRow("10e+12", 10e+12)]
-        [DataRow("10.20e12", 10.20e12)]
-        [DataRow("10.20e+12", 10.20e+12)]
-        [DataRow("10.20e-12", 10.20e-12)]
-        [DataRow("10E12", 10e12)]
-        [DataRow("10E-12", 10e-12)]
-        [DataRow("10E+12", 10e+12)]
-        [DataRow("10.20E12", 10.20e12)]
-        [DataRow("10.20E+12", 10.20e+12)]
-        [DataRow("10.20E-12", 10.20e-12)]
+        [DataRow("0x20", (double) 0x20)]
+        [DataRow("0o17", (double) 15)]
+        [DataRow("0b10", (double) 2)]
+        [DataRow("10", (double) 10)]
+        [DataRow("10.20", (double) 10.20)]
+        [DataRow("10e12", (double) 10e12)]
+        [DataRow("10e-12", (double) 10e-12)]
+        [DataRow("10e+12", (double) 10e+12)]
+        [DataRow("10.20e12", (double) 10.20e12)]
+        [DataRow("10.20e+12", (double) 10.20e+12)]
+        [DataRow("10.20e-12", (double) 10.20e-12)]
+        [DataRow("10E12", (double) 10e12)]
+        [DataRow("10E-12", (double) 10e-12)]
+        [DataRow("10E+12", (double) 10e+12)]
+        [DataRow("10.20E12", (double) 10.20e12)]
+        [DataRow("10.20E+12", (double) 10.20e+12)]
+        [DataRow("10.20E-12", (double) 10.20e-12)]
         public void NumbersAreParsedProperly(string num, double val)
         {
             var parsed = ParseExpression(num);
             Assert.IsInstanceOfType(parsed, typeof(NumberExpression));
-            Assert.AreEqual((double) (parsed as NumberExpression).Value.Value, val);
+            Assert.AreEqual(val, (double) (parsed as NumberExpression).Value.Value);
         }
 
         [DataTestMethod]
