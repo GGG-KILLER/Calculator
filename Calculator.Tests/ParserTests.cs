@@ -70,6 +70,12 @@ namespace Calculator.Tests
         [DataRow ( "10.20e12", 10.20e12 )]
         [DataRow ( "10.20e+12", 10.20e+12 )]
         [DataRow ( "10.20e-12", 10.20e-12 )]
+        [DataRow ( "10E12", 10e12 )]
+        [DataRow ( "10E-12", 10e-12 )]
+        [DataRow ( "10E+12", 10e+12 )]
+        [DataRow ( "10.20E12", 10.20e12 )]
+        [DataRow ( "10.20E+12", 10.20e+12 )]
+        [DataRow ( "10.20E-12", 10.20e-12 )]
         public void NumbersAreParsedProperly ( String num, Double val )
         {
             CalculatorTreeNode parsed = this.ParseExpression ( num );
@@ -183,7 +189,7 @@ namespace Calculator.Tests
                 ("1⁻¹", Superscript ( 1, -1 )),
                 ("a⁻¹", Superscript ( "a", -1 )),
                 ("f(x)⁻¹", Superscript ( Function ( "f", "x" ), -1 )),
-                ( "1¹²³", Superscript ( 1, 123 ) ),
+                ("1¹²³", Superscript ( 1, 123 )),
                 ("a¹²³", Superscript ( "a", 123 )),
                 ("f(x)¹²³", Superscript ( Function ( "f", "x" ), 123 )),
                 ("1⁻¹²³", Superscript ( 1, -123 )),
