@@ -8,15 +8,15 @@ namespace Calculator
     /// </summary>
     public static class CalculatorDiagnostics
     {
-        private static String PunctuateIfNecessary ( String str )
+        private static string PunctuateIfNecessary(string str)
         {
-            if ( str is null )
+            if (str is null)
                 return null;
-            else if ( str.Length == 0 )
+            else if (str.Length == 0)
                 return null;
 
             var last = str[str.Length - 1];
-            switch ( last )
+            switch (last)
             {
                 case '.':
                 case '?':
@@ -32,7 +32,7 @@ namespace Calculator
         /// <summary>
         /// The class that stores the methods for all generated syntax error diagnostics
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage ( "Design", "CA1034:Nested types should not be visible", Justification = "This is a subset of functionalities of the parent utility class." )]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1034:Nested types should not be visible", Justification = "This is a subset of functionalities of the parent utility class.")]
         public static class SyntaxError
         {
             /// <summary>
@@ -41,8 +41,8 @@ namespace Calculator
             /// <param name="range"></param>
             /// <param name="expected"></param>
             /// <returns></returns>
-            public static Diagnostic ThingExpected ( SourceRange range, Object expected ) =>
-                new Diagnostic ( "CALC0001", range, DiagnosticSeverity.Error, $"Syntax error, {expected} expected." );
+            public static Diagnostic ThingExpected(SourceRange range, object expected) =>
+                new Diagnostic(DiagnosticSeverity.Error, "CALC0001", $"Syntax error, {expected} expected.", range);
 
             /// <summary>
             /// Creates a <see cref="Diagnostic"/> saying something was expected.
@@ -50,8 +50,8 @@ namespace Calculator
             /// <param name="location"></param>
             /// <param name="expected"></param>
             /// <returns></returns>
-            public static Diagnostic ThingExpected ( SourceLocation location, Object expected ) =>
-                ThingExpected ( location.To ( location ), expected );
+            public static Diagnostic ThingExpected(SourceLocation location, object expected) =>
+                ThingExpected(location.To(location), expected);
 
             /// <summary>
             /// Creates a <see cref="Diagnostic"/> saying something was expected for something else.
@@ -60,8 +60,8 @@ namespace Calculator
             /// <param name="expected"></param>
             /// <param name="for"></param>
             /// <returns></returns>
-            public static Diagnostic ThingExpectedFor ( SourceRange range, Object expected, String @for ) =>
-                new Diagnostic ( "CALC0001", range, DiagnosticSeverity.Error, $"Syntax error, {expected} expected for {PunctuateIfNecessary ( @for )}" );
+            public static Diagnostic ThingExpectedFor(SourceRange range, object expected, string @for) =>
+                new Diagnostic(DiagnosticSeverity.Error, "CALC0001", $"Syntax error, {expected} expected for {PunctuateIfNecessary(@for)}", range);
 
             /// <summary>
             /// Creates a <see cref="Diagnostic"/> saying something was expected for something else.
@@ -70,8 +70,8 @@ namespace Calculator
             /// <param name="expected"></param>
             /// <param name="for"></param>
             /// <returns></returns>
-            public static Diagnostic ThingExpectedFor ( SourceLocation location, Object expected, String @for ) =>
-                ThingExpectedFor ( location.To ( location ), expected, @for );
+            public static Diagnostic ThingExpectedFor(SourceLocation location, object expected, string @for) =>
+                ThingExpectedFor(location.To(location), expected, @for);
 
             /// <summary>
             /// Creates a <see cref="Diagnostic"/> saying something was expected after something else.
@@ -80,8 +80,8 @@ namespace Calculator
             /// <param name="expected"></param>
             /// <param name="after"></param>
             /// <returns></returns>
-            public static Diagnostic ThingExpectedAfter ( SourceRange range, Object expected, String after ) =>
-                new Diagnostic ( "CALC0001", range, DiagnosticSeverity.Error, $"Syntax error, {expected} expected after {PunctuateIfNecessary ( after )}" );
+            public static Diagnostic ThingExpectedAfter(SourceRange range, object expected, string after) =>
+                new Diagnostic(DiagnosticSeverity.Error, "CALC0001", $"Syntax error, {expected} expected after {PunctuateIfNecessary(after)}", range);
 
             /// <summary>
             /// Creates a <see cref="Diagnostic"/> saying something was expected after something else.
@@ -90,8 +90,8 @@ namespace Calculator
             /// <param name="expected"></param>
             /// <param name="after"></param>
             /// <returns></returns>
-            public static Diagnostic ThingExpectedAfter ( SourceLocation location, Object expected, String after ) =>
-                ThingExpectedAfter ( location.To ( location ), expected, after );
+            public static Diagnostic ThingExpectedAfter(SourceLocation location, object expected, string after) =>
+                ThingExpectedAfter(location.To(location), expected, after);
 
             /// <summary>
             /// Produces a <see cref="Diagnostic"/> reporting an invalid superscript.
@@ -99,8 +99,8 @@ namespace Calculator
             /// <param name="range"></param>
             /// <param name="error"></param>
             /// <returns></returns>
-            public static Diagnostic InvalidSuperscript ( SourceRange range, String error ) =>
-                new Diagnostic ( "CALC0002", range, DiagnosticSeverity.Error, $"Invalid superscript: {PunctuateIfNecessary ( error )}" );
+            public static Diagnostic InvalidSuperscript(SourceRange range, string error) =>
+                new Diagnostic(DiagnosticSeverity.Error, "CALC0002", $"Invalid superscript: {PunctuateIfNecessary(error)}", range);
 
             /// <summary>
             /// Produces a <see cref="Diagnostic"/> reporting an invalid number of type <paramref name="numberType"/>.
@@ -108,8 +108,8 @@ namespace Calculator
             /// <param name="range"></param>
             /// <param name="numberType"></param>
             /// <returns></returns>
-            public static Diagnostic InvalidNumber ( SourceRange range, String numberType ) =>
-                new Diagnostic ( "CALC0003", range, DiagnosticSeverity.Error, $"Invalid {numberType} number." );
+            public static Diagnostic InvalidNumber(SourceRange range, string numberType) =>
+                new Diagnostic(DiagnosticSeverity.Error, "CALC0003", $"Invalid {numberType} number.", range);
 
             /// <summary>
             /// Produces a <see cref="Diagnostic"/> reporting an invalid number of type <paramref name="numberType"/>.
@@ -118,8 +118,17 @@ namespace Calculator
             /// <param name="numberType"></param>
             /// <param name="reason"></param>
             /// <returns></returns>
-            public static Diagnostic InvalidNumber ( SourceRange range, String numberType, String reason ) =>
-                new Diagnostic ( "CALC0003", range, DiagnosticSeverity.Error, $"Invalid {numberType} number: {PunctuateIfNecessary ( reason )}" );
+            public static Diagnostic InvalidNumber(SourceRange range, string numberType, string reason) =>
+                new Diagnostic(DiagnosticSeverity.Error, "CALC0003", $"Invalid {numberType} number: {PunctuateIfNecessary(reason)}", range);
+
+            /// <summary>
+            /// Produces a <see cref="Diagnostic"/> reporting an unknown character.
+            /// </summary>
+            /// <param name="range"></param>
+            /// <param name="ch"></param>
+            /// <returns></returns>
+            public static Diagnostic UnknownCharacter(SourceRange range, char ch) =>
+                new Diagnostic(DiagnosticSeverity.Error, "CALC0004", $"Unknown character '{ch}'.", range);
         }
 
         /// <summary>
@@ -129,43 +138,43 @@ namespace Calculator
         /// <param name="expression">The expression to highlight</param>
         /// <param name="range">The range to highlight</param>
         /// <returns></returns>
-        public static String HighlightRange ( String expression, SourceRange range )
+        public static string HighlightRange(string expression, SourceRange range)
         {
-            if ( String.IsNullOrEmpty ( expression ) )
-                throw new ArgumentException ( "The expression should not be null or empty.", nameof ( expression ) );
+            if (string.IsNullOrEmpty(expression))
+                throw new ArgumentException("The expression should not be null or empty.", nameof(expression));
 
-            SourceLocation start = range.Start;
-            SourceLocation end   = range.End;
-            var lines            = expression.Split ( new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries );
+            var start = range.Start;
+            var end = range.End;
+            var lines = expression.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
-            if ( start.Line != end.Line )
+            if (start.Line != end.Line)
             {
-                var builder = new System.Text.StringBuilder ( );
+                var builder = new System.Text.StringBuilder();
                 var startLine = start.Line;
                 var endLine = end.Line - 1;
 
-                for ( var i = startLine; i <= endLine; i++ )
+                for (var i = startLine; i <= endLine; i++)
                 {
                     var line = lines[i];
                     var lineLength = line.Length;
 
-                    builder.AppendLine ( line )
-                           .AppendLine ( i switch
+                    builder.AppendLine(line)
+                           .AppendLine(i switch
                            {
-                               _ when i == startLine => new String ( ' ', Math.Max ( start.Column - 1, 0 ) )
-                                                        + new String ( '^', Math.Max ( lineLength - start.Column, 0 ) ),
-                               _ when i == endLine => new String ( '^', end.Column ),
-                               _ => new String ( '^', lineLength )
-                           } );
+                               _ when i == startLine => new string(' ', Math.Max(start.Column - 1, 0))
+                                                        + new string('^', Math.Max(lineLength - start.Column, 0)),
+                               _ when i == endLine => new string('^', end.Column),
+                               _ => new string('^', lineLength)
+                           });
                 }
 
-                return builder.ToString ( );
+                return builder.ToString();
             }
 
-            var len = Math.Max ( end.Byte - start.Byte, 1 );
-            return String.Join ( Environment.NewLine,
+            var len = Math.Max(end.Byte - start.Byte, 1);
+            return string.Join(Environment.NewLine,
                                 lines[start.Line - 1],
-                                new String ( ' ', start.Column - 1 ) + new String ( '^', len ) );
+                                new string(' ', start.Column - 1) + new string('^', len));
         }
     }
 }
