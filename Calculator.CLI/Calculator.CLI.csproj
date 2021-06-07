@@ -8,12 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GUtils.CLI" Version="7.0.0" />
-    <PackageReference Include="GUtils.Timing" Version="4.0.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="5.0.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Tsu" Version="2.1.1" />
+    <PackageReference Include="Tsu.CLI" Version="10.0.1" />
   </ItemGroup>
 
   <ItemGroup>
