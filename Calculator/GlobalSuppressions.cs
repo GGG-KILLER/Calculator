@@ -3,4 +3,3 @@
 // suppressions either have no target or are given a specific
 // target and scoped to a namespace, type, member, etc.
 
-[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage ( "Style", "IDE0009:Member access should be qualified.", Justification = "<Pending>", Scope = "member", Target = "~M:Calculator.Parsing.CalculatorParser.ParseFunctionCall(GParse.Common.Lexing.Token{Calculator.Lexing.CalculatorTokenType},GParse.Common.Lexing.Token{Calculator.Lexing.CalculatorTokenType})~Calculator.Parsing.AST.FunctionCallExpression" )]

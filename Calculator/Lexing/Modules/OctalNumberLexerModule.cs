@@ -42,7 +42,7 @@ namespace Calculator.Lexing.Modules
             var end = reader.Position;
             var range = new Range<int>(start, end);
 
-            if (digits < 1 || digits > 21)
+            if (digits is < 1 or > 21)
                 diagnostics.Report(CalculatorDiagnostics.SyntaxError.InvalidNumber(reader.GetLocation(range), "octal"));
 
             token = new Token<CalculatorTokenType>("oct-number", CalculatorTokenType.Number, range, (double) number);

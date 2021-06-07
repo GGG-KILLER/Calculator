@@ -27,7 +27,7 @@
                  Margin="5,0,5,0"
                  AcceptsReturn="True"
                  x:Name="txtExpression"
-                 TextChanged="txtExpression_TextChanged" />
+                 TextChanged="TxtExpression_TextChanged" />
         <!-- Result -->
         <Label Grid.Row="1"
                Grid.Column="0"

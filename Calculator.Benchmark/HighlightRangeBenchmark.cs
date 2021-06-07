@@ -15,17 +15,17 @@ namespace Calculator.Benchmark
         {
             public Config()
             {
-                Job @base = Job.Default.WithEvaluateOverhead(true);
+                var @base = Job.Default.WithEvaluateOverhead(true);
                 AddJob(@base.WithRuntime(CoreRuntime.Core31));
                 AddJob(@base.WithRuntime(CoreRuntime.Core50));
                 AddJob(@base.WithRuntime(CoreRuntime.Core60));
             }
         }
 
-        private static SourceRange Range(Int32 startLine, Int32 startColumn, Int32 startByte, Int32 endLine, Int32 endColumn, Int32 endByte) =>
+        private static SourceRange Range(int startLine, int startColumn, int startByte, int endLine, int endColumn, int endByte) =>
             new SourceLocation(startLine, startColumn, startByte).To(new SourceLocation(endLine, endColumn, endByte));
 
-        public IEnumerable<(String, SourceRange)> Pairs => new[]
+        public IEnumerable<(string, SourceRange)> Pairs => new[]
         {
             (@"one line", Range(1, 3, 3, 1, 4, 4)),
             (@"two
@@ -40,7 +40,7 @@ over here", Range(1, 6, 6, 3, 4, 21))
 
         [Benchmark(Baseline = true)]
         [ArgumentsSource(nameof(Pairs))]
-        public String HighlightRange((String expression, SourceRange range) pair) =>
+        public string HighlightRange((string expression, SourceRange range) pair) =>
             CalculatorDiagnostics.HighlightRange(pair.expression, pair.range);
 
         //[Benchmark ( )]

@@ -43,7 +43,7 @@ namespace Calculator.Lexing.Modules
             var end = reader.Position;
             var range = new Range<int>(start, end);
 
-            if (digits < 1 || digits > 22)
+            if (digits is < 1 or > 22)
                 diagnostics.Report(CalculatorDiagnostics.SyntaxError.InvalidNumber(reader.GetLocation(range), "hexadecimal"));
 
             token = new Token<CalculatorTokenType>("hex-number", CalculatorTokenType.Number, range, (double) number);

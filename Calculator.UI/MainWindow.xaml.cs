@@ -14,7 +14,7 @@ namespace Calculator.UI
     {
         public MainWindow() => InitializeComponent();
 
-        private void txtExpression_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        private void TxtExpression_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
             try
             {

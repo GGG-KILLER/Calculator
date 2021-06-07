@@ -4,13 +4,11 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Calculator.Definitions;
-using Calculator.Lexing;
 using Calculator.Parsing;
 using Calculator.Parsing.AST;
 using Calculator.Parsing.Visitors;
 using GParse;
 using GParse.Errors;
-using GParse.Lexing;
 using Tsu.CLI.Commands;
 using Tsu.Numerics;
 using Tsu.Timing;
@@ -19,45 +17,45 @@ namespace Calculator.CLI
 {
     internal class Program
     {
-        private static CalculatorLanguage language;
-        private static TreeEvaluator evaluator;
-        private static SimpleTreeReconstructor reconstructor;
-        private static ConsoleTimingLogger timingLogger;
+        private static CalculatorLanguage _language;
+        private static TreeEvaluator _evaluator;
+        private static SimpleTreeReconstructor _reconstructor;
+        private static ConsoleTimingLogger _timingLogger;
 
         private static void Main()
         {
-            timingLogger = new ConsoleTimingLogger();
-            using (timingLogger.BeginScope("Initialization", true))
+            _timingLogger = new ConsoleTimingLogger();
+            using (_timingLogger.BeginScope("Initialization", true))
             {
-                using (timingLogger.BeginScope("Building the language", true))
-                    language = GetCalculatorLanguage();
-                using (timingLogger.BeginScope("Initializing the evaluator", true))
-                    evaluator = new TreeEvaluator(language);
-                using (timingLogger.BeginScope("Initializing the reconstructor", true))
-                    reconstructor = new SimpleTreeReconstructor();
+                using (_timingLogger.BeginScope("Building the language", true))
+                    _language = GetCalculatorLanguage();
+                using (_timingLogger.BeginScope("Initializing the evaluator", true))
+                    _evaluator = new TreeEvaluator(_language);
+                using (_timingLogger.BeginScope("Initializing the reconstructor", true))
+                    _reconstructor = new SimpleTreeReconstructor();
 
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                     Console.InputEncoding = Console.OutputEncoding = System.Text.Encoding.Unicode;
             }
 
-            using (timingLogger.BeginScope("Runtime", false))
+            using (_timingLogger.BeginScope("Runtime", false))
             {
                 while (true)
                 {
-                    timingLogger.Write('>');
-                    var line = timingLogger.ReadLine().Trim();
+                    _timingLogger.Write('>');
+                    var line = _timingLogger.ReadLine().Trim();
                     if (line == "q" || line == "e" || line == "quit" || line == "exit")
                         break;
 
                     var eqs = line.IndexOf('=');
                     if ((line.StartsWith("b ") || line.StartsWith("bench ")) && eqs < 0)
-                        BenchmarkWithExpression(line.Substring(line.IndexOf(' ')));
+                        BenchmarkWithExpression(line[line.IndexOf(' ')..]);
                     else if ((line.StartsWith("l ") || line.StartsWith("lex ")) && eqs < 0)
-                        LexExpression(line.Substring(line.IndexOf(' ') + 1));
+                        LexExpression(line[(line.IndexOf(' ') + 1)..]);
                     else if ((line.StartsWith("r ") || line.StartsWith("random ")) && eqs < 0)
-                        GenerateRandomExpression(line.Substring(line.IndexOf(' ') + 1));
+                        GenerateRandomExpression(line[(line.IndexOf(' ') + 1)..]);
                     else if ((line.StartsWith("v ") || line.StartsWith("verbose ")) && eqs < 0)
-                        ExecuteExpressionVerbose(line.Substring(line.IndexOf(' ') + 1));
+                        ExecuteExpressionVerbose(line[(line.IndexOf(' ') + 1)..]);
                     else
                         ExecuteExpression(line, eqs);
                 }
@@ -66,8 +64,8 @@ namespace Calculator.CLI
 
         private static CalculatorLanguage GetCalculatorLanguage()
         {
-            const Double PI_OVER_180 = Math.PI / 180;
-            const Double PI_UNDER_180 = 180 / Math.PI;
+            const double PI_OVER_180 = Math.PI / 180;
+            const double PI_UNDER_180 = 180 / Math.PI;
             var lang = new CalculatorLanguageBuilder(StringComparer.InvariantCultureIgnoreCase);
 
             // Constants
@@ -75,8 +73,8 @@ namespace Calculator.CLI
                 .AddConstants(new[] { "π", "pi" }, Math.PI)
                 .AddConstants(new[] { "τ", "tau" }, Math.PI * 2)
                 .AddConstants(new[] { "φ", "phi" }, 1.6180339887498948)
-                .AddConstant("NaN", Double.NaN)
-                .AddConstants(new[] { "∞", "Inf", "Infinity" }, Double.PositiveInfinity)
+                .AddConstant("NaN", double.NaN)
+                .AddConstants(new[] { "∞", "Inf", "Infinity" }, double.PositiveInfinity)
                 .AddConstant("KiB", FileSize.KiB)
                 .AddConstant("Kilo", SI.Kilo)
                 .AddConstant("MiB", FileSize.MiB)
@@ -91,11 +89,11 @@ namespace Calculator.CLI
                 .AddConstant("Exa", SI.Exa);
 
             // Binary operators - Logical Operators
-            lang.AddBinaryOperators(Associativity.Left, new[] { "|", "∨" }, 1, (left, right) => ((Int64) left) | ((Int64) right))
-                .AddBinaryOperators(Associativity.Left, new[] { "xor", "⊻", "⊕" }, 2, (left, right) => ((Int64) left) ^ ((Int64) right))
-                .AddBinaryOperators(Associativity.Left, new[] { "&", "∧" }, 3, (left, right) => ((Int64) left) & ((Int64) right))
-                .AddBinaryOperator(Associativity.Left, ">>", 4, (left, right) => ((Int64) left) >> ((Int32) right))
-                .AddBinaryOperator(Associativity.Left, "<<", 4, (left, right) => ((Int64) left) << ((Int32) right));
+            lang.AddBinaryOperators(Associativity.Left, new[] { "|", "∨" }, 1, (left, right) => ((long) left) | ((long) right))
+                .AddBinaryOperators(Associativity.Left, new[] { "xor", "⊻", "⊕" }, 2, (left, right) => ((long) left) ^ ((long) right))
+                .AddBinaryOperators(Associativity.Left, new[] { "&", "∧" }, 3, (left, right) => ((long) left) & ((long) right))
+                .AddBinaryOperator(Associativity.Left, ">>", 4, (left, right) => ((long) left) >> ((int) right))
+                .AddBinaryOperator(Associativity.Left, "<<", 4, (left, right) => ((long) left) << ((int) right));
 
             // Binary operators - Math Operators
             lang.AddBinaryOperators(Associativity.Left, new[] { "+", "➕" }, 5, (left, right) => left + right)
@@ -107,7 +105,7 @@ namespace Calculator.CLI
 
             // Unary operators
             lang.AddUnaryOperator(UnaryOperatorFix.Prefix, "-", 8, n => -n)
-                .AddUnaryOperator(UnaryOperatorFix.Prefix, "~", 8, n => ~(Int64) n)
+                .AddUnaryOperator(UnaryOperatorFix.Prefix, "~", 8, n => ~(long) n)
                 .AddUnaryOperator(UnaryOperatorFix.Postfix, "!", 8, factorial);
 
             // Exponentiation
@@ -136,9 +134,9 @@ namespace Calculator.CLI
                 .AddFunction("fusedMultiplyadd", f => f.AddOverload(Math.FusedMultiplyAdd))
                 .AddFunction("IEEERemainder", f => f.AddOverload(Math.IEEERemainder))
                 .AddFunction("ilogb", f => f.AddOverload(x => Math.ILogB(x)))
-                .AddFunction("ln", f => f.AddOverload((Func<Double, Double>) Math.Log))
-                .AddFunction("log", f => f.AddOverload((Func<Double, Double>) Math.Log)
-                                               .AddOverload((Func<Double, Double, Double>) Math.Log))
+                .AddFunction("ln", f => f.AddOverload((Func<double, double>) Math.Log))
+                .AddFunction("log", f => f.AddOverload((Func<double, double>) Math.Log)
+                                               .AddOverload((Func<double, double, double>) Math.Log))
                 .AddFunction("log10", f => f.AddOverload(Math.Log10))
                 .AddFunction("log2", f => f.AddOverload(Math.Log2))
                 .AddFunction("max", f => f.AddOverload(Math.Max))
@@ -147,8 +145,8 @@ namespace Calculator.CLI
                 .AddFunction("minMagnitude", f => f.AddOverload(Math.MinMagnitude))
                 .AddFunction("pow", f => f.AddOverload(Math.Pow))
                 .AddFunction("round", f => f.AddOverload(Math.Round)
-                                                 .AddOverload((num, digits) => Math.Round(num, (Int32) digits)))
-                .AddFunction("scaleB", f => f.AddOverload((x, n) => Math.ScaleB(x, (Int32) n)))
+                                                 .AddOverload((num, digits) => Math.Round(num, (int) digits)))
+                .AddFunction("scaleB", f => f.AddOverload((x, n) => Math.ScaleB(x, (int) n)))
                 .AddFunction("sign", f => f.AddOverload(n => Math.Sign(n)))
                 .AddFunction("sin", f => f.AddOverload(Math.Sin))
                 .AddFunction("sinh", f => f.AddOverload(Math.Sinh))
@@ -173,46 +171,46 @@ namespace Calculator.CLI
             // Get immutable calculator language
             return lang.ToCalculatorLanguage();
 
-            static Double factorial(Double arg)
+            static double factorial(double arg)
             {
                 if (arg == 1)
                     return 1d;
                 else if (arg < 0)
-                    return Double.NaN;
+                    return double.NaN;
                 else if (arg > 170)
-                    return Double.PositiveInfinity;
+                    return double.PositiveInfinity;
                 else
                     return arg * factorial(arg - 1);
             }
         }
 
         [Command("lex")]
-        private static void LexExpression(String expression)
+        private static void LexExpression(string expression)
         {
-            using (timingLogger.BeginScope($"Lexing: {expression}", true))
+            using (_timingLogger.BeginScope($"Lexing: {expression}", true))
             {
-                IEnumerable<Token<CalculatorTokenType>> toks = language.Lex(expression, out IEnumerable<Diagnostic> diagnostics);
-                foreach (Token<CalculatorTokenType> tok in toks)
-                    timingLogger.WriteLine($"{tok.Type}<{tok.Id}>({tok.Text}, {tok.Value})");
+                var toks = _language.Lex(expression, out var diagnostics);
+                foreach (var tok in toks)
+                    _timingLogger.WriteLine($"{tok.Type}<{tok.Id}>({tok.Text}, {tok.Value})");
 
-                foreach (Diagnostic diag in diagnostics.OrderBy(d => d.Severity))
+                foreach (var diag in diagnostics.OrderBy(d => d.Severity))
                 {
-                    timingLogger.WriteLine($@"{CalculatorDiagnostics.HighlightRange(expression, diag.Range)}
+                    _timingLogger.WriteLine($@"{CalculatorDiagnostics.HighlightRange(expression, diag.Range)}
 {diag.Id} {diag.Severity}: {diag.Description}");
                 }
             }
         }
 
-        private static String GetExpressionContext(Int32 offset, String expr)
+        private static string GetExpressionContext(int offset, string expr)
         {
-            const Int32 context = 50;
+            const int context = 50;
             var start = Math.Max(offset - context / 2, 0);
             var len = Math.Min(context / 2, expr.Length - offset);
             return $@"{expr.Substring(start, len)}
-{new String(' ', start)}^";
+{new string(' ', start)}^";
         }
 
-        private static void ExecuteExpression(String expression, Int32 eqs)
+        private static void ExecuteExpression(string expression, int eqs)
         {
             try
             {
@@ -225,15 +223,15 @@ namespace Calculator.CLI
                     if (name.Equals("E", StringComparison.OrdinalIgnoreCase) || name.Equals("pi", StringComparison.OrdinalIgnoreCase)
                         || name.Equals("π", StringComparison.OrdinalIgnoreCase))
                     {
-                        timingLogger.LogError("Cannot redefine this constant.");
+                        _timingLogger.LogError("Cannot redefine this constant.");
                         return;
                     }
                 }
 
-                var res = language.Evaluate(expression, out IEnumerable<Diagnostic> diagnostics);
-                language = language.SetConstant(name, res);
-                timingLogger.WriteLine($"{name} = {res}");
-                foreach (Diagnostic diagnostic in diagnostics)
+                var res = _language.Evaluate(expression, out var diagnostics);
+                _language = _language.SetConstant(name, res);
+                _timingLogger.WriteLine($"{name} = {res}");
+                foreach (var diagnostic in diagnostics)
                 {
                     var str = $@"{CalculatorDiagnostics.HighlightRange(expression, diagnostic.Range)}
 {diagnostic.Id} {diagnostic.Severity}: {diagnostic.Description}";
@@ -241,79 +239,79 @@ namespace Calculator.CLI
                     switch (diagnostic.Severity)
                     {
                         case DiagnosticSeverity.Error:
-                            timingLogger.LogError(str);
+                            _timingLogger.LogError(str);
                             break;
 
                         case DiagnosticSeverity.Warning:
-                            timingLogger.LogWarning(str);
+                            _timingLogger.LogWarning(str);
                             break;
 
                         case DiagnosticSeverity.Info:
-                            timingLogger.LogInformation(str);
+                            _timingLogger.LogInformation(str);
                             break;
 
                         case DiagnosticSeverity.Hidden:
-                            timingLogger.LogDebug(str);
+                            _timingLogger.LogDebug(str);
                             break;
                     }
                 }
             }
             catch (FatalParsingException fpex)
             {
-                timingLogger.LogError(CalculatorDiagnostics.HighlightRange(expression, fpex.Range));
-                timingLogger.LogError($"Runtime Error: {fpex.Message}");
+                _timingLogger.LogError(CalculatorDiagnostics.HighlightRange(expression, fpex.Range));
+                _timingLogger.LogError($"Runtime Error: {fpex.Message}");
             }
             catch (Exception ex)
             {
-                timingLogger.LogError($"Unexpected exception: {ex}");
+                _timingLogger.LogError($"Unexpected exception: {ex}");
             }
         }
 
-        private static void ExecuteExpressionVerbose(String expression)
+        private static void ExecuteExpressionVerbose(string expression)
         {
             try
             {
-                using (timingLogger.BeginScope($"Executing: {expression}", true))
+                using (_timingLogger.BeginScope($"Executing: {expression}", true))
                 {
                     var diagnostics = new DiagnosticList();
                     CalculatorParser parser;
                     CalculatorTreeNode node;
-                    Double res;
-                    String rec;
+                    double res;
+                    string rec;
 
-                    using (timingLogger.BeginScope("Lexer + Parser initialization", true))
-                        parser = language.GetParser(expression, diagnostics);
+                    using (_timingLogger.BeginScope("Lexer + Parser initialization", true))
+                        parser = _language.GetParser(expression, diagnostics);
 
-                    using (timingLogger.BeginScope("Parsing", true))
+                    using (_timingLogger.BeginScope("Parsing", true))
                         node = parser.Parse();
 
-                    using (timingLogger.BeginScope("Evaluation", true))
-                        res = node.Accept(evaluator);
+                    using (_timingLogger.BeginScope("Evaluation", true))
+                        res = node.Accept(_evaluator);
 
-                    using (timingLogger.BeginScope("Reconstruction", true))
-                        rec = node.Accept(reconstructor);
+                    using (_timingLogger.BeginScope("Reconstruction", true))
+                        rec = node.Accept(_reconstructor);
 
-                    timingLogger.WriteLine($"{rec} = {res}");
-                    foreach (Diagnostic diagnostic in diagnostics)
+                    _timingLogger.WriteLine($"{rec} = {res}");
+                    foreach (var diagnostic in diagnostics)
                     {
                         var str = $@"{CalculatorDiagnostics.HighlightRange(expression, diagnostic.Range)}
 {diagnostic.Id} {diagnostic.Severity}: {diagnostic.Description}";
                         switch (diagnostic.Severity)
                         {
                             case DiagnosticSeverity.Error:
-                                timingLogger.LogError(str);
+                                _timingLogger.LogError(str);
                                 break;
 
                             case DiagnosticSeverity.Warning:
-                                timingLogger.LogWarning(str);
+                                _timingLogger.LogWarning(str);
                                 break;
 
                             case DiagnosticSeverity.Info:
-                                timingLogger.LogInformation(str);
+                                _timingLogger.LogInformation(str);
                                 break;
 
                             case DiagnosticSeverity.Hidden:
-                                timingLogger.LogDebug(str);
+                                _timingLogger.LogDebug(str);
                                 break;
                         }
                     }
@@ -321,42 +319,42 @@ namespace Calculator.CLI
             }
             catch (FatalParsingException fpex)
             {
-                timingLogger.LogError(GetExpressionContext(fpex.Range.Start.Byte, expression));
-                timingLogger.LogError($"{fpex.Range}: {fpex.Message}");
+                _timingLogger.LogError(GetExpressionContext(fpex.Range.Start.Byte, expression));
+                _timingLogger.LogError($"{fpex.Range}: {fpex.Message}");
             }
             catch (Exception ex)
             {
-                timingLogger.LogError($"Unexpected exception: {ex}");
+                _timingLogger.LogError($"Unexpected exception: {ex}");
             }
         }
 
-        private static readonly Random random = new Random();
+        private static readonly Random _random = new Random();
 
-        private static CalculatorTreeNode GenerateRandomExpression(Int32 maxDepth)
+        private static CalculatorTreeNode GenerateRandomExpression(int maxDepth)
         {
-            UnaryOperator[] unaryOperators = language.UnaryOperators.Values.ToArray();
-            BinaryOperator[] binaryOperators = language.BinaryOperators.Values.ToArray();
-            Constant[] constants = language.Constants.Values.ToArray();
-            Function[] functions = language.Functions.Values.ToArray();
+            var unaryOperators = _language.UnaryOperators.Values.ToArray();
+            var binaryOperators = _language.BinaryOperators.Values.ToArray();
+            var constants = _language.Constants.Values.ToArray();
+            var functions = _language.Functions.Values.ToArray();
             if (maxDepth > 0)
             {
-                switch (random.Next(0, 3))
+                switch (_random.Next(0, 3))
                 {
                     case 0:
-                        UnaryOperator unop = unaryOperators[random.Next(0, unaryOperators.Length)];
+                        var unop = unaryOperators[_random.Next(0, unaryOperators.Length)];
                         return unop.Fix == UnaryOperatorFix.Postfix
                             ? ASTHelper.Postfix(GenerateRandomExpression(maxDepth - 1), unop.Operator)
                             : ASTHelper.Prefix(unop.Operator, GenerateRandomExpression(maxDepth - 1));
 
                     case 1:
-                        BinaryOperator binop = binaryOperators[random.Next(0, binaryOperators.Length)];
+                        var binop = binaryOperators[_random.Next(0, binaryOperators.Length)];
                         return ASTHelper.Binary(GenerateRandomExpression(maxDepth - 1), binop.Operator, GenerateRandomExpression(maxDepth - 1));
 
                     case 2:
-                        Function func = functions[random.Next(0, functions.Length)];
+                        var func = functions[_random.Next(0, functions.Length)];
                         var argCounts = func.Overloads.Keys.ToArray();
-                        Delegate overload = func.Overloads[argCounts[random.Next(0, argCounts.Length)]];
-                        var args = new Object[overload.Method.GetParameters().Length];
+                        var overload = func.Overloads[argCounts[_random.Next(0, argCounts.Length)]];
+                        var args = new object[overload.Method.GetParameters().Length];
                         for (var i = 0; i < args.Length; i++)
                             args[i] = GenerateRandomExpression(maxDepth - 1);
                         return ASTHelper.Function(func.Name, args);
@@ -368,32 +366,32 @@ namespace Calculator.CLI
             }
             else
             {
-                return random.Next(0, 2) == 1
-                    ? ASTHelper.Number(random.NextDouble())
-                    : (CalculatorTreeNode) ASTHelper.Identifier(constants[random.Next(0, constants.Length)].Identifier);
+                return _random.Next(0, 2) == 1
+                    ? ASTHelper.Number(_random.NextDouble())
+                    : (CalculatorTreeNode) ASTHelper.Identifier(constants[_random.Next(0, constants.Length)].Identifier);
             }
         }
 
-        private static void GenerateRandomExpression(String restOfLine)
+        private static void GenerateRandomExpression(string restOfLine)
         {
-            var depth = Int32.Parse(restOfLine);
-            timingLogger.WriteLine("Randomly generated expression:");
-            timingLogger.WriteLine($"{GenerateRandomExpression(depth).Accept(reconstructor)}");
+            var depth = int.Parse(restOfLine);
+            _timingLogger.WriteLine("Randomly generated expression:");
+            _timingLogger.WriteLine($"{GenerateRandomExpression(depth).Accept(_reconstructor)}");
         }
 
-        private static void BenchmarkWithExpression(String expression)
+        private static void BenchmarkWithExpression(string expression)
         {
-            var results = new List<Int64>();
+            var results = new List<long>();
             var eval = 0D;
             for (var i = 0; i < 200; i++)
             {
                 var sw = Stopwatch.StartNew();
-                eval = language.Evaluate(expression, out _);
+                eval = _language.Evaluate(expression, out _);
                 sw.Stop();
                 results.Add(sw.ElapsedTicks);
             }
 
-            var medianTmp = new Dictionary<Int64, Int32>();
+            var medianTmp = new Dictionary<long, int>();
             foreach (var tick in results)
             {
                 if (!medianTmp.ContainsKey(tick))
@@ -405,14 +403,14 @@ namespace Calculator.CLI
             /*
              * ( a + b + c + d ) / e ≡ a / e + b / e + c / e + d / e
              */
-            timingLogger.WriteLine($"Firstly, the evaluted result: {eval}");
-            timingLogger.WriteLine($"Average time: {Duration.Format(results.Aggregate(0L, (avg, ticks) => avg + ticks / results.Count))}");
-            timingLogger.WriteLine($"Maximum time: {Duration.Format(results.Max())}");
-            timingLogger.WriteLine($"Minimum time: {Duration.Format(results.Min())}");
-            timingLogger.WriteLine($"Median time:  {Duration.Format(median)}");
-            timingLogger.WriteLine("Execution times sorted by frequency:");
-            foreach (KeyValuePair<Int64, Int32> kv in medianTmp.OrderBy(kv => kv.Value))
-                timingLogger.WriteLine($"  {kv.Value:000} times: {Duration.Format(kv.Key, "{0:000.00}{1}")}");
+            _timingLogger.WriteLine($"Firstly, the evaluted result: {eval}");
+            _timingLogger.WriteLine($"Average time: {Duration.Format(results.Aggregate(0L, (avg, ticks) => avg + ticks / results.Count))}");
+            _timingLogger.WriteLine($"Maximum time: {Duration.Format(results.Max())}");
+            _timingLogger.WriteLine($"Minimum time: {Duration.Format(results.Min())}");
+            _timingLogger.WriteLine($"Median time:  {Duration.Format(median)}");
+            _timingLogger.WriteLine("Execution times sorted by frequency:");
+            foreach (var kv in medianTmp.OrderBy(kv => kv.Value))
+                _timingLogger.WriteLine($"  {kv.Value:000} times: {Duration.Format(kv.Key, "{0:000.00}{1}")}");
         }
     }
 }

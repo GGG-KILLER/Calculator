@@ -425,16 +425,8 @@ namespace Calculator
             && EqualityComparer<IImmutableDictionary<SpecialBinaryOperatorType, SpecialBinaryOperator>>.Default.Equals(SpecialBinaryOperators, other.SpecialBinaryOperators);
 
         /// <inheritdoc/>
-        public override int GetHashCode()
-        {
-            var hashCode = -1744045736;
-            hashCode = hashCode * -1521134295 + EqualityComparer<IImmutableDictionary<string, Constant>>.Default.GetHashCode(Constants);
-            hashCode = hashCode * -1521134295 + EqualityComparer<IImmutableDictionary<(UnaryOperatorFix, string), UnaryOperator>>.Default.GetHashCode(UnaryOperators);
-            hashCode = hashCode * -1521134295 + EqualityComparer<IImmutableDictionary<string, BinaryOperator>>.Default.GetHashCode(BinaryOperators);
-            hashCode = hashCode * -1521134295 + EqualityComparer<IImmutableDictionary<string, Function>>.Default.GetHashCode(Functions);
-            hashCode = hashCode * -1521134295 + EqualityComparer<IImmutableDictionary<SpecialBinaryOperatorType, SpecialBinaryOperator>>.Default.GetHashCode(SpecialBinaryOperators);
-            return hashCode;
-        }
+        public override int GetHashCode() =>
+            HashCode.Combine(Constants, UnaryOperators, BinaryOperators, Functions, SpecialBinaryOperators);
 
         /// <summary>
         /// Checks whether two instances of <see cref="CalculatorLanguage"/> are equal

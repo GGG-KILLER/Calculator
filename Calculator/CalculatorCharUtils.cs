@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -18,6 +19,7 @@ namespace Calculator
         public static bool IsDecimal(char ch) =>
             CharUtils.IsInRange('0', ch, '9');
 
+        [SuppressMessage("Style", "IDE0066:Convert switch statement to expression", Justification = "Would make code more unreadable")]
         public static bool IsLeadingIdentifierChar(char ch)
         {
             switch (ch)

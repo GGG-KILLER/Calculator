@@ -16,23 +16,16 @@ namespace Calculator
                 return null;
 
             var last = str[str.Length - 1];
-            switch (last)
+            return last switch
             {
-                case '.':
-                case '?':
-                case '!':
-                case ';':
-                    return str;
-
-                default:
-                    return str + '.';
-            }
+                '.' or '?' or '!' or ';' => str,
+                _ => str + '.',
+            };
         }
 
         /// <summary>
         /// The class that stores the methods for all generated syntax error diagnostics
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1034:Nested types should not be visible", Justification = "This is a subset of functionalities of the parent utility class.")]
         public static class SyntaxError
         {
             /// <summary>

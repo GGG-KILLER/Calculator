@@ -42,7 +42,7 @@ namespace Calculator.Lexing.Modules
             var end = reader.Position;
             var range = new Range<int>(start, end);
 
-            if (digits < 1 || digits > 64)
+            if (digits is < 1 or > 64)
                 diagnostics.Report(CalculatorDiagnostics.SyntaxError.InvalidNumber(reader.GetLocation(range), "binary"));
 
             token = new Token<CalculatorTokenType>("bin-number", CalculatorTokenType.Number, range, (double) number);

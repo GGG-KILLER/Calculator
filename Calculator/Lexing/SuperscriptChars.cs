@@ -75,25 +75,11 @@ namespace Calculator.Lexing
         /// <returns></returns>
         public static bool IsSupportedChar(char ch)
         {
-            switch (ch)
+            return ch switch
             {
-                case Zero:
-                case One:
-                case Two:
-                case Three:
-                case Four:
-                case Five:
-                case Six:
-                case Seven:
-                case Eight:
-                case Nine:
-                case Plus:
-                case Minus:
-                    return true;
-
-                default:
-                    return false;
-            }
+                Zero or One or Two or Three or Four or Five or Six or Seven or Eight or Nine or Plus or Minus => true,
+                _ => false,
+            };
         }
 
         /// <summary>
@@ -105,29 +91,17 @@ namespace Calculator.Lexing
             ch switch
             {
                 Zero => 0d,
-
                 One => 1d,
-
                 Two => 2d,
-
                 Three => 3d,
-
                 Four => 4d,
-
                 Five => 5d,
-
                 Six => 6d,
-
                 Seven => 7d,
-
                 Eight => 8d,
-
                 Nine => 9d,
-
                 Plus => -1d,
-
                 Minus => -1d,
-
                 _ => throw new NotSupportedException(),
             };
 
@@ -140,25 +114,15 @@ namespace Calculator.Lexing
             digit switch
             {
                 0 => Zero,
-
                 1 => One,
-
                 2 => Two,
-
                 3 => Three,
-
                 4 => Four,
-
                 5 => Five,
-
                 6 => Six,
-
                 7 => Seven,
-
                 8 => Eight,
-
                 9 => Nine,
-
                 _ => throw new NotSupportedException(),
             };
 
