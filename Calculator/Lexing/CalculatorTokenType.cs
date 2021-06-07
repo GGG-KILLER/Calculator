@@ -6,53 +6,58 @@
     public enum CalculatorTokenType
     {
         /// <summary>
-        /// The EOF (default value, GParse convention)
+        /// The EOF (default value, GParse convention).
         /// </summary>
         EndOfExpression,
 
         /// <summary>
-        /// A number
+        /// A number.
         /// </summary>
         Number,
 
         /// <summary>
-        /// An identifier
+        /// An identifier.
         /// </summary>
         Identifier,
 
         /// <summary>
-        /// A keyword(?, not used for now)
+        /// A keyword(?, not used for now).
         /// </summary>
         Keyword,
 
         /// <summary>
-        /// An operator
+        /// An operator.
         /// </summary>
         Operator,
 
         /// <summary>
-        /// A left parenthesis
+        /// A left parenthesis.
         /// </summary>
         LParen,
 
         /// <summary>
-        /// A right parenthesis
+        /// A right parenthesis.
         /// </summary>
         RParen,
 
         /// <summary>
-        /// A comma
+        /// A comma.
         /// </summary>
         Comma,
 
         /// <summary>
-        /// Whitespace
+        /// Whitespace.
         /// </summary>
         Whitespace,
 
         /// <summary>
-        /// Superscript (⁰, ¹, ², ³, ⁴, ⁵, ⁶, ⁷, ⁸, ⁹, ⁺, ⁻)
+        /// Superscript (⁰, ¹, ², ³, ⁴, ⁵, ⁶, ⁷, ⁸, ⁹, ⁺, ⁻).
         /// </summary>
         Superscript,
+
+        /// <summary>
+        /// An uknown character.
+        /// </summary>
+        Unknown,
     }
 }
