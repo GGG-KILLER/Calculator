@@ -15,114 +15,115 @@ namespace Calculator.Parsing
     /// </summary>
     public class CalculatorParserBuilder : PrattParserBuilder<CalculatorTokenType, CalculatorTreeNode>
     {
-        private static Boolean IsValidIdentifier ( in String str ) =>
-            Char.IsLetter ( str[0] ) && str.Skip ( 1 ).All ( Char.IsLetterOrDigit );
+        private static bool IsValidIdentifier(in string str) =>
+            char.IsLetter(str[0]) && str.Skip(1).All(char.IsLetterOrDigit);
 
         /// <summary>
         /// Initializes this <see cref="CalculatorParserBuilder"/> with a <see cref="CalculatorLanguage"/>
         /// </summary>
         /// <param name="language"></param>
-        public CalculatorParserBuilder ( CalculatorLanguage language )
+        public CalculatorParserBuilder(CalculatorLanguage language)
         {
-#pragma warning disable CC0067 // Virtual Method Called On Constructor
-            this.RegisterLiteral ( CalculatorTokenType.Identifier, ( Token<CalculatorTokenType> tok, out CalculatorTreeNode node ) =>
+            RegisterLiteral(CalculatorTokenType.Identifier, static (Token<CalculatorTokenType> tok, DiagnosticList diagnostics, out CalculatorTreeNode node) =>
             {
-                node = new IdentifierExpression ( tok );
+                node = new IdentifierExpression(tok);
                 return true;
-            } );
+            });
 
-            this.RegisterLiteral ( CalculatorTokenType.Number, ( Token<CalculatorTokenType> tok, out CalculatorTreeNode node ) =>
+            RegisterLiteral(CalculatorTokenType.Number, static (Token<CalculatorTokenType> tok, DiagnosticList diagnostics, out CalculatorTreeNode node) =>
             {
-                node = new NumberExpression ( tok );
+                node = new NumberExpression(tok);
                 return true;
-            } );
+            });
 
             var maxPrecedence = 0;
-            foreach ( UnaryOperator unaryOp in language.UnaryOperators.Values )
+            foreach (var unaryOp in language.UnaryOperators.Values)
             {
-                if ( unaryOp.Precedence > maxPrecedence )
+                if (unaryOp.Precedence > maxPrecedence)
                     maxPrecedence = unaryOp.Precedence;
 
-                if ( unaryOp.Fix == UnaryOperatorFix.Postfix )
+                if (unaryOp.Fix == UnaryOperatorFix.Postfix)
                 {
-                    this.RegisterSingleTokenPostfixOperator (
-                        IsValidIdentifier ( unaryOp.Operator ) ? CalculatorTokenType.Identifier : CalculatorTokenType.Operator,
+                    this.RegisterSingleTokenPostfixOperator(
+                        IsValidIdentifier(unaryOp.Operator) ? CalculatorTokenType.Identifier : CalculatorTokenType.Operator,
                         unaryOp.Operator,
                         unaryOp.Precedence,
-                        ( CalculatorTreeNode expr, Token<CalculatorTokenType> unop, out CalculatorTreeNode node ) =>
+                        static (CalculatorTreeNode expr, Token<CalculatorTokenType> unop, DiagnosticList diagnostics, out CalculatorTreeNode node) =>
                         {
-                            node = new UnaryOperatorExpression ( UnaryOperatorFix.Postfix, unop, expr );
+                            node = new UnaryOperatorExpression(UnaryOperatorFix.Postfix, unop, expr);
                             return true;
-                        } );
+                        });
                 }
                 else
                 {
-                    this.RegisterSingleTokenPrefixOperator (
-                        IsValidIdentifier ( unaryOp.Operator ) ? CalculatorTokenType.Identifier : CalculatorTokenType.Operator,
+                    this.RegisterSingleTokenPrefixOperator(
+                        IsValidIdentifier(unaryOp.Operator) ? CalculatorTokenType.Identifier : CalculatorTokenType.Operator,
                         unaryOp.Operator,
                         unaryOp.Precedence,
-                        ( Token<CalculatorTokenType> unop, CalculatorTreeNode expr, out CalculatorTreeNode node ) =>
+                        static (Token<CalculatorTokenType> unop, CalculatorTreeNode expr, DiagnosticList diagnostics, out CalculatorTreeNode node) =>
                         {
-                            node = new UnaryOperatorExpression ( UnaryOperatorFix.Prefix, unop, expr );
+                            node = new UnaryOperatorExpression(UnaryOperatorFix.Prefix, unop, expr);
                             return true;
-                        } );
+                        });
                 }
             }
 
-            foreach ( BinaryOperator binaryOp in language.BinaryOperators.Values )
+            foreach (var binaryOp in language.BinaryOperators.Values)
             {
-                if ( binaryOp.Precedence > maxPrecedence )
+                if (binaryOp.Precedence > maxPrecedence)
                     maxPrecedence = binaryOp.Precedence;
 
-                this.RegisterSingleTokenInfixOperator (
-                    IsValidIdentifier ( binaryOp.Operator ) ? CalculatorTokenType.Identifier : CalculatorTokenType.Operator,
+                RegisterSingleTokenInfixOperator(
+                    IsValidIdentifier(binaryOp.Operator) ? CalculatorTokenType.Identifier : CalculatorTokenType.Operator,
                     binaryOp.Operator,
                     binaryOp.Precedence,
                     binaryOp.Associativity == Associativity.Right,
-                    ( CalculatorTreeNode left, Token<CalculatorTokenType> op, CalculatorTreeNode right, out CalculatorTreeNode node ) =>
+                    static (CalculatorTreeNode left, Token<CalculatorTokenType> op, CalculatorTreeNode right, out CalculatorTreeNode node) =>
                     {
-                        node = new BinaryOperatorExpression ( op, left, right );
+                        node = new BinaryOperatorExpression(op, left, right);
                         return true;
-                    } );
+                    });
             }
 
-            var hasImplMul = language.HasImplicitMultiplication ( );
-            if ( hasImplMul )
+            var hasImplMul = language.HasImplicitMultiplication();
+            if (hasImplMul)
             {
-                SpecialBinaryOperator op = language.GetImplicitMultiplication();
-                if ( op.Precedence > maxPrecedence )
+                var op = language.GetImplicitMultiplication();
+                if (op.Precedence > maxPrecedence)
                     maxPrecedence = op.Precedence;
             }
 
-            if ( language.HasSuperscriptExponentiation ( ) )
+            if (language.HasSuperscriptExponentiation())
             {
-                SpecialBinaryOperator op = language.GetSuperscriptExponentiation();
-                if ( op.Precedence > maxPrecedence )
+                var op = language.GetSuperscriptExponentiation();
+                if (op.Precedence > maxPrecedence)
                     maxPrecedence = op.Precedence;
 
-                this.Register ( CalculatorTokenType.Superscript, new SuperscriptExponentiationExpressionParselet ( op.Precedence ) );
+                Register(CalculatorTokenType.Superscript, new SuperscriptExponentiationExpressionParselet(op.Precedence));
             }
 
-            this.Register ( CalculatorTokenType.LParen, new GroupedExpressionParselet ( ) );
-            this.Register ( CalculatorTokenType.LParen, new FunctionCallExpressionParselet ( maxPrecedence + 1 ) );
-            if ( hasImplMul )
+            Register(CalculatorTokenType.LParen, new GroupedExpressionParselet());
+            Register(CalculatorTokenType.LParen, new FunctionCallExpressionParselet(maxPrecedence + 1));
+            if (hasImplMul)
             {
-                SpecialBinaryOperator op = language.GetImplicitMultiplication ( );
-                var implicitMultiplicationParselet = new ImplicitMultiplicationExpressionParselet ( op.Precedence );
-                foreach ( CalculatorTokenType tokenType in new[] { CalculatorTokenType.Identifier, CalculatorTokenType.LParen, CalculatorTokenType.Number } )
-                    this.Register ( tokenType, implicitMultiplicationParselet );
+                var op = language.GetImplicitMultiplication();
+                var implicitMultiplicationParselet = new ImplicitMultiplicationExpressionParselet(op.Precedence);
+                foreach (var tokenType in new[] { CalculatorTokenType.Identifier, CalculatorTokenType.LParen, CalculatorTokenType.Number })
+                    Register(tokenType, implicitMultiplicationParselet);
             }
-
-#pragma warning restore CC0067 // Virtual Method Called On Constructor
         }
 
         /// <summary>
         /// Creates a <see cref="CalculatorParser"/>
         /// </summary>
+        /// <param name="lexer"></param>
         /// <param name="reader"></param>
-        /// <param name="diagnosticEmitter"></param>
+        /// <param name="diagnostics"></param>
         /// <returns></returns>
-        public override IPrattParser<CalculatorTokenType, CalculatorTreeNode> CreateParser ( ITokenReader<CalculatorTokenType> reader, IProgress<Diagnostic> diagnosticEmitter ) =>
-            new CalculatorParser ( reader, this.prefixModuleTree, this.infixModuleTree, diagnosticEmitter );
+        public IPrattParser<CalculatorTokenType, CalculatorTreeNode> CreateParser(
+            ILexer<CalculatorTokenType> lexer,
+            ITokenReader<CalculatorTokenType> reader,
+            DiagnosticList diagnostics) =>
+            new CalculatorParser(lexer, reader, PrefixModuleTree, InfixModuleTree, diagnostics);
     }
 }

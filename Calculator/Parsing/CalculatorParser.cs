@@ -13,24 +13,28 @@ namespace Calculator.Parsing
     /// </summary>
     public class CalculatorParser : PrattParser<CalculatorTokenType, CalculatorTreeNode>
     {
-        private readonly ILexer<CalculatorTokenType> _lexer;
 
         /// <summary>
         /// <inheritdoc />
         /// </summary>
-        /// <param name="lexer"></param>
+        /// <param name="positionContainer"></param>
         /// <param name="tokenReader"></param>
         /// <param name="prefixModules"></param>
         /// <param name="infixModules"></param>
         /// <param name="diagnostics"></param>
         protected internal CalculatorParser(
-            ILexer<CalculatorTokenType> lexer,
+            IPositionContainer positionContainer,
             ITokenReader<CalculatorTokenType> tokenReader,
             PrattParserModuleTree<CalculatorTokenType, IPrefixParselet<CalculatorTokenType, CalculatorTreeNode>> prefixModules,
             PrattParserModuleTree<CalculatorTokenType, IInfixParselet<CalculatorTokenType, CalculatorTreeNode>> infixModules,
             DiagnosticList diagnostics)
             : base(tokenReader, prefixModules, infixModules, diagnostics) =>
-            _lexer = lexer;
+            PositionContainer = positionContainer;
+
+        /// <summary>
+        /// The position container to use when resolving diagnostic locations.
+        /// </summary>
+        public IPositionContainer PositionContainer { get; }
 
         /// <summary>
         /// Parses an expression
@@ -39,10 +43,10 @@ namespace Calculator.Parsing
         public CalculatorTreeNode Parse()
         {
             if (!TryParseExpression(out var expr))
-                throw new FatalParsingException(_lexer.GetLocation(TokenReader.Lookahead().Range.Start), "Unable to parse this expression.");
+                throw new FatalParsingException(PositionContainer.GetLocation(TokenReader.Lookahead().Range.Start), "Unable to parse this expression.");
 
             if (!TokenReader.Accept(CalculatorTokenType.EndOfExpression, out _))
-                Diagnostics.Report(CalculatorDiagnostics.SyntaxError.ThingExpected(_lexer.GetLocation(TokenReader.Lookahead().Range.Start), "EOF"));
+                Diagnostics.Report(CalculatorDiagnostics.SyntaxError.ThingExpected(PositionContainer.GetLocation(TokenReader.Lookahead().Range.Start), "EOF"));
 
             return expr;
         }
