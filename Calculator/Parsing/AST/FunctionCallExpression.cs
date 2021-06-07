@@ -4,8 +4,8 @@ using System.Collections.Immutable;
 using System.Linq;
 using Calculator.Lexing;
 using Calculator.Parsing.Abstractions;
-using GParse;
 using GParse.Lexing;
+using GParse.Math;
 
 namespace Calculator.Parsing.AST
 {
@@ -30,7 +30,7 @@ namespace Calculator.Parsing.AST
         public IEnumerable<Token<CalculatorTokenType>> Tokens { get; }
 
         /// <inheritdoc />
-        public override SourceRange Range { get; }
+        public override Range<int> Range { get; }
 
         /// <summary>
         /// Initializes this <see cref="FunctionCallExpression"/>
@@ -38,27 +38,27 @@ namespace Calculator.Parsing.AST
         /// <param name="identifier"></param>
         /// <param name="arguments"></param>
         /// <param name="tokens"></param>
-        public FunctionCallExpression ( IdentifierExpression identifier, IEnumerable<CalculatorTreeNode> arguments, IEnumerable<Token<CalculatorTokenType>> tokens )
+        public FunctionCallExpression(IdentifierExpression identifier, IEnumerable<CalculatorTreeNode> arguments, IEnumerable<Token<CalculatorTokenType>> tokens)
         {
-            if ( arguments is null )
-                throw new ArgumentNullException ( nameof ( arguments ) );
+            if (arguments is null)
+                throw new ArgumentNullException(nameof(arguments));
 
-            this.Identifier = identifier ?? throw new ArgumentNullException ( nameof ( identifier ) );
-            this.Arguments = arguments.ToImmutableArray ( );
-            this.Tokens = tokens ?? throw new ArgumentNullException ( nameof ( tokens ) );
-            this.Range = identifier.Range.Start.To ( tokens.Last ( ).Range.End );
+            Identifier = identifier ?? throw new ArgumentNullException(nameof(identifier));
+            Arguments = arguments.ToImmutableArray();
+            Tokens = tokens ?? throw new ArgumentNullException(nameof(tokens));
+            Range = new Range<int>(identifier.Range.Start, tokens.Last().Range.End);
         }
 
         /// <summary>
         /// <inheritdoc />
         /// </summary>
         /// <param name="visitor"></param>
-        public override void Accept ( ITreeVisitor visitor )
+        public override void Accept(ITreeVisitor visitor)
         {
-            if ( visitor is null )
-                throw new ArgumentNullException ( nameof ( visitor ) );
+            if (visitor is null)
+                throw new ArgumentNullException(nameof(visitor));
 
-            visitor.Visit ( this );
+            visitor.Visit(this);
         }
 
         /// <summary>
@@ -67,12 +67,12 @@ namespace Calculator.Parsing.AST
         /// <typeparam name="T"></typeparam>
         /// <param name="visitor"></param>
         /// <returns></returns>
-        public override T Accept<T> ( ITreeVisitor<T> visitor )
+        public override T Accept<T>(ITreeVisitor<T> visitor)
         {
-            if ( visitor is null )
-                throw new ArgumentNullException ( nameof ( visitor ) );
+            if (visitor is null)
+                throw new ArgumentNullException(nameof(visitor));
 
-            return visitor.Visit ( this );
+            return visitor.Visit(this);
         }
 
         /// <summary>
@@ -80,18 +80,18 @@ namespace Calculator.Parsing.AST
         /// </summary>
         /// <param name="node"></param>
         /// <returns></returns>
-        public override Boolean StructurallyEquals ( CalculatorTreeNode node )
+        public override bool StructurallyEquals(CalculatorTreeNode node)
         {
-            if ( !( node is FunctionCallExpression functionCall )
-                 || !this.Identifier.StructurallyEquals ( functionCall.Identifier )
-                 || this.Arguments.Length != functionCall.Arguments.Length )
+            if (node is not FunctionCallExpression functionCall
+                 || !Identifier.StructurallyEquals(functionCall.Identifier)
+                 || Arguments.Length != functionCall.Arguments.Length)
             {
                 return false;
             }
 
-            for ( var i = 0; i < this.Arguments.Length; i++ )
+            for (var i = 0; i < Arguments.Length; i++)
             {
-                if ( !this.Arguments[i].StructurallyEquals ( functionCall.Arguments[i] ) )
+                if (!Arguments[i].StructurallyEquals(functionCall.Arguments[i]))
                     return false;
             }
 

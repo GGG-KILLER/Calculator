@@ -2,8 +2,8 @@
 using Calculator.Definitions;
 using Calculator.Lexing;
 using Calculator.Parsing.Abstractions;
-using GParse;
 using GParse.Lexing;
+using GParse.Math;
 
 namespace Calculator.Parsing.AST
 {
@@ -28,7 +28,7 @@ namespace Calculator.Parsing.AST
         public CalculatorTreeNode Operand { get; }
 
         /// <inheritdoc />
-        public override SourceRange Range { get; }
+        public override Range<int> Range { get; }
 
         /// <summary>
         /// Initializes this <see cref="UnaryOperatorExpression" />
@@ -36,28 +36,28 @@ namespace Calculator.Parsing.AST
         /// <param name="fix"></param>
         /// <param name="operator"></param>
         /// <param name="operand"></param>
-        public UnaryOperatorExpression ( UnaryOperatorFix fix, Token<CalculatorTokenType> @operator, CalculatorTreeNode operand )
+        public UnaryOperatorExpression(UnaryOperatorFix fix, Token<CalculatorTokenType> @operator, CalculatorTreeNode operand)
         {
-            this.OperatorFix = fix;
-            this.Operator = @operator;
-            this.Operand = operand ?? throw new ArgumentNullException ( nameof ( operand ) );
+            OperatorFix = fix;
+            Operator = @operator;
+            Operand = operand ?? throw new ArgumentNullException(nameof(operand));
 
-            if ( fix == UnaryOperatorFix.Postfix )
-                this.Range = operand.Range.Start.To ( @operator.Range.End );
+            if (fix == UnaryOperatorFix.Postfix)
+                Range = new Range<int>(operand.Range.Start, @operator.Range.End);
             else
-                this.Range = @operator.Range.Start.To ( operand.Range.End );
+                Range = new Range<int>(@operator.Range.Start, operand.Range.End);
         }
 
         /// <summary>
         /// <inheritdoc />
         /// </summary>
         /// <param name="visitor"></param>
-        public override void Accept ( ITreeVisitor visitor )
+        public override void Accept(ITreeVisitor visitor)
         {
-            if ( visitor is null )
-                throw new ArgumentNullException ( nameof ( visitor ) );
+            if (visitor is null)
+                throw new ArgumentNullException(nameof(visitor));
 
-            visitor.Visit ( this );
+            visitor.Visit(this);
         }
 
         /// <summary>
@@ -66,12 +66,12 @@ namespace Calculator.Parsing.AST
         /// <typeparam name="T"></typeparam>
         /// <param name="visitor"></param>
         /// <returns></returns>
-        public override T Accept<T> ( ITreeVisitor<T> visitor )
+        public override T Accept<T>(ITreeVisitor<T> visitor)
         {
-            if ( visitor is null )
-                throw new ArgumentNullException ( nameof ( visitor ) );
+            if (visitor is null)
+                throw new ArgumentNullException(nameof(visitor));
 
-            return visitor.Visit ( this );
+            return visitor.Visit(this);
         }
 
         /// <summary>
@@ -79,10 +79,10 @@ namespace Calculator.Parsing.AST
         /// </summary>
         /// <param name="node"></param>
         /// <returns></returns>
-        public override Boolean StructurallyEquals ( CalculatorTreeNode node ) =>
+        public override bool StructurallyEquals(CalculatorTreeNode node) =>
             node is UnaryOperatorExpression unaryOperatorExpression
-                && this.Operator.Raw.Equals ( unaryOperatorExpression.Operator.Raw, StringComparison.OrdinalIgnoreCase )
-                && this.OperatorFix.Equals ( unaryOperatorExpression.OperatorFix )
-                && this.Operand.StructurallyEquals ( unaryOperatorExpression.Operand );
+            && StringComparer.OrdinalIgnoreCase.Equals(Operator.Text, unaryOperatorExpression.Operator.Text)
+            && OperatorFix.Equals(unaryOperatorExpression.OperatorFix)
+            && Operand.StructurallyEquals(unaryOperatorExpression.Operand);
     }
 }

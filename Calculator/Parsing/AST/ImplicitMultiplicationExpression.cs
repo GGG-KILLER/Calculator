@@ -1,6 +1,6 @@
 ﻿using System;
 using Calculator.Parsing.Abstractions;
-using GParse;
+using GParse.Math;
 
 namespace Calculator.Parsing.AST
 {
@@ -20,30 +20,30 @@ namespace Calculator.Parsing.AST
         public CalculatorTreeNode RightHandSide { get; }
 
         /// <inheritdoc />
-        public override SourceRange Range { get; }
+        public override Range<int> Range { get; }
 
         /// <summary>
         /// Initializes this <see cref="ImplicitMultiplicationExpression" />
         /// </summary>
         /// <param name="left"></param>
         /// <param name="right"></param>
-        public ImplicitMultiplicationExpression ( CalculatorTreeNode left, CalculatorTreeNode right )
+        public ImplicitMultiplicationExpression(CalculatorTreeNode left, CalculatorTreeNode right)
         {
-            this.LeftHandSide = left ?? throw new ArgumentNullException ( nameof ( left ) );
-            this.RightHandSide = right ?? throw new ArgumentNullException ( nameof ( right ) );
-            this.Range = this.LeftHandSide.Range.Start.To ( this.RightHandSide.Range.End );
+            LeftHandSide = left ?? throw new ArgumentNullException(nameof(left));
+            RightHandSide = right ?? throw new ArgumentNullException(nameof(right));
+            Range = new Range<int>(LeftHandSide.Range.Start, RightHandSide.Range.End);
         }
 
         /// <summary>
         /// <inheritdoc />
         /// </summary>
         /// <param name="visitor"></param>
-        public override void Accept ( ITreeVisitor visitor )
+        public override void Accept(ITreeVisitor visitor)
         {
-            if ( visitor is null )
-                throw new ArgumentNullException ( nameof ( visitor ) );
+            if (visitor is null)
+                throw new ArgumentNullException(nameof(visitor));
 
-            visitor.Visit ( this );
+            visitor.Visit(this);
         }
 
         /// <summary>
@@ -52,12 +52,12 @@ namespace Calculator.Parsing.AST
         /// <typeparam name="T"></typeparam>
         /// <param name="visitor"></param>
         /// <returns></returns>
-        public override T Accept<T> ( ITreeVisitor<T> visitor )
+        public override T Accept<T>(ITreeVisitor<T> visitor)
         {
-            if ( visitor is null )
-                throw new ArgumentNullException ( nameof ( visitor ) );
+            if (visitor is null)
+                throw new ArgumentNullException(nameof(visitor));
 
-            return visitor.Visit ( this );
+            return visitor.Visit(this);
         }
 
         /// <summary>
@@ -65,9 +65,9 @@ namespace Calculator.Parsing.AST
         /// </summary>
         /// <param name="node"></param>
         /// <returns></returns>
-        public override Boolean StructurallyEquals ( CalculatorTreeNode node ) =>
+        public override bool StructurallyEquals(CalculatorTreeNode node) =>
             node is ImplicitMultiplicationExpression implicitMultiplication
-            && this.LeftHandSide.StructurallyEquals ( implicitMultiplication.LeftHandSide )
-            && this.RightHandSide.StructurallyEquals ( implicitMultiplication.RightHandSide );
+            && LeftHandSide.StructurallyEquals(implicitMultiplication.LeftHandSide)
+            && RightHandSide.StructurallyEquals(implicitMultiplication.RightHandSide);
     }
 }

@@ -1,8 +1,8 @@
 ﻿using System;
 using Calculator.Lexing;
 using Calculator.Parsing.Abstractions;
-using GParse;
 using GParse.Lexing;
+using GParse.Math;
 
 namespace Calculator.Parsing.AST
 {
@@ -22,42 +22,42 @@ namespace Calculator.Parsing.AST
         public Token<CalculatorTokenType> Exponent { get; }
 
         /// <inheritdoc />
-        public override SourceRange Range { get; }
+        public override Range<int> Range { get; }
 
         /// <summary>
         /// Initializes this <see cref="SuperscriptExponentiationExpression"/>
         /// </summary>
         /// <param name="base"></param>
         /// <param name="exponent"></param>
-        public SuperscriptExponentiationExpression ( CalculatorTreeNode @base, Token<CalculatorTokenType> exponent )
+        public SuperscriptExponentiationExpression(CalculatorTreeNode @base, Token<CalculatorTokenType> exponent)
         {
-            this.Base = @base ?? throw new ArgumentNullException ( nameof ( @base ) );
-            this.Exponent = exponent;
-            this.Range = @base.Range.Start.To ( exponent.Range.End );
+            Base = @base ?? throw new ArgumentNullException(nameof(@base));
+            Exponent = exponent;
+            Range = new Range<int>(@base.Range.Start, exponent.Range.End);
         }
 
         /// <inheritdoc />
-        public override void Accept ( ITreeVisitor visitor )
+        public override void Accept(ITreeVisitor visitor)
         {
-            if ( visitor is null )
-                throw new ArgumentNullException ( nameof ( visitor ) );
+            if (visitor is null)
+                throw new ArgumentNullException(nameof(visitor));
 
-            visitor.Visit ( this );
+            visitor.Visit(this);
         }
 
         /// <inheritdoc />
-        public override T Accept<T> ( ITreeVisitor<T> visitor )
+        public override T Accept<T>(ITreeVisitor<T> visitor)
         {
-            if ( visitor is null )
-                throw new ArgumentNullException ( nameof ( visitor ) );
+            if (visitor is null)
+                throw new ArgumentNullException(nameof(visitor));
 
-            return visitor.Visit ( this );
+            return visitor.Visit(this);
         }
 
         /// <inheritdoc />
-        public override Boolean StructurallyEquals ( CalculatorTreeNode node ) =>
+        public override bool StructurallyEquals(CalculatorTreeNode node) =>
             node is SuperscriptExponentiationExpression other
-            && this.Base.StructurallyEquals ( other.Base )
-            && this.Exponent.Raw.Equals ( other.Exponent.Raw );
+            && Base.StructurallyEquals(other.Base)
+            && Exponent.Value.Equals(other.Exponent.Value);
     }
 }

@@ -3,6 +3,7 @@ using Calculator.Lexing;
 using Calculator.Parsing.Abstractions;
 using GParse;
 using GParse.Lexing;
+using GParse.Math;
 
 namespace Calculator.Parsing.AST
 {
@@ -27,7 +28,7 @@ namespace Calculator.Parsing.AST
         public CalculatorTreeNode Inner { get; }
 
         /// <inheritdoc />
-        public override SourceRange Range { get; }
+        public override Range<int> Range { get; }
 
         /// <summary>
         /// Initializes this <see cref="GroupedExpression" />
@@ -35,24 +36,24 @@ namespace Calculator.Parsing.AST
         /// <param name="lparen"></param>
         /// <param name="inner"></param>
         /// <param name="rparen"></param>
-        public GroupedExpression ( Token<CalculatorTokenType> lparen, CalculatorTreeNode inner, Token<CalculatorTokenType> rparen )
+        public GroupedExpression(Token<CalculatorTokenType> lparen, CalculatorTreeNode inner, Token<CalculatorTokenType> rparen)
         {
-            this.LParen = lparen;
-            this.Inner = inner;
-            this.RParen = rparen;
-            this.Range = lparen.Range.Start.To ( rparen.Range.End );
+            LParen = lparen;
+            Inner = inner;
+            RParen = rparen;
+            Range = new Range<int>(lparen.Range.Start, rparen.Range.End);
         }
 
         /// <summary>
         /// <inheritdoc />
         /// </summary>
         /// <param name="visitor"></param>
-        public override void Accept ( ITreeVisitor visitor )
+        public override void Accept(ITreeVisitor visitor)
         {
-            if ( visitor is null )
-                throw new ArgumentNullException ( nameof ( visitor ) );
+            if (visitor is null)
+                throw new ArgumentNullException(nameof(visitor));
 
-            visitor.Visit ( this );
+            visitor.Visit(this);
         }
 
         /// <summary>
@@ -61,12 +62,12 @@ namespace Calculator.Parsing.AST
         /// <typeparam name="T"></typeparam>
         /// <param name="visitor"></param>
         /// <returns></returns>
-        public override T Accept<T> ( ITreeVisitor<T> visitor )
+        public override T Accept<T>(ITreeVisitor<T> visitor)
         {
-            if ( visitor is null )
-                throw new ArgumentNullException ( nameof ( visitor ) );
+            if (visitor is null)
+                throw new ArgumentNullException(nameof(visitor));
 
-            return visitor.Visit ( this );
+            return visitor.Visit(this);
         }
 
         /// <summary>
@@ -74,10 +75,8 @@ namespace Calculator.Parsing.AST
         /// </summary>
         /// <param name="node"></param>
         /// <returns></returns>
-        public override Boolean StructurallyEquals ( CalculatorTreeNode node ) =>
+        public override bool StructurallyEquals(CalculatorTreeNode node) =>
             node is GroupedExpression grouped
-            && this.LParen.Raw.Equals ( grouped.LParen.Raw, StringComparison.OrdinalIgnoreCase )
-            && this.Inner.StructurallyEquals ( grouped.Inner )
-            && this.RParen.Raw.Equals ( grouped.RParen.Raw, StringComparison.OrdinalIgnoreCase );
+            && Inner.StructurallyEquals(grouped.Inner);
     }
 }

@@ -1,8 +1,8 @@
 ﻿using System;
 using Calculator.Lexing;
 using Calculator.Parsing.Abstractions;
-using GParse;
 using GParse.Lexing;
+using GParse.Math;
 
 namespace Calculator.Parsing.AST
 {
@@ -17,27 +17,24 @@ namespace Calculator.Parsing.AST
         public Token<CalculatorTokenType> Value { get; }
 
         /// <inheritdoc />
-        public override SourceRange Range => this.Value.Range;
+        public override Range<int> Range => Value.Range;
 
         /// <summary>
         /// Initializes this <see cref="NumberExpression" />
         /// </summary>
         /// <param name="value"></param>
-        public NumberExpression ( Token<CalculatorTokenType> value )
-        {
-            this.Value = value;
-        }
+        public NumberExpression(Token<CalculatorTokenType> value) => Value = value;
 
         /// <summary>
         /// <inheritdoc />
         /// </summary>
         /// <param name="visitor"></param>
-        public override void Accept ( ITreeVisitor visitor )
+        public override void Accept(ITreeVisitor visitor)
         {
-            if ( visitor is null )
-                throw new ArgumentNullException ( nameof ( visitor ) );
+            if (visitor is null)
+                throw new ArgumentNullException(nameof(visitor));
 
-            visitor.Visit ( this );
+            visitor.Visit(this);
         }
 
         /// <summary>
@@ -46,12 +43,12 @@ namespace Calculator.Parsing.AST
         /// <typeparam name="T"></typeparam>
         /// <param name="visitor"></param>
         /// <returns></returns>
-        public override T Accept<T> ( ITreeVisitor<T> visitor )
+        public override T Accept<T>(ITreeVisitor<T> visitor)
         {
-            if ( visitor is null )
-                throw new ArgumentNullException ( nameof ( visitor ) );
+            if (visitor is null)
+                throw new ArgumentNullException(nameof(visitor));
 
-            return visitor.Visit ( this );
+            return visitor.Visit(this);
         }
 
         /// <summary>
@@ -59,8 +56,8 @@ namespace Calculator.Parsing.AST
         /// </summary>
         /// <param name="node"></param>
         /// <returns></returns>
-        public override Boolean StructurallyEquals ( CalculatorTreeNode node ) =>
+        public override bool StructurallyEquals(CalculatorTreeNode node) =>
             node is NumberExpression numberExpression
-                && this.Value.Value.Equals ( numberExpression.Value.Value );
+            && Value.Value.Equals(numberExpression.Value.Value);
     }
 }
