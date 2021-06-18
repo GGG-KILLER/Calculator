@@ -87,6 +87,8 @@ namespace Calculator.Lexing
                 {
                     var start = reader.Position;
                     var whitespaces = reader.FindOffset(static c => !char.IsWhiteSpace(c));
+                    if (whitespaces < 0)
+                        whitespaces = reader.Length - reader.Position;
                     reader.Advance(whitespaces);
                     var end = reader.Position;
                     var range = new Range<int>(start, end);
