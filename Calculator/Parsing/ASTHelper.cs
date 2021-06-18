@@ -19,8 +19,8 @@ namespace Calculator.Parsing
         /// <param name="raw"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static Token<CalculatorTokenType> Token(string id, CalculatorTokenType type, string raw = null, object value = null) =>
-            new Token<CalculatorTokenType>(id, type, new Range<int>(), value ?? id, raw ?? id);
+        public static Token<CalculatorTokenType> Token(string id, CalculatorTokenType type, string raw = null, object value = null, Range<int>? range = null) =>
+            new Token<CalculatorTokenType>(id, type, range ?? new Range<int>(), value ?? id, raw ?? id);
 
         /// <summary>
         /// Returns a token for an operator string
