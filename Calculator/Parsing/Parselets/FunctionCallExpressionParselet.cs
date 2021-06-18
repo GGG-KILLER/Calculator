@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using Calculator.Lexing;
-using Calculator.Parsing.AST;
+using Calculator.Parsing;
 using GParse;
 using GParse.Lexing;
 using GParse.Parsing;
 using GParse.Parsing.Parselets;
+using Tsu;
 
 namespace Calculator.Parsing.Parselets
 {
@@ -32,13 +33,11 @@ namespace Calculator.Parsing.Parselets
         /// <param name="parser"></param>
         /// <param name="identifier"></param>
         /// <param name="diagnostics"></param>
-        /// <param name="node"></param>
         /// <returns></returns>
-        public bool TryParse(
+        public Option<CalculatorTreeNode> Parse(
             IPrattParser<CalculatorTokenType, CalculatorTreeNode> parser,
             CalculatorTreeNode identifier,
-            DiagnosticList diagnostics,
-            out CalculatorTreeNode node)
+            DiagnosticList diagnostics)
         {
             if (parser is null)
                 throw new ArgumentNullException(nameof(parser));
@@ -51,10 +50,7 @@ namespace Calculator.Parsing.Parselets
 
             var reader = parser.TokenReader;
             if (!(identifier is IdentifierExpression) || !reader.Accept(CalculatorTokenType.LParen, out var lparen))
-            {
-                node = null;
-                return false;
-            }
+                return Option.None<CalculatorTreeNode>();
 
             var toks = new List<Token<CalculatorTokenType>>
             {
@@ -64,10 +60,9 @@ namespace Calculator.Parsing.Parselets
             var args = new List<CalculatorTreeNode>();
             while (!reader.Accept(CalculatorTokenType.RParen, out rparen))
             {
-                if (!parser.TryParseExpression(out var expr))
+                if (parser.ParseExpression() is not { IsSome: true, Value: var expr })
                 {
-                    var errorRange = ((CalculatorParser) parser).PositionContainer.GetLocation(reader.Lookahead().Range);
-                    diagnostics.Report(CalculatorDiagnostics.SyntaxError.ThingExpected(errorRange, "argument"));
+                    diagnostics.Report(CalculatorDiagnostics.SyntaxError.ThingExpected(reader.Lookahead().Range, "argument"));
                     rparen = ASTHelper.Token(")", CalculatorTokenType.RParen, ")");
                     break;
                 }
@@ -84,16 +79,14 @@ namespace Calculator.Parsing.Parselets
                 }
                 else
                 {
-                    var errorRange = ((CalculatorParser) parser).PositionContainer.GetLocation(reader.Lookahead().Range);
-                    diagnostics.Report(CalculatorDiagnostics.SyntaxError.ThingExpectedAfter(errorRange, "')'", "argument list"));
+                    diagnostics.Report(CalculatorDiagnostics.SyntaxError.ThingExpectedAfter(reader.Lookahead().Range, "')'", "argument list"));
                     rparen = ASTHelper.Token(")", CalculatorTokenType.RParen, ")");
                     break;
                 }
             }
             toks.Add(rparen);
 
-            node = new FunctionCallExpression(identifier as IdentifierExpression, args, toks);
-            return true;
+            return new FunctionCallExpression(identifier as IdentifierExpression, args, toks);
         }
     }
 }

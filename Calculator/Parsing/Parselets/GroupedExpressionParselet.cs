@@ -1,9 +1,10 @@
 ﻿using System;
 using Calculator.Lexing;
-using Calculator.Parsing.AST;
+using Calculator.Parsing;
 using GParse;
 using GParse.Parsing;
 using GParse.Parsing.Parselets;
+using Tsu;
 
 namespace Calculator.Parsing.Parselets
 {
@@ -17,12 +18,10 @@ namespace Calculator.Parsing.Parselets
         /// </summary>
         /// <param name="parser"></param>
         /// <param name="diagnostics"></param>
-        /// <param name="node"></param>
         /// <returns></returns>
-        public bool TryParse(
+        public Option<CalculatorTreeNode> Parse(
             IPrattParser<CalculatorTokenType, CalculatorTreeNode> parser,
-            DiagnosticList diagnostics,
-            out CalculatorTreeNode node)
+            DiagnosticList diagnostics)
         {
             if (parser is null)
                 throw new ArgumentNullException(nameof(parser));
@@ -30,21 +29,20 @@ namespace Calculator.Parsing.Parselets
             if (diagnostics is null)
                 throw new ArgumentNullException(nameof(diagnostics));
 
-            if (!parser.TokenReader.Accept(CalculatorTokenType.LParen, out var lparen) || !parser.TryParseExpression(out var expr))
+            if (!parser.TokenReader.Accept(CalculatorTokenType.LParen, out var lparen)
+                || parser.ParseExpression() is not { IsSome: true, Value: var expr })
             {
-                node = null;
-                return false;
+                return Option.None<CalculatorTreeNode>();
             }
 
             if (!parser.TokenReader.Accept(CalculatorTokenType.RParen, out var rparen))
             {
-                var errorRange = ((CalculatorParser) parser).PositionContainer.GetLocation(parser.TokenReader.Lookahead().Range);
+                var errorRange = parser.TokenReader.Lookahead().Range;
                 diagnostics.Report(CalculatorDiagnostics.SyntaxError.ThingExpectedFor(errorRange, "closing parenthesis", $"opening parenthesis at {lparen.Range.Start}"));
                 rparen = ASTHelper.Token(")", CalculatorTokenType.RParen, ")");
             }
 
-            node = new GroupedExpression(lparen, expr, rparen);
-            return true;
+            return new GroupedExpression(lparen, expr, rparen);
         }
     }
 }

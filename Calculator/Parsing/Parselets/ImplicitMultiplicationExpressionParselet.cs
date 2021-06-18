@@ -1,9 +1,10 @@
 ﻿using System;
 using Calculator.Lexing;
-using Calculator.Parsing.AST;
+using Calculator.Parsing;
 using GParse;
 using GParse.Parsing;
 using GParse.Parsing.Parselets;
+using Tsu;
 
 namespace Calculator.Parsing.Parselets
 {
@@ -29,13 +30,11 @@ namespace Calculator.Parsing.Parselets
         /// <param name="parser"></param>
         /// <param name="expression"></param>
         /// <param name="diagnostics"></param>
-        /// <param name="parsedExpression"></param>
         /// <returns></returns>
-        public bool TryParse(
+        public Option<CalculatorTreeNode> Parse(
             IPrattParser<CalculatorTokenType, CalculatorTreeNode> parser,
             CalculatorTreeNode expression,
-            DiagnosticList diagnostics,
-            out CalculatorTreeNode parsedExpression)
+            DiagnosticList diagnostics)
         {
             if (parser is null)
                 throw new ArgumentNullException(nameof(parser));
@@ -46,14 +45,10 @@ namespace Calculator.Parsing.Parselets
             if (diagnostics is null)
                 throw new ArgumentNullException(nameof(diagnostics));
 
-            if (parser.TryParseExpression(Precedence, out var right))
-            {
-                parsedExpression = new ImplicitMultiplicationExpression(expression, right);
-                return true;
-            }
+            if (parser.ParseExpression(Precedence) is { IsSome: true, Value: var right })
+                return new ImplicitMultiplicationExpression(expression, right);
 
-            parsedExpression = null;
-            return false;
+            return Option.None<CalculatorTreeNode>();
         }
     }
 }
