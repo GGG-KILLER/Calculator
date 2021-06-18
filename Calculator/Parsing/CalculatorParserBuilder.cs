@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using Calculator.Definitions;
 using Calculator.Lexing;
-using Calculator.Parsing.AST;
 using Calculator.Parsing.Parselets;
 using GParse;
 using GParse.Lexing;
@@ -23,17 +22,13 @@ namespace Calculator.Parsing
         /// <param name="language"></param>
         public CalculatorParserBuilder(CalculatorLanguage language)
         {
-            RegisterLiteral(CalculatorTokenType.Identifier, static (Token<CalculatorTokenType> tok, DiagnosticList diagnostics, out CalculatorTreeNode node) =>
-            {
-                node = new IdentifierExpression(tok);
-                return true;
-            });
+            RegisterLiteral(
+                CalculatorTokenType.Identifier,
+                static (Token<CalculatorTokenType> tok, DiagnosticList diagnostics) => new IdentifierExpression(tok));
 
-            RegisterLiteral(CalculatorTokenType.Number, static (Token<CalculatorTokenType> tok, DiagnosticList diagnostics, out CalculatorTreeNode node) =>
-            {
-                node = new NumberExpression(tok);
-                return true;
-            });
+            RegisterLiteral(
+                CalculatorTokenType.Number,
+                static (Token<CalculatorTokenType> tok, DiagnosticList diagnostics) => new NumberExpression(tok));
 
             var maxPrecedence = 0;
             foreach (var unaryOp in language.UnaryOperators.Values)
@@ -47,11 +42,8 @@ namespace Calculator.Parsing
                         IsValidIdentifier(unaryOp.Operator) ? CalculatorTokenType.Identifier : CalculatorTokenType.Operator,
                         unaryOp.Operator,
                         unaryOp.Precedence,
-                        static (CalculatorTreeNode expr, Token<CalculatorTokenType> unop, DiagnosticList diagnostics, out CalculatorTreeNode node) =>
-                        {
-                            node = new UnaryOperatorExpression(UnaryOperatorFix.Postfix, unop, expr);
-                            return true;
-                        });
+                        static (CalculatorTreeNode expr, Token<CalculatorTokenType> unop, DiagnosticList diagnostics) =>
+                            new UnaryOperatorExpression(UnaryOperatorFix.Postfix, unop, expr));
                 }
                 else
                 {
@@ -59,11 +51,8 @@ namespace Calculator.Parsing
                         IsValidIdentifier(unaryOp.Operator) ? CalculatorTokenType.Identifier : CalculatorTokenType.Operator,
                         unaryOp.Operator,
                         unaryOp.Precedence,
-                        static (Token<CalculatorTokenType> unop, CalculatorTreeNode expr, DiagnosticList diagnostics, out CalculatorTreeNode node) =>
-                        {
-                            node = new UnaryOperatorExpression(UnaryOperatorFix.Prefix, unop, expr);
-                            return true;
-                        });
+                        static (Token<CalculatorTokenType> unop, CalculatorTreeNode expr, DiagnosticList diagnostics) =>
+                            new UnaryOperatorExpression(UnaryOperatorFix.Prefix, unop, expr));
                 }
             }
 
@@ -77,11 +66,8 @@ namespace Calculator.Parsing
                     binaryOp.Operator,
                     binaryOp.Precedence,
                     binaryOp.Associativity == Associativity.Right,
-                    static (CalculatorTreeNode left, Token<CalculatorTokenType> op, CalculatorTreeNode right, out CalculatorTreeNode node) =>
-                    {
-                        node = new BinaryOperatorExpression(op, left, right);
-                        return true;
-                    });
+                    static (CalculatorTreeNode left, Token<CalculatorTokenType> op, CalculatorTreeNode right) =>
+                        new BinaryOperatorExpression(op, left, right));
             }
 
             var hasImplMul = language.HasImplicitMultiplication();
@@ -115,14 +101,12 @@ namespace Calculator.Parsing
         /// <summary>
         /// Creates a <see cref="CalculatorParser"/>
         /// </summary>
-        /// <param name="lexer"></param>
         /// <param name="reader"></param>
         /// <param name="diagnostics"></param>
         /// <returns></returns>
-        public IPrattParser<CalculatorTokenType, CalculatorTreeNode> CreateParser(
-            ILexer<CalculatorTokenType> lexer,
+        public override IPrattParser<CalculatorTokenType, CalculatorTreeNode> CreateParser(
             ITokenReader<CalculatorTokenType> reader,
             DiagnosticList diagnostics) =>
-            new CalculatorParser(lexer, reader, PrefixModuleTree, InfixModuleTree, diagnostics);
+            new CalculatorParser(reader, PrefixModuleTree, InfixModuleTree, diagnostics);
     }
 }
