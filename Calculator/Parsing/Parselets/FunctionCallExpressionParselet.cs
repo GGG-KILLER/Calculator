@@ -62,8 +62,9 @@ namespace Calculator.Parsing.Parselets
             {
                 if (parser.ParseExpression() is not { IsSome: true, Value: var expr })
                 {
-                    diagnostics.Report(CalculatorDiagnostics.SyntaxError.ThingExpected(reader.Lookahead().Range, "argument"));
-                    rparen = ASTHelper.Token(")", CalculatorTokenType.RParen, ")");
+                    var range = reader.Lookahead().Range;
+                    diagnostics.Report(CalculatorDiagnostics.SyntaxError.ThingExpected(range, "argument"));
+                    rparen = ASTHelper.Token(")", CalculatorTokenType.RParen, ")", range: (range.Start, range.Start));
                     break;
                 }
 
@@ -79,8 +80,9 @@ namespace Calculator.Parsing.Parselets
                 }
                 else
                 {
-                    diagnostics.Report(CalculatorDiagnostics.SyntaxError.ThingExpectedAfter(reader.Lookahead().Range, "')'", "argument list"));
-                    rparen = ASTHelper.Token(")", CalculatorTokenType.RParen, ")");
+                    var range = reader.Lookahead().Range;
+                    diagnostics.Report(CalculatorDiagnostics.SyntaxError.ThingExpectedAfter(range, "')'", "argument list"));
+                    rparen = ASTHelper.Token(")", CalculatorTokenType.RParen, ")", range: (range.Start, range.Start));
                     break;
                 }
             }

@@ -39,7 +39,7 @@ namespace Calculator.Parsing.Parselets
             {
                 var errorRange = parser.TokenReader.Lookahead().Range;
                 diagnostics.Report(CalculatorDiagnostics.SyntaxError.ThingExpectedFor(errorRange, "closing parenthesis", $"opening parenthesis at {lparen.Range.Start}"));
-                rparen = ASTHelper.Token(")", CalculatorTokenType.RParen, ")");
+                rparen = ASTHelper.Token(")", CalculatorTokenType.RParen, ")", range: (errorRange.Start, errorRange.Start));
             }
 
             return new GroupedExpression(lparen, expr, rparen);
