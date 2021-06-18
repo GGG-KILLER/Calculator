@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Linq;
 using Calculator.Errors;
-using Calculator.Parsing.Abstractions;
-using Calculator.Parsing.AST;
 
-namespace Calculator.Parsing.Visitors
+namespace Calculator.Parsing
 {
     /// <summary>
     /// A <see cref="CalculatorTreeNode"/> tree evaluator
@@ -142,7 +140,7 @@ namespace Calculator.Parsing.Visitors
             }
 
             var @operator = _language.GetSuperscriptExponentiation();
-            return @operator.Body(superscriptExponentiation.Base.Accept(this), (double) superscriptExponentiation.Exponent.Value);
+            return @operator.Body(superscriptExponentiation.Base.Accept(this), (int) superscriptExponentiation.Exponent.Value);
         }
     }
 }

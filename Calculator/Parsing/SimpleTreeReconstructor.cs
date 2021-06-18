@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Linq;
 using Calculator.Lexing;
-using Calculator.Parsing.Abstractions;
-using Calculator.Parsing.AST;
 
-namespace Calculator.Parsing.Visitors
+namespace Calculator.Parsing
 {
     /// <summary>
     /// A simple <see cref="CalculatorTreeNode" /> tree reconstructor that doesn't take into account operators precedences and stuff (mostly because it doesn't have any information on them)

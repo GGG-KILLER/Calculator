@@ -1,6 +1,6 @@
-﻿using Calculator.Parsing.AST;
+﻿using Calculator.Parsing;
 
-namespace Calculator.Parsing.Abstractions
+namespace Calculator.Parsing
 {
     /// <summary>
     /// The interface that a returnless tree visitor is expected to provide
