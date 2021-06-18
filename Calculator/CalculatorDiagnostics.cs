@@ -1,5 +1,6 @@
 ﻿using System;
 using GParse;
+using GParse.Math;
 
 namespace Calculator
 {
@@ -34,7 +35,7 @@ namespace Calculator
             /// <param name="range"></param>
             /// <param name="expected"></param>
             /// <returns></returns>
-            public static Diagnostic ThingExpected(SourceRange range, object expected) =>
+            public static Diagnostic ThingExpected(Range<int> range, object expected) =>
                 new Diagnostic(DiagnosticSeverity.Error, "CALC0001", $"Syntax error, {expected} expected.", range);
 
             /// <summary>
@@ -43,8 +44,8 @@ namespace Calculator
             /// <param name="location"></param>
             /// <param name="expected"></param>
             /// <returns></returns>
-            public static Diagnostic ThingExpected(SourceLocation location, object expected) =>
-                ThingExpected(location.To(location), expected);
+            public static Diagnostic ThingExpected(int location, object expected) =>
+                ThingExpected((location, location), expected);
 
             /// <summary>
             /// Creates a <see cref="Diagnostic"/> saying something was expected for something else.
@@ -53,7 +54,7 @@ namespace Calculator
             /// <param name="expected"></param>
             /// <param name="for"></param>
             /// <returns></returns>
-            public static Diagnostic ThingExpectedFor(SourceRange range, object expected, string @for) =>
+            public static Diagnostic ThingExpectedFor(Range<int> range, object expected, string @for) =>
                 new Diagnostic(DiagnosticSeverity.Error, "CALC0001", $"Syntax error, {expected} expected for {PunctuateIfNecessary(@for)}", range);
 
             /// <summary>
@@ -63,8 +64,8 @@ namespace Calculator
             /// <param name="expected"></param>
             /// <param name="for"></param>
             /// <returns></returns>
-            public static Diagnostic ThingExpectedFor(SourceLocation location, object expected, string @for) =>
-                ThingExpectedFor(location.To(location), expected, @for);
+            public static Diagnostic ThingExpectedFor(int location, object expected, string @for) =>
+                ThingExpectedFor((location, location), expected, @for);
 
             /// <summary>
             /// Creates a <see cref="Diagnostic"/> saying something was expected after something else.
@@ -73,7 +74,7 @@ namespace Calculator
             /// <param name="expected"></param>
             /// <param name="after"></param>
             /// <returns></returns>
-            public static Diagnostic ThingExpectedAfter(SourceRange range, object expected, string after) =>
+            public static Diagnostic ThingExpectedAfter(Range<int> range, object expected, string after) =>
                 new Diagnostic(DiagnosticSeverity.Error, "CALC0001", $"Syntax error, {expected} expected after {PunctuateIfNecessary(after)}", range);
 
             /// <summary>
@@ -83,8 +84,8 @@ namespace Calculator
             /// <param name="expected"></param>
             /// <param name="after"></param>
             /// <returns></returns>
-            public static Diagnostic ThingExpectedAfter(SourceLocation location, object expected, string after) =>
-                ThingExpectedAfter(location.To(location), expected, after);
+            public static Diagnostic ThingExpectedAfter(int location, object expected, string after) =>
+                ThingExpectedAfter((location, location), expected, after);
 
             /// <summary>
             /// Produces a <see cref="Diagnostic"/> reporting an invalid superscript.
@@ -92,7 +93,7 @@ namespace Calculator
             /// <param name="range"></param>
             /// <param name="error"></param>
             /// <returns></returns>
-            public static Diagnostic InvalidSuperscript(SourceRange range, string error) =>
+            public static Diagnostic InvalidSuperscript(Range<int> range, string error) =>
                 new Diagnostic(DiagnosticSeverity.Error, "CALC0002", $"Invalid superscript: {PunctuateIfNecessary(error)}", range);
 
             /// <summary>
@@ -101,7 +102,7 @@ namespace Calculator
             /// <param name="range"></param>
             /// <param name="numberType"></param>
             /// <returns></returns>
-            public static Diagnostic InvalidNumber(SourceRange range, string numberType) =>
+            public static Diagnostic InvalidNumber(Range<int> range, string numberType) =>
                 new Diagnostic(DiagnosticSeverity.Error, "CALC0003", $"Invalid {numberType} number.", range);
 
             /// <summary>
@@ -111,7 +112,7 @@ namespace Calculator
             /// <param name="numberType"></param>
             /// <param name="reason"></param>
             /// <returns></returns>
-            public static Diagnostic InvalidNumber(SourceRange range, string numberType, string reason) =>
+            public static Diagnostic InvalidNumber(Range<int> range, string numberType, string reason) =>
                 new Diagnostic(DiagnosticSeverity.Error, "CALC0003", $"Invalid {numberType} number: {PunctuateIfNecessary(reason)}", range);
 
             /// <summary>
@@ -120,7 +121,7 @@ namespace Calculator
             /// <param name="range"></param>
             /// <param name="ch"></param>
             /// <returns></returns>
-            public static Diagnostic UnknownCharacter(SourceRange range, char ch) =>
+            public static Diagnostic UnknownCharacter(Range<int> range, char ch) =>
                 new Diagnostic(DiagnosticSeverity.Error, "CALC0004", $"Unknown character '{ch}'.", range);
         }
 
