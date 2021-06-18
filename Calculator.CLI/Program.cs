@@ -5,8 +5,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using Calculator.Definitions;
 using Calculator.Parsing;
-using Calculator.Parsing.AST;
-using Calculator.Parsing.Visitors;
 using GParse;
 using GParse.Errors;
 using Tsu.CLI.Commands;
@@ -195,7 +193,8 @@ namespace Calculator.CLI
 
                 foreach (var diag in diagnostics.OrderBy(d => d.Severity))
                 {
-                    _timingLogger.WriteLine($@"{CalculatorDiagnostics.HighlightRange(expression, diag.Range)}
+                    var range = SourceRange.Calculate(expression, diag.Range);
+                    _timingLogger.WriteLine($@"{CalculatorDiagnostics.HighlightRange(expression, range)}
 {diag.Id} {diag.Severity}: {diag.Description}");
                 }
             }
@@ -233,7 +232,8 @@ namespace Calculator.CLI
                 _timingLogger.WriteLine($"{name} = {res}");
                 foreach (var diagnostic in diagnostics)
                 {
-                    var str = $@"{CalculatorDiagnostics.HighlightRange(expression, diagnostic.Range)}
+                    var range = SourceRange.Calculate(expression, diagnostic.Range);
+                    var str = $@"{CalculatorDiagnostics.HighlightRange(expression, range)}
 {diagnostic.Id} {diagnostic.Severity}: {diagnostic.Description}";
 
                     switch (diagnostic.Severity)
@@ -258,7 +258,8 @@ namespace Calculator.CLI
             }
             catch (FatalParsingException fpex)
             {
-                _timingLogger.LogError(CalculatorDiagnostics.HighlightRange(expression, fpex.Range));
+                var range = SourceRange.Calculate(expression, fpex.Range);
+                _timingLogger.LogError(CalculatorDiagnostics.HighlightRange(expression, range));
                 _timingLogger.LogError($"Runtime Error: {fpex.Message}");
             }
             catch (Exception ex)
@@ -294,7 +295,8 @@ namespace Calculator.CLI
                     _timingLogger.WriteLine($"{rec} = {res}");
                     foreach (var diagnostic in diagnostics)
                     {
-                        var str = $@"{CalculatorDiagnostics.HighlightRange(expression, diagnostic.Range)}
+                        var range = SourceRange.Calculate(expression, diagnostic.Range);
+                        var str = $@"{CalculatorDiagnostics.HighlightRange(expression, range)}
 {diagnostic.Id} {diagnostic.Severity}: {diagnostic.Description}";
                         switch (diagnostic.Severity)
                         {
@@ -319,7 +321,8 @@ namespace Calculator.CLI
             }
             catch (FatalParsingException fpex)
             {
-                _timingLogger.LogError(GetExpressionContext(fpex.Range.Start.Byte, expression));
+                var range = SourceRange.Calculate(expression, fpex.Range);
+                _timingLogger.LogError(CalculatorDiagnostics.HighlightRange(expression, range));
                 _timingLogger.LogError($"{fpex.Range}: {fpex.Message}");
             }
             catch (Exception ex)
@@ -368,7 +371,7 @@ namespace Calculator.CLI
             {
                 return _random.Next(0, 2) == 1
                     ? ASTHelper.Number(_random.NextDouble())
-                    : (CalculatorTreeNode) ASTHelper.Identifier(constants[_random.Next(0, constants.Length)].Identifier);
+                    : ASTHelper.Identifier(constants[_random.Next(0, constants.Length)].Identifier);
             }
         }
 

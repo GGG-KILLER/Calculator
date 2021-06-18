@@ -1,13 +1,12 @@
 ﻿using System;
 using Calculator.Parsing;
-using Calculator.Parsing.AST;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Calculator.Tests
 {
     using System.Linq;
     using Calculator.Definitions;
-    using Calculator.Parsing.Visitors;
+    using GParse;
     using Microsoft.VisualStudio.TestTools.UnitTesting.Logging;
     using static ASTHelper;
 
@@ -37,8 +36,9 @@ namespace Calculator.Tests
             var parsed = _language.Parse(expression, out var diagnostics);
             foreach (var diagnostic in diagnostics)
             {
+                var range = SourceRange.Calculate(expression, diagnostic.Range);
                 Logger.LogMessage(@"{0} {1}: {2}
-{3}", diagnostic.Id, diagnostic.Severity, diagnostic.Description, CalculatorDiagnostics.HighlightRange(expression, diagnostic.Range));
+{3}", diagnostic.Id, diagnostic.Severity, diagnostic.Description, CalculatorDiagnostics.HighlightRange(expression, range));
             }
 
             Assert.AreEqual(diagnostics.Count(), 0, "Expression wasn't parsed without errors, warnings or suggestions.");

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Windows;
-using Calculator.Parsing.Visitors;
+using Calculator.Parsing;
 using GParse;
 using GParse.Errors;
 
@@ -16,15 +16,16 @@ namespace Calculator.UI
 
         private void TxtExpression_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
+            var expression = txtExpression.Text;
             try
             {
-                var ast = CalculatorLanguageSingleton.Instance.Parse(txtExpression.Text, out var diagnostics);
+                var ast = CalculatorLanguageSingleton.Instance.Parse(expression, out var diagnostics);
                 txtResult.Text = ast.Accept(new TreeEvaluator(CalculatorLanguageSingleton.Instance)).ToString(CultureInfo.CurrentCulture);
 
                 var diagsVw = new List<DiagnosticViewModel>();
                 foreach (var diagnostic in diagnostics)
                 {
-                    diagsVw.Add(new DiagnosticViewModel(diagnostic));
+                    diagsVw.Add(new DiagnosticViewModel(diagnostic, SourceRange.Calculate(expression, diagnostic.Range)));
                 }
                 dgDiagnostics.ItemsSource = diagsVw;
             }
@@ -32,7 +33,9 @@ namespace Calculator.UI
             {
                 dgDiagnostics.ItemsSource = new DiagnosticViewModel[]
                 {
-                    new DiagnosticViewModel(new Diagnostic(DiagnosticSeverity.Error, "FATAL", fpEx.Message, fpEx.Range))
+                    new DiagnosticViewModel(
+                        new Diagnostic(DiagnosticSeverity.Error, "FATAL", fpEx.Message, fpEx.Range),
+                        SourceRange.Calculate(expression, fpEx.Range))
                 };
             }
         }
