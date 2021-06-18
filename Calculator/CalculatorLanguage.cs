@@ -4,8 +4,6 @@ using System.Collections.Immutable;
 using Calculator.Definitions;
 using Calculator.Lexing;
 using Calculator.Parsing;
-using Calculator.Parsing.AST;
-using Calculator.Parsing.Visitors;
 using GParse;
 using GParse.IO;
 using GParse.Lexing;
@@ -346,7 +344,6 @@ namespace Calculator
         {
             var lexer = GetLexer(expression, diagnosticReporter);
             return ParserBuilder.CreateParser(
-                lexer,
                 new TokenReader<CalculatorTokenType>(lexer),
                 diagnosticReporter) as CalculatorParser;
         }
@@ -358,7 +355,7 @@ namespace Calculator
         /// <param name="diagnosticReporter"></param>
         /// <returns></returns>
         public CalculatorParser GetParser(ILexer<CalculatorTokenType> lexer, DiagnosticList diagnosticReporter) =>
-            ParserBuilder.CreateParser(lexer, new TokenReader<CalculatorTokenType>(lexer), diagnosticReporter) as CalculatorParser;
+            ParserBuilder.CreateParser(new TokenReader<CalculatorTokenType>(lexer), diagnosticReporter) as CalculatorParser;
 
         #endregion Factory Methods
 
