@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Runtime.Serialization;
+using GParse.Errors;
 using GParse.Math;
 
 namespace Calculator.Errors
@@ -6,21 +8,35 @@ namespace Calculator.Errors
     /// <summary>
     /// Exception thrown when evaluating an expression
     /// </summary>
-    public class EvaluationException : ApplicationException
+    public class EvaluationException : FatalParsingException
     {
         /// <summary>
-        /// The range where the exception ocurred.
+        /// Initializes this <see cref="EvaluationException" />
         /// </summary>
-        public Range<int> Range { get; }
+        /// <param name="location"></param>
+        /// <param name="message"></param>
+        public EvaluationException(int location, string message) : base(location, message)
+        {
+        }
 
         /// <summary>
         /// Initializes this <see cref="EvaluationException" />
         /// </summary>
         /// <param name="range"></param>
         /// <param name="message"></param>
-        public EvaluationException(Range<int> range, string message)
-            : base(message) =>
-            Range = range;
+        public EvaluationException(Range<int> range, string message) : base(range, message)
+        {
+        }
+
+        /// <summary>
+        /// Initializes this <see cref="EvaluationException" />
+        /// </summary>
+        /// <param name="location"></param>
+        /// <param name="message"></param>
+        /// <param name="innerException"></param>
+        public EvaluationException(int location, string message, Exception innerException) : base(location, message, innerException)
+        {
+        }
 
         /// <summary>
         /// Initializes this <see cref="EvaluationException" />
@@ -29,7 +45,17 @@ namespace Calculator.Errors
         /// <param name="message"></param>
         /// <param name="innerException"></param>
         public EvaluationException(Range<int> range, string message, Exception innerException)
-            : base(message, innerException) =>
-            Range = range;
+            : base(range, message, innerException)
+        {
+        }
+
+        /// <summary>
+        /// Initializes this <see cref="EvaluationException" />
+        /// </summary>
+        /// <param name="serializationInfo"></param>
+        /// <param name="streamingContext"></param>
+        protected EvaluationException(SerializationInfo serializationInfo, StreamingContext streamingContext) : base(serializationInfo, streamingContext)
+        {
+        }
     }
 }
