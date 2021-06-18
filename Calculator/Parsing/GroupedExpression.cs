@@ -1,37 +1,45 @@
 ﻿using System;
-using Calculator.Parsing.Abstractions;
+using Calculator.Lexing;
+using GParse.Lexing;
 using GParse.Math;
 
-namespace Calculator.Parsing.AST
+namespace Calculator.Parsing
 {
     /// <summary>
-    /// Represents an implicit multiplication operation
+    /// Represents a parenthesized expression
     /// </summary>
-    public class ImplicitMultiplicationExpression : CalculatorTreeNode
+    public class GroupedExpression : CalculatorTreeNode
     {
         /// <summary>
-        /// The expression on the left
+        /// The left parenthesis
         /// </summary>
-        public CalculatorTreeNode LeftHandSide { get; }
+        public Token<CalculatorTokenType> LParen { get; }
 
         /// <summary>
-        /// The expression on the right
+        /// The right parenthesis
         /// </summary>
-        public CalculatorTreeNode RightHandSide { get; }
+        public Token<CalculatorTokenType> RParen { get; }
+
+        /// <summary>
+        /// The inner expression
+        /// </summary>
+        public CalculatorTreeNode Inner { get; }
 
         /// <inheritdoc />
         public override Range<int> Range { get; }
 
         /// <summary>
-        /// Initializes this <see cref="ImplicitMultiplicationExpression" />
+        /// Initializes this <see cref="GroupedExpression" />
         /// </summary>
-        /// <param name="left"></param>
-        /// <param name="right"></param>
-        public ImplicitMultiplicationExpression(CalculatorTreeNode left, CalculatorTreeNode right)
+        /// <param name="lparen"></param>
+        /// <param name="inner"></param>
+        /// <param name="rparen"></param>
+        public GroupedExpression(Token<CalculatorTokenType> lparen, CalculatorTreeNode inner, Token<CalculatorTokenType> rparen)
         {
-            LeftHandSide = left ?? throw new ArgumentNullException(nameof(left));
-            RightHandSide = right ?? throw new ArgumentNullException(nameof(right));
-            Range = new Range<int>(LeftHandSide.Range.Start, RightHandSide.Range.End);
+            LParen = lparen;
+            Inner = inner;
+            RParen = rparen;
+            Range = new Range<int>(lparen.Range.Start, rparen.Range.End);
         }
 
         /// <summary>
@@ -66,8 +74,7 @@ namespace Calculator.Parsing.AST
         /// <param name="node"></param>
         /// <returns></returns>
         public override bool StructurallyEquals(CalculatorTreeNode node) =>
-            node is ImplicitMultiplicationExpression implicitMultiplication
-            && LeftHandSide.StructurallyEquals(implicitMultiplication.LeftHandSide)
-            && RightHandSide.StructurallyEquals(implicitMultiplication.RightHandSide);
+            node is GroupedExpression grouped
+            && Inner.StructurallyEquals(grouped.Inner);
     }
 }

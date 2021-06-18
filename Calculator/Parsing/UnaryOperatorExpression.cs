@@ -1,46 +1,50 @@
 ﻿using System;
+using Calculator.Definitions;
 using Calculator.Lexing;
-using Calculator.Parsing.Abstractions;
 using GParse.Lexing;
 using GParse.Math;
 
-namespace Calculator.Parsing.AST
+namespace Calculator.Parsing
 {
     /// <summary>
-    /// Represents an infix expression
+    /// Represents a prefix/postfix operation
     /// </summary>
-    public class BinaryOperatorExpression : CalculatorTreeNode
+    public class UnaryOperatorExpression : CalculatorTreeNode
     {
         /// <summary>
-        /// The expression to the left of the operator
+        /// The operator's location
         /// </summary>
-        public CalculatorTreeNode LeftHandSide { get; }
-
-        /// <summary>
-        /// The expression to the right of the operator
-        /// </summary>
-        public CalculatorTreeNode RightHandSide { get; }
+        public UnaryOperatorFix OperatorFix { get; }
 
         /// <summary>
         /// The operator itself
         /// </summary>
         public Token<CalculatorTokenType> Operator { get; }
 
+        /// <summary>
+        /// The operand expression
+        /// </summary>
+        public CalculatorTreeNode Operand { get; }
+
         /// <inheritdoc />
         public override Range<int> Range { get; }
 
         /// <summary>
-        /// Initializes this <see cref="BinaryOperatorExpression" />
+        /// Initializes this <see cref="UnaryOperatorExpression" />
         /// </summary>
+        /// <param name="fix"></param>
         /// <param name="operator"></param>
-        /// <param name="lhs"></param>
-        /// <param name="rhs"></param>
-        public BinaryOperatorExpression(Token<CalculatorTokenType> @operator, CalculatorTreeNode lhs, CalculatorTreeNode rhs)
+        /// <param name="operand"></param>
+        public UnaryOperatorExpression(UnaryOperatorFix fix, Token<CalculatorTokenType> @operator, CalculatorTreeNode operand)
         {
+            OperatorFix = fix;
             Operator = @operator;
-            LeftHandSide = lhs ?? throw new ArgumentNullException(nameof(lhs));
-            RightHandSide = rhs ?? throw new ArgumentNullException(nameof(rhs));
-            Range = new Range<int>(lhs.Range.Start, rhs.Range.End);
+            Operand = operand ?? throw new ArgumentNullException(nameof(operand));
+
+            if (fix == UnaryOperatorFix.Postfix)
+                Range = new Range<int>(operand.Range.Start, @operator.Range.End);
+            else
+                Range = new Range<int>(@operator.Range.Start, operand.Range.End);
         }
 
         /// <summary>
@@ -75,9 +79,9 @@ namespace Calculator.Parsing.AST
         /// <param name="node"></param>
         /// <returns></returns>
         public override bool StructurallyEquals(CalculatorTreeNode node) =>
-            node is BinaryOperatorExpression binaryOperatorExpression
-            && StringComparer.OrdinalIgnoreCase.Equals(Operator.Text, binaryOperatorExpression.Operator.Text)
-            && LeftHandSide.StructurallyEquals(binaryOperatorExpression.LeftHandSide)
-            && RightHandSide.StructurallyEquals(binaryOperatorExpression.RightHandSide);
+            node is UnaryOperatorExpression unaryOperatorExpression
+            && StringComparer.OrdinalIgnoreCase.Equals(Operator.Text, unaryOperatorExpression.Operator.Text)
+            && OperatorFix.Equals(unaryOperatorExpression.OperatorFix)
+            && Operand.StructurallyEquals(unaryOperatorExpression.Operand);
     }
 }

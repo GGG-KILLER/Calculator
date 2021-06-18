@@ -1,7 +1,6 @@
-﻿using Calculator.Parsing.Abstractions;
-using GParse.Math;
+﻿using GParse.Math;
 
-namespace Calculator.Parsing.AST
+namespace Calculator.Parsing
 {
     /// <summary>
     /// The base class fora all AST nodes

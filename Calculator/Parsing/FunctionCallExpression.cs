@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Calculator.Lexing;
-using Calculator.Parsing.Abstractions;
 using GParse.Lexing;
 using GParse.Math;
 
-namespace Calculator.Parsing.AST
+namespace Calculator.Parsing
 {
     /// <summary>
     /// Represents a function call

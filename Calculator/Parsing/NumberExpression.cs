@@ -1,47 +1,28 @@
 ﻿using System;
 using Calculator.Lexing;
-using Calculator.Parsing.Abstractions;
 using GParse.Lexing;
 using GParse.Math;
 
-namespace Calculator.Parsing.AST
+namespace Calculator.Parsing
 {
     /// <summary>
-    /// Represents a parenthesized expression
+    /// Represents a number
     /// </summary>
-    public class GroupedExpression : CalculatorTreeNode
+    public class NumberExpression : CalculatorTreeNode
     {
         /// <summary>
-        /// The left parenthesis
+        /// The value of the expression
         /// </summary>
-        public Token<CalculatorTokenType> LParen { get; }
-
-        /// <summary>
-        /// The right parenthesis
-        /// </summary>
-        public Token<CalculatorTokenType> RParen { get; }
-
-        /// <summary>
-        /// The inner expression
-        /// </summary>
-        public CalculatorTreeNode Inner { get; }
+        public Token<CalculatorTokenType> Value { get; }
 
         /// <inheritdoc />
-        public override Range<int> Range { get; }
+        public override Range<int> Range => Value.Range;
 
         /// <summary>
-        /// Initializes this <see cref="GroupedExpression" />
+        /// Initializes this <see cref="NumberExpression" />
         /// </summary>
-        /// <param name="lparen"></param>
-        /// <param name="inner"></param>
-        /// <param name="rparen"></param>
-        public GroupedExpression(Token<CalculatorTokenType> lparen, CalculatorTreeNode inner, Token<CalculatorTokenType> rparen)
-        {
-            LParen = lparen;
-            Inner = inner;
-            RParen = rparen;
-            Range = new Range<int>(lparen.Range.Start, rparen.Range.End);
-        }
+        /// <param name="value"></param>
+        public NumberExpression(Token<CalculatorTokenType> value) => Value = value;
 
         /// <summary>
         /// <inheritdoc />
@@ -75,7 +56,7 @@ namespace Calculator.Parsing.AST
         /// <param name="node"></param>
         /// <returns></returns>
         public override bool StructurallyEquals(CalculatorTreeNode node) =>
-            node is GroupedExpression grouped
-            && Inner.StructurallyEquals(grouped.Inner);
+            node is NumberExpression numberExpression
+            && Value.Value.Equals(numberExpression.Value.Value);
     }
 }
